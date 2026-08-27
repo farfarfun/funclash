@@ -1,0 +1,41 @@
+{
+  "name": "funclash",
+  "version": "0.1.0",
+  "description": "Command-line installer/launcher for the mihomo (Clash Meta) proxy core with a bundled web dashboard — inspired by FlClash, without the GUI.",
+  "license": "MIT",
+  "author": "farfarfun",
+  "homepage": "https://github.com/farfarfun/funclash",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farfarfun/funclash.git"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "funclash": "bin/funclash.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "clash",
+    "mihomo",
+    "clash-meta",
+    "proxy",
+    "cli",
+    "dashboard"
+  ],
+  "dependencies": {
+    "commander": "^12.1.0",
+    "extract-zip": "^2.0.1",
+    "js-yaml": "^4.1.0",
+    "open": "^10.1.0",
+    "tar": "^7.4.3"
+  }
+}

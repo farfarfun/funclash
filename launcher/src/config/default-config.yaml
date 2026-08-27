@@ -1,0 +1,32 @@
+# funclash default mihomo config.
+# This file is copied to ~/.funclash/config/config.yaml on first `funclash install`.
+# Replace `proxies`/`proxy-groups`/`rules` with your own subscription
+# (see `funclash config pull <url>`), the fields below are managed by funclash
+# and re-applied on top of whatever config you bring in.
+
+mixed-port: 7890
+allow-lan: false
+mode: rule
+log-level: info
+
+external-controller: 127.0.0.1:9090
+# external-ui is set at runtime to the funclash dashboard dir
+external-ui: dashboard
+secret: ""
+
+dns:
+  enable: true
+  nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+
+proxies: []
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - DIRECT
+
+rules:
+  - MATCH,DIRECT
