@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/funclash_paths.dart';
 import '../providers/core_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -35,6 +36,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final launcher = ref.watch(coreLauncherProvider);
+    final processState = ref.watch(coreProcessProvider);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -50,6 +52,54 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     'the funclash CLI launcher, then point this app at its controller below.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          if (launcher.canLaunch) ...[
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Core process', style: Theme.of(context).textTheme.titleSmall),
+                    const SizedBox(height: 4),
+                    Text(
+                      FunclashPaths.coreBinary,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        FilledButton.icon(
+                          onPressed: processState.status == CoreProcessStatus.starting
+                              ? null
+                              : () => ref.read(coreProcessProvider.notifier).start(),
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Start core'),
+                        ),
+                        const SizedBox(width: 12),
+                        OutlinedButton.icon(
+                          onPressed: processState.status == CoreProcessStatus.running
+                              ? () => ref.read(coreProcessProvider.notifier).stop()
+                              : null,
+                          icon: const Icon(Icons.stop),
+                          label: const Text('Stop core'),
+                        ),
+                        const SizedBox(width: 12),
+                        _CoreProcessStatusLabel(status: processState.status),
+                      ],
+                    ),
+                    if (processState.errorMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        processState.errorMessage!,
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           SizedBox(
             width: 320,
@@ -89,6 +139,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CoreProcessStatusLabel extends StatelessWidget {
+  final CoreProcessStatus status;
+
+  const _CoreProcessStatusLabel({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color, label) = switch (status) {
+      CoreProcessStatus.stopped => (Icons.circle_outlined, Colors.grey, 'Stopped'),
+      CoreProcessStatus.starting => (Icons.hourglass_top, Colors.orange, 'Starting…'),
+      CoreProcessStatus.running => (Icons.check_circle, Colors.green, 'Running'),
+      CoreProcessStatus.error => (Icons.error, Colors.red, 'Error'),
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 6),
+        Text(label),
+      ],
     );
   }
 }

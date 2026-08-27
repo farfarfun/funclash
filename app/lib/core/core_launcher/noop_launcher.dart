@@ -12,6 +12,9 @@ class NoopCoreLauncher implements CoreLauncher {
   bool get isRunning => false;
 
   @override
+  Stream<int> get onUnexpectedExit => const Stream.empty();
+
+  @override
   Future<void> start({required String corePath, required String homeDir, required String configFile}) async {
     throw UnsupportedError('This platform cannot launch a mihomo core process directly. '
         'Connect to an already-running core instead (see Settings).');

@@ -10,4 +10,9 @@ abstract class CoreLauncher {
   Future<void> start({required String corePath, required String homeDir, required String configFile});
 
   Future<void> stop();
+
+  /// Emits an exit code whenever the process started by [start] exits
+  /// *without* [stop] having been called for it — e.g. it crashed, or its
+  /// binary was killed out-of-band. Never emits for a [stop]-initiated exit.
+  Stream<int> get onUnexpectedExit;
 }
