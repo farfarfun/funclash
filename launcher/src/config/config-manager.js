@@ -11,6 +11,16 @@ const logger = require('../utils/logger');
 
 const TEMPLATE_PATH = path.join(__dirname, 'default-config.yaml');
 
+// 订阅链接常常自带 token/secret 查询参数，日志只能打印脱敏后的主机+路径。
+function redactUrl(url) {
+  try {
+    const u = new URL(url);
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return '<invalid url>';
+  }
+}
+
 function readConfig() {
   if (!fs.existsSync(paths.configFile)) {
     throw new Error(`No config found at ${paths.configFile}. Run \`funclash install\` first.`);
@@ -56,7 +66,7 @@ function ensureConfig({ force = false } = {}) {
 async function pullConfig(url) {
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Failed to fetch config from ${url} (${res.status} ${res.statusText})`);
+    throw new Error(`Failed to fetch config from ${redactUrl(url)} (${res.status} ${res.statusText})`);
   }
   const text = await res.text();
   const incoming = yaml.load(text);
@@ -73,7 +83,7 @@ async function pullConfig(url) {
   };
 
   writeConfig(merged);
-  logger.info(`Pulled subscription config from ${url} -> ${paths.configFile}`);
+  logger.info(`Pulled subscription config from ${redactUrl(url)} -> ${paths.configFile}`);
   return merged;
 }
 
