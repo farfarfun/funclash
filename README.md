@@ -24,12 +24,12 @@ npm install
 npm link          # 全局安装 funclash 命令，或直接用 node bin/funclash.js
 
 funclash install                # 下载 mihomo 内核到 ~/.funclash，并尝试安装 Web 控制台
-funclash start -d               # 后台启动
+scripts/setup.sh start prod     # 后台启动
 funclash status                 # 查看运行状态 + 内核版本
 funclash dashboard --print      # 打印控制台访问地址
 funclash logs -f                # 实时查看日志
 funclash config pull <sub-url>  # 拉取订阅并写入配置
-funclash stop                   # 停止
+scripts/setup.sh stop prod      # 停止
 funclash uninstall --purge      # 卸载并清除 ~/.funclash
 ```
 

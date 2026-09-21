@@ -8,9 +8,8 @@ import '../models/connection.dart';
 import '../models/proxy.dart';
 import '../models/traffic.dart';
 
-/// Where to reach a running mihomo core's external-controller API, and the
-/// secret to authenticate with. This is the same interface metacubexd/yacd
-/// speak — see https://wiki.metacubex.one/api/.
+/// mihomo 控制器 API 的地址和认证 secret；协议见
+/// https://wiki.metacubex.one/api/。
 class MihomoEndpoint {
   final String host;
   final int port;
@@ -45,17 +44,19 @@ class MihomoEndpoint {
   }
 }
 
+/// mihomo 控制器返回非成功 HTTP 状态时抛出的异常。
 class MihomoApiException implements Exception {
   final int? statusCode;
   final String message;
 
+  /// 创建异常；[message] 是控制器响应内容，[statusCode] 可能为空。
   MihomoApiException(this.message, {this.statusCode});
 
   @override
   String toString() => 'MihomoApiException($statusCode): $message';
 }
 
-/// Thin REST/WebSocket client for the mihomo external-controller API.
+/// mihomo 控制器 REST/WebSocket API 的轻量客户端。
 class MihomoApiClient {
   final MihomoEndpoint endpoint;
   final http.Client _http;
@@ -79,9 +80,11 @@ class MihomoApiClient {
     }
   }
 
+  /// 获取 mihomo 版本号；控制器缺少版本字段时返回 `unknown`。
   Future<String> getVersion() =>
       _get('/version', (json) => (json as Map<String, dynamic>)['version'] as String? ?? 'unknown');
 
+  /// 获取当前代理和代理组，键为 mihomo 返回的名称。
   Future<Map<String, Proxy>> getProxies() {
     return _get('/proxies', (json) {
       final proxies = (json as Map<String, dynamic>)['proxies'] as Map<String, dynamic>? ?? {};
@@ -89,7 +92,7 @@ class MihomoApiClient {
     });
   }
 
-  /// Select [proxyName] as the active member of group [groupName].
+  /// 将代理组 [groupName] 的当前节点切换为 [proxyName]。
   Future<void> selectProxy(String groupName, String proxyName) async {
     final res = await _http.put(
       endpoint._uri('/proxies/${Uri.encodeComponent(groupName)}'),
@@ -99,7 +102,7 @@ class MihomoApiClient {
     _checkOk(res);
   }
 
-  /// Test latency for [proxyName], returns delay in milliseconds.
+  /// 测试 [proxyName] 的延迟，返回毫秒数。
   Future<int> testDelay(
     String proxyName, {
     String testUrl = 'https://www.gstatic.com/generate_204',
@@ -112,21 +115,23 @@ class MihomoApiClient {
     );
   }
 
+  /// 获取当前连接快照。
   Future<ConnectionsSnapshot> getConnections() =>
       _get('/connections', (json) => ConnectionsSnapshot.fromJson(json as Map<String, dynamic>));
 
+  /// 关闭指定连接；[id] 是 mihomo 返回的连接标识。
   Future<void> closeConnection(String id) async {
     final res = await _http.delete(endpoint._uri('/connections/${Uri.encodeComponent(id)}'), headers: _headers);
     _checkOk(res);
   }
 
+  /// 关闭当前全部连接。
   Future<void> closeAllConnections() async {
     final res = await _http.delete(endpoint._uri('/connections'), headers: _headers);
     _checkOk(res);
   }
 
-  /// Push raw subscription/config YAML directly to the running core without
-  /// touching the filesystem (mihomo's `PUT /configs` payload mode).
+  /// 通过 `PUT /configs` payload 模式将 YAML 直接发送到运行中的 mihomo。
   Future<void> applyConfigPayload(String yaml) async {
     final res = await _http.put(
       endpoint._uri('/configs'),
@@ -136,13 +141,13 @@ class MihomoApiClient {
     _checkOk(res);
   }
 
-  /// Streams traffic samples over the `/traffic` WebSocket until cancelled.
+  /// 持续读取 `/traffic` WebSocket 的流量采样，取消订阅后结束。
   Stream<Traffic> watchTraffic() {
     final channel = WebSocketChannel.connect(endpoint._wsUri('/traffic'));
     return channel.stream.map((event) => Traffic.fromJson(jsonDecode(event as String) as Map<String, dynamic>));
   }
 
-  /// Streams log lines over the `/logs` WebSocket until cancelled.
+  /// 持续读取 `/logs` WebSocket 的日志行，取消订阅后结束。
   Stream<String> watchLogs({String level = 'info'}) {
     final channel = WebSocketChannel.connect(endpoint._wsUri('/logs', {'level': level}));
     return channel.stream.map((event) {
@@ -151,5 +156,6 @@ class MihomoApiClient {
     });
   }
 
+  /// 释放底层 HTTP 客户端资源。
   void close() => _http.close();
 }

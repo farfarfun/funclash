@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,10 +22,21 @@ class ProfilesPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Profiles', style: Theme.of(context).textTheme.headlineSmall),
-              FilledButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-                onPressed: () => _showAddProfileDialog(context, controller),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.file_upload_outlined),
+                    label: const Text('Import FlClash backup'),
+                    onPressed: () => _importFlClashBackup(context, controller),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add'),
+                    onPressed: () => _showAddProfileDialog(context, controller),
+                  ),
+                ],
               ),
             ],
           ),
@@ -70,7 +82,7 @@ class ProfilesPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _apply(BuildContext context, ProfilesController controller, String id) async {
+  Future<void> _apply(BuildContext context, ProfilesController controller, int id) async {
     try {
       await controller.apply(id);
       if (context.mounted) {
@@ -79,6 +91,28 @@ class ProfilesPage extends ConsumerWidget {
     } catch (err) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to apply profile: $err')));
+      }
+    }
+  }
+
+  Future<void> _importFlClashBackup(BuildContext context, ProfilesController controller) async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+      dialogTitle: 'Select a FlClash backup.zip',
+    );
+    final path = result?.files.single.path;
+    if (path == null) return;
+    try {
+      final importResult = await controller.importFlClashBackup(path);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Imported ${importResult.count} profile(s) from FlClash backup.')),
+        );
+      }
+    } catch (err) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to import backup: $err')));
       }
     }
   }
@@ -104,12 +138,10 @@ class ProfilesPage extends ConsumerWidget {
       ),
     );
     if (result == true && urlController.text.trim().isNotEmpty) {
-      final now = DateTime.now();
       controller.add(Profile(
-        id: now.microsecondsSinceEpoch.toString(),
+        id: DateTime.now().microsecondsSinceEpoch,
         name: nameController.text.trim().isEmpty ? urlController.text.trim() : nameController.text.trim(),
         url: urlController.text.trim(),
-        addedAt: now,
       ));
     }
   }

@@ -1,3 +1,4 @@
+/// mihomo 连接的网络元数据。
 class ConnectionMetadata {
   final String network;
   final String type;
@@ -15,6 +16,7 @@ class ConnectionMetadata {
     required this.destinationPort,
   });
 
+  /// 从 mihomo `/connections` 响应解析元数据。
   factory ConnectionMetadata.fromJson(Map<String, dynamic> json) {
     return ConnectionMetadata(
       network: json['network'] as String? ?? '',
@@ -29,6 +31,7 @@ class ConnectionMetadata {
   String get displayTarget => host.isNotEmpty ? host : destinationIP;
 }
 
+/// mihomo 当前连接及其流量和规则信息。
 class Connection {
   final String id;
   final ConnectionMetadata metadata;
@@ -48,6 +51,7 @@ class Connection {
     required this.rule,
   });
 
+  /// 从 mihomo `/connections` 响应解析连接。
   factory Connection.fromJson(Map<String, dynamic> json) {
     return Connection(
       id: json['id'] as String? ?? '',
@@ -63,6 +67,7 @@ class Connection {
   }
 }
 
+/// `/connections` 返回的总流量和连接列表。
 class ConnectionsSnapshot {
   final int downloadTotal;
   final int uploadTotal;
@@ -74,6 +79,7 @@ class ConnectionsSnapshot {
     required this.connections,
   });
 
+  /// 从 mihomo `/connections` 响应解析快照。
   factory ConnectionsSnapshot.fromJson(Map<String, dynamic> json) {
     return ConnectionsSnapshot(
       downloadTotal: (json['downloadTotal'] as num?)?.toInt() ?? 0,

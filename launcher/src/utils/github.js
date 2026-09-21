@@ -11,11 +11,7 @@ function authHeaders() {
   return headers;
 }
 
-/**
- * Fetch release metadata (assets, tag_name) for a repo.
- * @param {string} repo - "owner/name"
- * @param {string} tag - "latest" or a specific tag like "v1.19.0"
- */
+/** 获取仓库 release 元数据（资源和 tag_name）。 */
 async function getRelease(repo, tag = 'latest') {
   const url =
     tag === 'latest'
@@ -41,9 +37,7 @@ function findAsset(release, matcher) {
   return asset;
 }
 
-/**
- * Download a release asset (by browser_download_url) to a local file path.
- */
+/** 按 browser_download_url 下载 release 资源到本地文件。 */
 async function downloadAsset(asset, destPath) {
   const res = await fetch(asset.browser_download_url, { headers: authHeaders() });
   if (!res.ok || !res.body) {

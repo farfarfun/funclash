@@ -25,8 +25,8 @@ async function gunzipFile(srcPath, destPath) {
 }
 
 /**
- * Download and install the mihomo core binary for the current platform into
- * ~/.funclash/bin/mihomo(.exe). Idempotent unless `force` is set.
+ * 下载并安装当前平台的 mihomo 到 ~/.funclash/bin/mihomo(.exe)。
+ * 未指定 force 时重复执行不会覆盖已有文件。
  */
 async function installMihomoCore({ version = 'latest', compatible = false, force = false } = {}) {
   ensureDirs();
@@ -76,10 +76,8 @@ async function installMihomoCore({ version = 'latest', compatible = false, force
 }
 
 /**
- * Install the funclash web dashboard (Flutter web build) into ~/.funclash/dashboard.
- * Prefers a local pre-built directory (`webDir`, e.g. app/build/web) since this
- * project has no published release assets yet; falls back to downloading a
- * `funclash-web-*.tar.gz` asset from `repo`'s releases if no local dir is given.
+ * 将 funclash Web 控制台（Flutter Web 构建产物）安装到 ~/.funclash/dashboard。
+ * 优先使用本地构建目录；未指定时从 repo 的 release 下载压缩包。
  */
 async function installWebDashboard({ webDir, repo, version = 'latest', force = false } = {}) {
   ensureDirs();

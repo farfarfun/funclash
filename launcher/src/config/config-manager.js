@@ -34,9 +34,8 @@ function writeConfig(config) {
 }
 
 /**
- * Seed ~/.funclash/config/config.yaml from the shipped template if it
- * doesn't exist yet. Always ensures external-controller/external-ui/secret
- * are set, even for a user-supplied config, so the dashboard keeps working.
+ * 如果配置不存在，从内置模板创建 ~/.funclash/config/config.yaml。
+ * 即使用户提供了配置，也确保控制器、控制台和 secret 字段存在。
  */
 function ensureConfig({ force = false } = {}) {
   fs.mkdirSync(paths.configDir, { recursive: true });
@@ -60,8 +59,7 @@ function ensureConfig({ force = false } = {}) {
 }
 
 /**
- * Fetch a subscription config from a URL and install it as the active
- * config, preserving the funclash-managed fields (controller/ui/secret).
+ * 从 URL 拉取订阅配置并设为当前配置，保留 funclash 管理的字段。
  */
 async function pullConfig(url) {
   const res = await fetch(url);

@@ -36,10 +36,8 @@ function getStatus() {
 }
 
 /**
- * Start the mihomo core. In daemon mode it's detached and its stdout/stderr
- * are redirected to run/mihomo.log; a pidfile is written so stop/status can
- * find it later. In foreground mode it inherits this process's stdio and
- * SIGINT/SIGTERM are forwarded to it.
+ * 启动 mihomo。后台模式脱离当前进程并将输出写入 run/mihomo.log，
+ * 同时写入 pid 文件供 stop/status 查询；前台模式继承标准 IO 并转发信号。
  */
 function start({ homeDir = paths.root, configFile = paths.configFile, daemon = false } = {}) {
   if (isRunning()) {
@@ -50,8 +48,7 @@ function start({ homeDir = paths.root, configFile = paths.configFile, daemon = f
   }
 
   fs.mkdirSync(paths.runDir, { recursive: true });
-  // mihomo requires -f/external-ui/etc. to be subpaths of -d (its "SAFE_PATHS" check),
-  // so the home dir must be the ~/.funclash root, not just the config subdirectory.
+  // mihomo 的 SAFE_PATHS 要求 -f/external-ui 等路径位于 -d 下，因此这里使用根目录。
   const args = ['-d', homeDir, '-f', configFile];
 
   if (daemon) {

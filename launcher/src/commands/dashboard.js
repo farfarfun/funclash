@@ -9,7 +9,7 @@ async function dashboard(opts = {}) {
   const secret = config.secret || '';
   const url = `http://${controller}/ui/${secret ? `?secret=${encodeURIComponent(secret)}` : ''}`;
 
-  logger.info(`Dashboard: ${url}`);
+  logger.info(`Dashboard: http://${controller}/ui/`);
 
   if (!opts.print) {
     const { default: open } = await import('open');

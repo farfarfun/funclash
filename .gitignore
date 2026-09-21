@@ -19,3 +19,14 @@ app/.idea/
 .DS_Store
 .vscode/
 *.log
+
+# 通用缓存、数据库、压缩包、构建产物和运行时文件
+__pycache__/
+*.pyc
+*.db
+*.rar
+dist/
+.venv/
+.run/
+logs/
+.idea/

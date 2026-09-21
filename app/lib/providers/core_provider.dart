@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/app_settings_store.dart';
 import '../core/core_launcher/core_launcher.dart';
 import '../core/core_launcher/core_launcher_factory.dart';
 import '../core/funclash_paths.dart';
 import '../core/mihomo_api_client.dart';
 
 /// Where to reach the mihomo external-controller API. Defaults match what
-/// `funclash start` exposes locally.
+/// `funclash start` exposes locally, and [AppSettingsStore.defaults] (kept
+/// in sync manually — record fields can't be read in a const context).
 class CoreSettings {
   final String host;
   final int port;
@@ -24,11 +26,18 @@ class CoreSettings {
 }
 
 class CoreSettingsNotifier extends Notifier<CoreSettings> {
+  late final AppSettingsStore _store;
+
   @override
-  CoreSettings build() => const CoreSettings();
+  CoreSettings build() {
+    _store = AppSettingsStore.open();
+    final loaded = _store.load();
+    return CoreSettings(host: loaded.host, port: loaded.port, secret: loaded.secret);
+  }
 
   void update({String? host, int? port, String? secret}) {
     state = state.copyWith(host: host, port: port, secret: secret);
+    _store.save(host: state.host, port: state.port, secret: state.secret);
   }
 }
 

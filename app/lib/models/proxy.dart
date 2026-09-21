@@ -1,9 +1,11 @@
+/// 代理节点的一次延迟测量。
 class ProxyHistoryEntry {
   final DateTime time;
   final int delay;
 
   const ProxyHistoryEntry({required this.time, required this.delay});
 
+  /// 从 mihomo `/proxies` 响应解析测量记录。
   factory ProxyHistoryEntry.fromJson(Map<String, dynamic> json) {
     return ProxyHistoryEntry(
       time: DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
@@ -12,7 +14,7 @@ class ProxyHistoryEntry {
   }
 }
 
-/// A single proxy or proxy-group entry as returned by mihomo's `/proxies` API.
+/// mihomo `/proxies` API 返回的代理或代理组。
 class Proxy {
   final String name;
   final String type;
@@ -30,8 +32,7 @@ class Proxy {
     this.now,
   });
 
-  /// True if this entry is a group (Selector/URLTest/Fallback/...) rather
-  /// than a single leaf proxy.
+  /// 当前条目是否为代理组，而不是单个代理节点。
   bool get isGroup => all.isNotEmpty;
 
   int? get latestDelay => history.isEmpty ? null : history.last.delay;

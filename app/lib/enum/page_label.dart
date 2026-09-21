@@ -1,5 +1,4 @@
-/// Mirrors FlClash's `PageLabel` set (minus tools/requests/resources, which
-/// are deferred — see the Phase 0 scope note in the project plan).
+/// 对齐 FlClash 的 `PageLabel` 集合；tools/requests/resources 暂未实现。
 enum PageLabel {
   dashboard('Dashboard'),
   proxies('Proxies'),

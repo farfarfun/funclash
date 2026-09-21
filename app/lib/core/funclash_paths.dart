@@ -1,9 +1,6 @@
 import 'dart:io';
 
-/// Mirrors `launcher/src/core/paths.js`: both the Node CLI and this desktop
-/// app resolve the same `~/.funclash` layout, so `funclash install` (CLI)
-/// and "Start core" (this app) can operate on the same install without any
-/// extra configuration.
+/// 对齐 `launcher/src/core/paths.js`，使 Node CLI 与桌面应用使用同一目录布局。
 class FunclashPaths {
   FunclashPaths._();
 
@@ -26,4 +23,9 @@ class FunclashPaths {
   static String get configDir => '$root${Platform.pathSeparator}config';
 
   static String get configFile => '$configDir${Platform.pathSeparator}config.yaml';
+
+  /// 对齐 FlClash 的 `<appSupportDir>/profiles/` 布局，每行配置对应一个 YAML 文件。
+  static String get profilesDir => '$root${Platform.pathSeparator}profiles';
+
+  static String profileFile(int id) => '$profilesDir${Platform.pathSeparator}$id.yaml';
 }

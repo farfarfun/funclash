@@ -24,10 +24,7 @@ function detect() {
   return { os, arch };
 }
 
-/**
- * Build the expected mihomo release asset filename for this platform.
- * mihomo publishes assets as mihomo-{os}-{arch}[-compatible]-v{version}.{ext}
- */
+/** 构造当前平台对应的 mihomo release 资源文件名。 */
 function mihomoAssetName(version, { compatible = false } = {}) {
   const { os, arch } = detect();
   const ext = os === 'windows' ? 'zip' : 'gz';

@@ -38,6 +38,11 @@ dependencies:
   http_parser: ^4.1.2
   web_socket_channel: ^3.0.3
   http: ^1.6.0
+  sqlite3: ^2.9.4
+  sqlite3_flutter_libs: ^0.5.42
+  archive: ^4.2.0
+  file_picker: ^11.0.3
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
