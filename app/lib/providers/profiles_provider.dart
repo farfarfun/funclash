@@ -7,20 +7,20 @@ import 'package:http/http.dart' as http;
 import '../core/flclash_backup/flclash_backup_importer.dart';
 import '../core/funclash_paths.dart';
 import '../core/mihomo_api_client.dart';
-import '../database/profiles_database.dart';
+import '../database/profiles_store_factory.dart';
 import '../models/profile.dart';
 import 'core_provider.dart';
 
-/// 管理用户添加的订阅，并持久化到 [ProfilesDatabase]。
+/// 管理用户添加的订阅，并通过 [openProfilesStore] 持久化。
 ///
 /// 数据库结构与 FlClash 的 `profiles` 表一致，可通过
 /// [importFlClashBackupZip] 直接导入备份。
 class ProfilesController extends Notifier<List<Profile>> {
-  late final ProfilesDatabase _db;
+  late final ProfilesStore _db;
 
   @override
   List<Profile> build() {
-    _db = ProfilesDatabase.open();
+    _db = openProfilesStore();
     ref.onDispose(_db.close);
     return _load();
   }

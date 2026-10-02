@@ -1,4 +1,4 @@
-import '../database/profiles_database.dart';
+import '../database/profiles_store.dart';
 
 /// 用户添加的订阅源。启用时从 [url] 获取 YAML，并通过 `PUT /configs`
 /// 的 payload 模式发送给 mihomo。成功获取的内容缓存到

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../core/funclash_paths.dart';
+import 'profiles_store.dart';
 
 const _columns = [
   'id',
@@ -20,65 +21,31 @@ const _columns = [
   '"order"',
 ];
 
-/// `profiles` 表的一行，与 FlClash 的 Drift 表结构逐列一致。
-///
-/// 因此可用 `INSERT ... SELECT` 合并 FlClash 备份中的 `database.sqlite`，
-/// 无需逐字段转换。
-class ProfileRow {
-  final int id;
-  final String label;
-  final String? currentGroupName;
-  final String url;
-  final DateTime? lastUpdateDate;
-  final String overwriteType;
-  final int? scriptId;
-  final int autoUpdateDurationMillis;
-  final String? subscriptionInfo;
-  final bool autoUpdate;
-  final String selectedMap;
-  final String unfoldSet;
-  final int? order;
-
-  const ProfileRow({
-    required this.id,
-    required this.label,
-    this.currentGroupName,
-    required this.url,
-    this.lastUpdateDate,
-    this.overwriteType = 'none',
-    this.scriptId,
-    this.autoUpdateDurationMillis = 0,
-    this.subscriptionInfo,
-    this.autoUpdate = false,
-    this.selectedMap = '{}',
-    this.unfoldSet = '[]',
-    this.order,
-  });
-
-  factory ProfileRow.fromRow(Row row) => ProfileRow(
-        id: row['id'] as int,
-        label: row['label'] as String,
-        currentGroupName: row['current_group_name'] as String?,
-        url: row['url'] as String,
-        // Drift 将 DateTime 持久化为 Unix 秒，而不是毫秒。
-        lastUpdateDate: row['last_update_date'] == null
-            ? null
-            : DateTime.fromMillisecondsSinceEpoch((row['last_update_date'] as int) * 1000, isUtc: true),
-        overwriteType: row['overwrite_type'] as String,
-        scriptId: row['script_id'] as int?,
-        autoUpdateDurationMillis: row['auto_update_duration_millis'] as int,
-        subscriptionInfo: row['subscription_info'] as String?,
-        autoUpdate: (row['auto_update'] as int) != 0,
-        selectedMap: row['selected_map'] as String,
-        unfoldSet: row['unfold_set'] as String,
-        order: row['order'] as int?,
-      );
-}
+/// 把 SQLite 查询结果的一行转成 [ProfileRow]。
+ProfileRow _profileRowFromSqlite(Row row) => ProfileRow(
+      id: row['id'] as int,
+      label: row['label'] as String,
+      currentGroupName: row['current_group_name'] as String?,
+      url: row['url'] as String,
+      // Drift 将 DateTime 持久化为 Unix 秒，而不是毫秒。
+      lastUpdateDate: row['last_update_date'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch((row['last_update_date'] as int) * 1000, isUtc: true),
+      overwriteType: row['overwrite_type'] as String,
+      scriptId: row['script_id'] as int?,
+      autoUpdateDurationMillis: row['auto_update_duration_millis'] as int,
+      subscriptionInfo: row['subscription_info'] as String?,
+      autoUpdate: (row['auto_update'] as int) != 0,
+      selectedMap: row['selected_map'] as String,
+      unfoldSet: row['unfold_set'] as String,
+      order: row['order'] as int?,
+    );
 
 /// 基于 `package:sqlite3` 的轻量手写封装，不依赖 Drift 代码生成。
 ///
 /// 表结构与 FlClash 的 `profiles` 表一致，可直接导入其备份数据库。
-class ProfilesDatabase {
+/// 只用于有 `dart:ffi` 的原生平台，Web 端见 `profiles_store_memory.dart`。
+class ProfilesDatabase implements ProfilesStore {
   final Database _db;
 
   ProfilesDatabase._(this._db);
@@ -115,11 +82,13 @@ class ProfilesDatabase {
     ''');
   }
 
+  @override
   List<ProfileRow> listProfiles() {
     final result = _db.select('SELECT * FROM profiles ORDER BY "order" IS NULL, "order", id;');
-    return result.map(ProfileRow.fromRow).toList();
+    return result.map(_profileRowFromSqlite).toList();
   }
 
+  @override
   void upsertProfile(ProfileRow profile) {
     _db.execute('''
       INSERT INTO profiles (${_columns.join(', ')})
@@ -154,6 +123,7 @@ class ProfilesDatabase {
     ]);
   }
 
+  @override
   void deleteProfile(int id) {
     _db.execute('DELETE FROM profiles WHERE id = ?;', [id]);
   }
@@ -162,6 +132,7 @@ class ProfilesDatabase {
   ///
   /// 使用以 `id` 为键的 `INSERT OR REPLACE`，用于导入 FlClash 备份中的
   /// `database.sqlite`。
+  @override
   List<int> importFromFlClashDatabase(String extractedDbPath) {
     _db.execute('ATTACH DATABASE ? AS src;', [extractedDbPath]);
     try {
@@ -176,5 +147,9 @@ class ProfilesDatabase {
     }
   }
 
+  @override
   void close() => _db.dispose();
 }
+
+/// 供 `profiles_store_factory.dart` 条件导入。
+ProfilesStore createPlatformProfilesStore({String? path}) => ProfilesDatabase.open(path: path);

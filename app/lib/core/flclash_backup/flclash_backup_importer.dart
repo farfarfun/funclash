@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
 
-import '../../database/profiles_database.dart';
+import '../../database/profiles_store.dart';
 import '../funclash_paths.dart';
 
 /// 文件不是有效的 FlClash `backup.zip` 时抛出的异常。
@@ -23,16 +23,16 @@ class FlClashImportResult {
   int get count => importedProfileIds.length;
 }
 
-/// 将 FlClash `backup.zip` 导入 funclash 的 [ProfilesDatabase]。
+/// 将 FlClash `backup.zip` 导入 funclash 的 [ProfilesStore]。
 ///
 /// 备份包含 `database.sqlite` 及其引用的 `profiles/<id>.yaml` 和
 /// `scripts/<id>.js`。funclash 的 `profiles` 表与 FlClash 逐列一致，因此可通过
-/// [ProfilesDatabase.importFromFlClashDatabase] 直接合并数据库并复制引用文件。
+/// [ProfilesStore.importFromFlClashDatabase] 直接合并数据库并复制引用文件。
 ///
 /// [homeDir] 默认为 [FunclashPaths.root]；测试应传入临时目录。
 Future<FlClashImportResult> importFlClashBackupZip(
   String zipFilePath, {
-  required ProfilesDatabase db,
+  required ProfilesStore db,
   String? homeDir,
 }) async {
   final root = homeDir ?? FunclashPaths.root;
