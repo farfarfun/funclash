@@ -20,11 +20,10 @@ const _columns = [
   '"order"',
 ];
 
-/// A row of the `profiles` table, matching FlClash's Drift schema
-/// column-for-column (see `lib/database/profiles.dart` in FlClash) so that
-/// funclash's own database and FlClash's bundled `database.sqlite` (found
-/// inside a `backup.zip`) can be merged with a plain `INSERT ... SELECT`,
-/// without any per-field conversion.
+/// `profiles` 表的一行，与 FlClash 的 Drift 表结构逐列一致。
+///
+/// 因此可用 `INSERT ... SELECT` 合并 FlClash 备份中的 `database.sqlite`，
+/// 无需逐字段转换。
 class ProfileRow {
   final int id;
   final String label;
@@ -61,7 +60,7 @@ class ProfileRow {
         label: row['label'] as String,
         currentGroupName: row['current_group_name'] as String?,
         url: row['url'] as String,
-        // Drift persists DateTime as unix seconds, not milliseconds.
+        // Drift 将 DateTime 持久化为 Unix 秒，而不是毫秒。
         lastUpdateDate: row['last_update_date'] == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch((row['last_update_date'] as int) * 1000, isUtc: true),
@@ -76,18 +75,17 @@ class ProfileRow {
       );
 }
 
-/// Thin, hand-written wrapper around `package:sqlite3` (no Drift/codegen)
-/// storing profiles in a schema that matches FlClash's `profiles` table so a
-/// FlClash `backup.zip` can be imported by attaching its bundled
-/// `database.sqlite` and copying rows straight across.
+/// 基于 `package:sqlite3` 的轻量手写封装，不依赖 Drift 代码生成。
+///
+/// 表结构与 FlClash 的 `profiles` 表一致，可直接导入其备份数据库。
 class ProfilesDatabase {
   final Database _db;
 
   ProfilesDatabase._(this._db);
 
-  /// Opens (creating if needed) the profiles database. Defaults to
-  /// `<FunclashPaths.root>/database.sqlite`; pass [path] in tests so they
-  /// never touch the real `~/.funclash`.
+  /// 打开订阅数据库，不存在时创建。
+  ///
+  /// 默认路径为 `<FunclashPaths.root>/database.sqlite`；测试应传入 [path]。
   factory ProfilesDatabase.open({String? path}) {
     final dbPath = path ?? '${FunclashPaths.root}${Platform.pathSeparator}database.sqlite';
     File(dbPath).parent.createSync(recursive: true);
@@ -160,9 +158,10 @@ class ProfilesDatabase {
     _db.execute('DELETE FROM profiles WHERE id = ?;', [id]);
   }
 
-  /// Merges another FlClash-schema-compatible database's `profiles` rows
-  /// into this one (`INSERT OR REPLACE`, keyed by `id`). Used to import a
-  /// FlClash `backup.zip`'s bundled `database.sqlite` directly.
+  /// 将另一个兼容 FlClash 的数据库中的订阅行合并到当前数据库。
+  ///
+  /// 使用以 `id` 为键的 `INSERT OR REPLACE`，用于导入 FlClash 备份中的
+  /// `database.sqlite`。
   List<int> importFromFlClashDatabase(String extractedDbPath) {
     _db.execute('ATTACH DATABASE ? AS src;', [extractedDbPath]);
     try {

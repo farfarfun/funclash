@@ -1,17 +1,11 @@
 import '../database/profiles_database.dart';
 
-/// A subscription source the user has added. funclash fetches the raw
-/// config/subscription YAML from [url] and pushes it to the mihomo core via
-/// `PUT /configs` (payload mode) when activated — see
-/// `MihomoApiClient.applyConfigPayload`. Each successful fetch is cached to
-/// `<root>/profiles/<id>.yaml` (`ProfilesController.apply`); if a later fetch
-/// fails — no connectivity, or a URL imported from an old FlClash backup
-/// that's since gone stale — that local copy is used instead.
+/// 用户添加的订阅源。启用时从 [url] 获取 YAML，并通过 `PUT /configs`
+/// 的 payload 模式发送给 mihomo。成功获取的内容缓存到
+/// `<root>/profiles/<id>.yaml`，后续网络请求失败时使用本地副本。
 ///
-/// [id] and the fields below intentionally mirror FlClash's `profiles`
-/// table (see [ProfileRow]) so a profile imported from a FlClash backup
-/// round-trips without lossy conversion; [lastAppliedAt] maps onto that
-/// table's `last_update_date` column.
+/// [id] 等字段与 FlClash 的 `profiles` 表保持一致（见 [ProfileRow]），
+/// [lastAppliedAt] 对应该表的 `last_update_date` 列。
 class Profile {
   final int id;
   final String name;

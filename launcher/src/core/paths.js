@@ -4,6 +4,9 @@ const os = require('os');
 const path = require('path');
 
 const ROOT = path.join(os.homedir(), '.funclash');
+const RUN_DIR = process.env.FUNCLASH_RUN_DIR
+  ? path.resolve(process.env.FUNCLASH_RUN_DIR)
+  : path.join(ROOT, '.run');
 
 const paths = {
   root: ROOT,
@@ -13,9 +16,9 @@ const paths = {
   configDir: path.join(ROOT, 'config'),
   configFile: path.join(ROOT, 'config', 'config.yaml'),
   dashboardDir: path.join(ROOT, 'dashboard'),
-  runDir: path.join(ROOT, 'run'),
-  pidFile: path.join(ROOT, 'run', 'funclash.pid'),
-  logFile: path.join(ROOT, 'run', 'mihomo.log'),
+  runDir: RUN_DIR,
+  pidFile: path.join(RUN_DIR, 'funclash.pid'),
+  logFile: path.join(RUN_DIR, 'mihomo.log'),
   tmpDir: path.join(ROOT, 'tmp'),
 };
 

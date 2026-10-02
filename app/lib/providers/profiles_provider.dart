@@ -11,10 +11,10 @@ import '../database/profiles_database.dart';
 import '../models/profile.dart';
 import 'core_provider.dart';
 
-/// Subscription profiles the user has added, persisted in a SQLite database
-/// (see [ProfilesDatabase]) whose schema matches FlClash's `profiles` table
-/// so a FlClash `backup.zip` can be imported directly via
-/// [importFlClashBackupZip].
+/// 管理用户添加的订阅，并持久化到 [ProfilesDatabase]。
+///
+/// 数据库结构与 FlClash 的 `profiles` 表一致，可通过
+/// [importFlClashBackupZip] 直接导入备份。
 class ProfilesController extends Notifier<List<Profile>> {
   late final ProfilesDatabase _db;
 
@@ -37,23 +37,17 @@ class ProfilesController extends Notifier<List<Profile>> {
     state = _load();
   }
 
-  /// Imports a FlClash `backup.zip`, merging its profiles into this
-  /// database and reloading [state] from disk.
+  /// 导入 FlClash `backup.zip`，合并订阅后从数据库重新加载 [state]。
   Future<FlClashImportResult> importFlClashBackup(String zipFilePath) async {
     final result = await importFlClashBackupZip(zipFilePath, db: _db);
     state = _load();
     return result;
   }
 
-  /// Fetches the profile's subscription YAML and pushes it to the running
-  /// core via `PUT /configs` payload mode.
+  /// 获取订阅 YAML，并通过 `PUT /configs` 的 payload 模式发送到运行中的内核。
   ///
-  /// A successful fetch is cached to `<root>/profiles/<id>.yaml` (the same
-  /// path FlClash itself uses, and the one a FlClash backup import already
-  /// populates — see [importFlClashBackup]). If the network fetch fails —
-  /// no connectivity, or a subscription URL imported from an old FlClash
-  /// backup that's since gone stale — that local copy is used instead, so
-  /// an imported profile stays usable even when its original URL isn't.
+  /// 成功获取的内容缓存到 `<root>/profiles/<id>.yaml`。网络请求失败时使用本地副本，
+  /// 使导入的订阅在原始 URL 失效后仍可使用（见 [importFlClashBackup]）。
   Future<void> apply(int id) async {
     final profile = state.firstWhere((p) => p.id == id);
     final localFile = File(FunclashPaths.profileFile(id));
@@ -67,7 +61,7 @@ class ProfilesController extends Notifier<List<Profile>> {
         await localFile.writeAsString(yaml);
       }
     } catch (_) {
-      // Network/URL failure — fall back to a local copy below, if any.
+      // 网络或 URL 失败时在下方回退到本地副本。
     }
     if (yaml == null && await localFile.exists()) {
       yaml = await localFile.readAsString();

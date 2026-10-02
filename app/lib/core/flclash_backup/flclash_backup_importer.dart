@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 import '../../database/profiles_database.dart';
 import '../funclash_paths.dart';
 
-/// Thrown when a file doesn't look like a FlClash `backup.zip`.
+/// 文件不是有效的 FlClash `backup.zip` 时抛出的异常。
 class InvalidFlClashBackupException implements Exception {
   final String message;
   const InvalidFlClashBackupException(this.message);
@@ -15,6 +15,7 @@ class InvalidFlClashBackupException implements Exception {
   String toString() => message;
 }
 
+/// FlClash 备份导入结果。
 class FlClashImportResult {
   final List<int> importedProfileIds;
   const FlClashImportResult(this.importedProfileIds);
@@ -22,19 +23,13 @@ class FlClashImportResult {
   int get count => importedProfileIds.length;
 }
 
-/// Imports a FlClash `backup.zip` into funclash's own [ProfilesDatabase].
+/// 将 FlClash `backup.zip` 导入 funclash 的 [ProfilesDatabase]。
 ///
-/// FlClash's backup.zip bundles a raw copy of its `database.sqlite` plus the
-/// `profiles/<id>.yaml` (and `scripts/<id>.js`) files it references — see
-/// `lib/common/task.dart` (`_backupTask`/`_restoreTask`) in FlClash. Because
-/// funclash's `profiles` table schema matches FlClash's column-for-column,
-/// the bundled database can be merged in directly via
-/// [ProfilesDatabase.importFromFlClashDatabase], with the referenced
-/// profile/script files copied alongside it — the same approach FlClash's
-/// own restore uses on itself.
+/// 备份包含 `database.sqlite` 及其引用的 `profiles/<id>.yaml` 和
+/// `scripts/<id>.js`。funclash 的 `profiles` 表与 FlClash 逐列一致，因此可通过
+/// [ProfilesDatabase.importFromFlClashDatabase] 直接合并数据库并复制引用文件。
 ///
-/// [homeDir] defaults to [FunclashPaths.root]; tests should pass a temp
-/// directory so they never touch the real `~/.funclash`.
+/// [homeDir] 默认为 [FunclashPaths.root]；测试应传入临时目录。
 Future<FlClashImportResult> importFlClashBackupZip(
   String zipFilePath, {
   required ProfilesDatabase db,

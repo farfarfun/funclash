@@ -8,11 +8,7 @@ import 'core_provider.dart';
 const _maxLogLines = 500;
 const _reconnectDelay = Duration(seconds: 2);
 
-/// As with [connectionsProvider] and [trafficProvider], a dropped `/logs`
-/// WebSocket (e.g. the core being restarted from the Settings page) is
-/// reconnected automatically instead of leaving the log view silently
-/// stuck — this provider isn't `autoDispose`, so nothing else would ever
-/// prompt a reconnect attempt.
+/// `/logs` WebSocket 断开后自动重连，避免日志视图停滞。
 class LogsController extends Notifier<List<String>> {
   StreamSubscription<String>? _subscription;
   bool _disposed = false;

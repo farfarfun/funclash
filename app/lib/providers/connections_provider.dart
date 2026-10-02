@@ -3,15 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/connection.dart';
 import 'core_provider.dart';
 
-/// Polls `/connections` every couple seconds. Simpler than mihomo's
-/// WebSocket push for this, and just as usable for a dashboard view.
+/// 每两秒轮询 `/connections`，用于更新连接面板。
 ///
-/// A poll failure only surfaces as an error before the first successful
-/// poll (e.g. the core isn't running yet). Once connections have loaded at
-/// least once, later transient failures — such as the core being
-/// restarted from the Settings page — are swallowed and retried instead of
-/// collapsing the page to a permanent error screen: the `StreamProvider`
-/// simply keeps its last snapshot until polling recovers.
+/// 首次成功前的失败会作为错误返回；成功后发生的瞬时失败会自动重试，
+/// `StreamProvider` 在轮询恢复前保留最后一次快照。
 final connectionsProvider = StreamProvider.autoDispose<ConnectionsSnapshot>((ref) async* {
   final client = ref.watch(mihomoApiClientProvider);
   var hasLoadedOnce = false;

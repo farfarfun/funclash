@@ -4,16 +4,13 @@ import 'dart:io';
 import 'core_launcher.dart';
 import 'noop_launcher.dart';
 
-/// Selected via conditional import by `core_launcher_factory.dart` on
-/// platforms where dart:io is available.
+/// 在支持 `dart:io` 的平台上由 `core_launcher_factory.dart` 条件导入。
 CoreLauncher createPlatformLauncher() {
   final launcher = DesktopCoreLauncher();
   return launcher.canLaunch ? launcher : NoopCoreLauncher();
 }
 
-/// Linux desktop: launches mihomo as a subprocess, mirroring FlClash's
-/// `DirectCoreLauncher` (`Process.start(corePath, [...])`), except we talk to
-/// it over the external-controller REST API instead of an RPC socket.
+/// 在桌面平台将 mihomo 作为子进程启动，并通过 external-controller REST API 通信。
 class DesktopCoreLauncher implements CoreLauncher {
   Process? _process;
   bool _stopRequested = false;

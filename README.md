@@ -25,7 +25,7 @@ npm link          # 全局安装 funclash 命令，或直接用 node bin/funclas
 
 funclash install                # 下载 mihomo 内核到 ~/.funclash，并尝试安装 Web 控制台
 scripts/setup.sh start prod     # 后台启动
-funclash status                 # 查看运行状态 + 内核版本
+scripts/setup.sh status prod    # 查看生产环境运行状态 + 内核版本
 funclash dashboard --print      # 打印控制台访问地址
 funclash logs -f                # 实时查看日志
 funclash config pull <sub-url>  # 拉取订阅并写入配置
@@ -33,7 +33,7 @@ scripts/setup.sh stop prod      # 停止
 funclash uninstall --purge      # 卸载并清除 ~/.funclash
 ```
 
-内核与配置统一存放在 `~/.funclash/`（`bin/`、`config/`、`dashboard/`、`run/`）。`external-ui` 默认指向 `~/.funclash/dashboard`，由 mihomo 直接提供静态文件服务，无需额外起一个 Node HTTP 服务。
+内核与配置统一存放在 `~/.funclash/`（`bin/`、`config/`、`dashboard/`），直接使用 CLI 时运行文件位于 `~/.funclash/.run/`；通过 `scripts/setup.sh` 启动时，开发和生产环境分别使用仓库下的 `.run/dev/`、`.run/prod/`。`external-ui` 默认指向 `~/.funclash/dashboard`，由 mihomo 直接提供静态文件服务，无需额外起一个 Node HTTP 服务。
 
 Web 控制台目前需要单独提供：
 - 本地已有 `app/` 的 Web 构建产物时，用 `funclash install --web-dir ../app/build/web` 指定；

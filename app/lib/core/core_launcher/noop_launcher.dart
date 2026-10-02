@@ -1,9 +1,6 @@
 import 'core_launcher.dart';
 
-/// Used on Web (and Android/iOS until Phase 1/2 add native core embedding):
-/// this platform cannot spawn the mihomo process itself, so the app just
-/// connects to a controller URL the user points it at (e.g. one started via
-/// the `funclash` CLI launcher).
+/// 用于无法直接启动 mihomo 进程的平台，仅连接用户指定的控制器地址。
 class NoopCoreLauncher implements CoreLauncher {
   @override
   bool get canLaunch => false;

@@ -1,7 +1,7 @@
-/// Manages the lifecycle of a mihomo core process, when this platform is
-/// able to launch one itself (see [DesktopCoreLauncher]). Platforms that
-/// cannot spawn processes (Web, and Android/iOS until Phase 1/2 land) use
-/// [NoopCoreLauncher] and rely on a core that is already running elsewhere.
+/// 管理 mihomo 内核进程的生命周期。
+///
+/// 支持启动子进程的平台使用 [DesktopCoreLauncher]；Web 以及尚未实现原生内核的
+/// Android/iOS 使用 [NoopCoreLauncher]，连接其他位置已经运行的内核。
 abstract class CoreLauncher {
   bool get canLaunch;
 
@@ -11,8 +11,8 @@ abstract class CoreLauncher {
 
   Future<void> stop();
 
-  /// Emits an exit code whenever the process started by [start] exits
-  /// *without* [stop] having been called for it — e.g. it crashed, or its
-  /// binary was killed out-of-band. Never emits for a [stop]-initiated exit.
+  /// 当 [start] 启动的进程未经 [stop] 主动停止便退出时发送退出码。
+  ///
+  /// 例如进程崩溃或被外部终止；由 [stop] 发起的退出不会发送事件。
   Stream<int> get onUnexpectedExit;
 }

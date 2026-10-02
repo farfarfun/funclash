@@ -8,9 +8,9 @@ import '../core/core_launcher/core_launcher_factory.dart';
 import '../core/funclash_paths.dart';
 import '../core/mihomo_api_client.dart';
 
-/// Where to reach the mihomo external-controller API. Defaults match what
-/// `funclash start` exposes locally, and [AppSettingsStore.defaults] (kept
-/// in sync manually — record fields can't be read in a const context).
+/// mihomo external-controller API 的连接设置。
+///
+/// 默认值与 `funclash start` 和 [AppSettingsStore.defaults] 保持一致。
 class CoreSettings {
   final String host;
   final int port;
@@ -43,9 +43,7 @@ class CoreSettingsNotifier extends Notifier<CoreSettings> {
 
 final coreSettingsProvider = NotifierProvider<CoreSettingsNotifier, CoreSettings>(CoreSettingsNotifier.new);
 
-/// One [CoreLauncher] per app lifetime — Linux/macOS/Windows can spawn the
-/// mihomo subprocess themselves, Web/Android/iOS fall back to
-/// [NoopCoreLauncher] and expect a core running elsewhere.
+/// 在应用生命周期内提供同一个 [CoreLauncher]。
 final coreLauncherProvider = Provider<CoreLauncher>((ref) => createCoreLauncher());
 
 final mihomoApiClientProvider = Provider<MihomoApiClient>((ref) {
@@ -71,9 +69,8 @@ class CoreProcessState {
   const CoreProcessState({this.status = CoreProcessStatus.stopped, this.errorMessage});
 }
 
-/// Drives [CoreLauncher.start]/[stop] from the UI and tracks the resulting
-/// status, using the shared `~/.funclash` layout ([FunclashPaths]) so this
-/// starts the exact core the `funclash` CLI installs.
+/// 响应界面操作调用 [CoreLauncher.start] 和 [CoreLauncher.stop]，并跟踪进程状态。
+/// 使用 [FunclashPaths] 的共享目录，以启动 `funclash` CLI 安装的内核。
 class CoreProcessNotifier extends Notifier<CoreProcessState> {
   @override
   CoreProcessState build() {

@@ -17,6 +17,9 @@
   "bin": {
     "funclash": "bin/funclash.js"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "files": [
     "bin",
     "src",
