@@ -1,5 +1,5 @@
 name: funclash_app
-description: "A new Flutter project."
+description: "funclash 的 Flutter 客户端：通过 mihomo external-controller REST API 管理内核、代理、订阅与连接。"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
