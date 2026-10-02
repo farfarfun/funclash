@@ -11,6 +11,22 @@ const logger = require('../utils/logger');
 
 const TEMPLATE_PATH = path.join(__dirname, 'default-config.yaml');
 
+// mihomo 只能从它自己的 config.yaml 读取 external-controller 的 secret，这份凭据
+// 无法做到完全不落盘。能做的是：允许用环境变量覆盖（优先级高于配置文件，见 SPEC §9.3），
+// 并把配置文件权限收紧到仅本人可读写，避免同机其他账号直接读到控制器凭据。
+const SECRET_ENV_VAR = 'FUNCLASH_SECRET';
+const CONFIG_FILE_MODE = 0o600;
+
+function secretFromEnv() {
+  const value = process.env[SECRET_ENV_VAR];
+  return value ? value : null;
+}
+
+// secret 取值优先级：环境变量 > 已有配置文件 > 随机生成。
+function resolveSecret(existingSecret) {
+  return secretFromEnv() || existingSecret || crypto.randomBytes(16).toString('hex');
+}
+
 // 订阅链接常常自带 token/secret 查询参数，日志只能打印脱敏后的主机+路径。
 function redactUrl(url) {
   try {
@@ -29,8 +45,12 @@ function readConfig() {
 }
 
 function writeConfig(config) {
-  fs.mkdirSync(paths.configDir, { recursive: true });
-  fs.writeFileSync(paths.configFile, yaml.dump(config));
+  fs.mkdirSync(paths.configDir, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(paths.configFile, yaml.dump(config), { mode: CONFIG_FILE_MODE });
+  // writeFileSync 的 mode 只在新建文件时生效，已存在的旧文件要显式收紧。
+  if (process.platform !== 'win32') {
+    fs.chmodSync(paths.configFile, CONFIG_FILE_MODE);
+  }
 }
 
 /**
@@ -50,9 +70,7 @@ function ensureConfig({ force = false } = {}) {
 
   config['external-controller'] = config['external-controller'] || '127.0.0.1:9090';
   config['external-ui'] = paths.dashboardDir;
-  if (!config.secret) {
-    config.secret = crypto.randomBytes(16).toString('hex');
-  }
+  config.secret = resolveSecret(config.secret);
 
   writeConfig(config);
   return config;
@@ -77,7 +95,7 @@ async function pullConfig(url) {
     ...incoming,
     'external-controller': existing['external-controller'] || '127.0.0.1:9090',
     'external-ui': paths.dashboardDir,
-    secret: existing.secret || crypto.randomBytes(16).toString('hex'),
+    secret: resolveSecret(existing.secret),
   };
 
   writeConfig(merged);
@@ -85,4 +103,4 @@ async function pullConfig(url) {
   return merged;
 }
 
-module.exports = { readConfig, writeConfig, ensureConfig, pullConfig };
+module.exports = { readConfig, writeConfig, ensureConfig, pullConfig, resolveSecret, SECRET_ENV_VAR };
