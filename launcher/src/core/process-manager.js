@@ -76,6 +76,36 @@ function getStatus() {
 }
 
 /**
+ * 校验刚 spawn 出来的子进程确实是 mihomo 本体，并返回可写入 pid 文件的身份信息。
+ * 校验不通过时必须先杀掉子进程再抛错：否则（尤其是 detached 的后台模式）会留下
+ * 一个既没有 pid 文件、stop/status 也管不到的孤儿进程。
+ */
+function verifyLaunchedProcess(pid) {
+  let identity = null;
+  let reason = null;
+  try {
+    identity = readProcessIdentity(pid);
+    if (!identity) {
+      reason = '无法确认刚启动的 mihomo 进程身份。';
+    } else if (process.platform === 'linux' && identity.executable !== fs.realpathSync(paths.coreBinary)) {
+      reason = `刚启动进程的可执行文件（${identity.executable}）与 ${paths.coreBinary} 不匹配。`;
+    }
+  } catch (err) {
+    reason = `确认刚启动的 mihomo 进程身份失败：${err.message}`;
+  }
+
+  if (reason) {
+    try {
+      if (isAlive(pid)) process.kill(pid, 'SIGKILL');
+    } catch {
+      // 子进程可能已自行退出，忽略。
+    }
+    throw new Error(reason);
+  }
+  return identity;
+}
+
+/**
  * 启动 mihomo。后台模式脱离当前进程并将输出写入 .run/mihomo.log，
  * 同时写入 pid 文件供 stop/status 查询；前台模式继承标准 IO 并转发信号。
  */
@@ -92,18 +122,19 @@ function start({ homeDir = paths.root, configFile = paths.configFile, daemon = f
   const args = ['-d', homeDir, '-f', configFile];
 
   if (daemon) {
-    const out = fs.openSync(paths.logFile, 'a');
-    const err = fs.openSync(paths.logFile, 'a');
-    const child = spawn(paths.coreBinary, args, {
-      detached: true,
-      stdio: ['ignore', out, err],
-    });
-    child.unref();
-
-    const identity = readProcessIdentity(child.pid);
-    if (!identity) throw new Error('无法确认刚启动的 mihomo 进程身份。');
-    if (process.platform === 'linux' && identity.executable !== fs.realpathSync(paths.coreBinary)) {
-      throw new Error('刚启动进程的可执行文件与 mihomo 不匹配。');
+    const logFd = fs.openSync(paths.logFile, 'a');
+    let child;
+    let identity;
+    try {
+      child = spawn(paths.coreBinary, args, {
+        detached: true,
+        stdio: ['ignore', logFd, logFd],
+      });
+      child.unref();
+      identity = verifyLaunchedProcess(child.pid);
+    } finally {
+      // 子进程已继承该 fd，父进程这边必须关掉，否则 CLI 每次启动都漏一个句柄。
+      fs.closeSync(logFd);
     }
 
     fs.writeFileSync(
@@ -118,11 +149,7 @@ function start({ homeDir = paths.root, configFile = paths.configFile, daemon = f
   }
 
   const child = spawn(paths.coreBinary, args, { stdio: 'inherit' });
-  const identity = readProcessIdentity(child.pid);
-  if (!identity) throw new Error('无法确认刚启动的 mihomo 进程身份。');
-  if (process.platform === 'linux' && identity.executable !== fs.realpathSync(paths.coreBinary)) {
-    throw new Error('刚启动进程的可执行文件与 mihomo 不匹配。');
-  }
+  const identity = verifyLaunchedProcess(child.pid);
   fs.writeFileSync(
     paths.pidFile,
     JSON.stringify(
@@ -186,4 +213,5 @@ module.exports = {
   cleanupPidFile,
   isManagedProcess,
   readProcessIdentity,
+  verifyLaunchedProcess,
 };
