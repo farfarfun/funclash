@@ -59,12 +59,15 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     }
   }
 
+  /// A profile whose file has not downloaded yet still gets the row: it is the
+  /// only way to the editor and the upload entry, and an empty one is what
+  /// the page used to report after creating the file just to stat it.
   Future<void> _updateFileInfo() async {
     final fileInfo = await readFileInfo(await widget.profile.path);
     if (!mounted) {
       return;
     }
-    _fileInfoNotifier.value = fileInfo;
+    _fileInfoNotifier.value = fileInfo ?? const FileInfo(size: 0);
   }
 
   Future<void> _handleConfirm() async {
@@ -196,7 +199,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     if (!mounted) {
       return;
     }
-    _fileInfoNotifier.value = _fileInfoNotifier.value?.copyWith(
+    _fileInfoNotifier.value = FileInfo(
       size: _fileData?.length ?? 0,
       lastModified: DateTime.now(),
     );

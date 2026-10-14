@@ -197,17 +197,13 @@ void main() {
   testWidgets(
     'the profile file row shows its size and update time without chips',
     (tester) async {
-      await pumpEditProfile(tester);
-      final row = find.widgetWithText(
-        DecorationListItem,
-        currentAppLocalizations.profile,
-      );
-      for (var i = 0; i < 20 && row.evaluate().isEmpty; i++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump(const Duration(milliseconds: 400));
-      }
+      final profile = _urlProfile();
+      File(await profile.path)
+        ..createSync(recursive: true)
+        ..writeAsStringSync('');
+      await pumpEditProfile(tester, profile: profile);
+      final row = await _settleFileRow(tester);
+
       expect(row, findsOneWidget);
       expect(
         find.descendant(of: row, matching: find.byType(LastUpdateTimeText)),
@@ -220,4 +216,40 @@ void main() {
       expect(find.byType(MetaChip), findsNothing);
     },
   );
+
+  testWidgets('a profile whose file has not downloaded yet keeps the row', (
+    tester,
+  ) async {
+    await pumpEditProfile(tester);
+    final row = await _settleFileRow(tester);
+
+    expect(row, findsOneWidget);
+    expect(
+      find.descendant(
+        of: row,
+        matching: find.text(currentAppLocalizations.unknown),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: row, matching: find.text(0.traffic.show)),
+      findsOneWidget,
+    );
+  });
+}
+
+/// The row arrives after a file read, which a widget test only lets through
+/// while the clock is handed back to the real one.
+Future<Finder> _settleFileRow(WidgetTester tester) async {
+  final row = find.widgetWithText(
+    DecorationListItem,
+    currentAppLocalizations.profile,
+  );
+  for (var i = 0; i < 20 && row.evaluate().isEmpty; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+  return row;
 }
