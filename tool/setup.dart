@@ -144,6 +144,22 @@ String createPackageTargets(String platform, String? customTargets) {
   return customTargets ?? _allTargets[platform]!;
 }
 
+/// The file name the APT repository needs a built `.deb` to carry.
+///
+/// `dpkg-scanpackages --arch <arch>` selects by file name, not by the control
+/// fields: it globs `*_<arch>.deb`, so a package keeping the distributor's
+/// `<app>-<version>-<platform>-<arch>` scheme is left out of the index without
+/// a word about it.
+String debianArtifactName({
+  required String pubspec,
+  required String makeConfig,
+  required String arch,
+}) {
+  final name = (loadYaml(makeConfig) as Map)['package_name'];
+  final version = '${(loadYaml(pubspec) as Map)['version']}'.split('+').first;
+  return '${name}_${version}_$arch.deb';
+}
+
 void _showHelp(ArgParser parser) {
   stderr.writeln('Usage: dart setup.dart [platform] [options]');
   stderr.writeln('Platform: current host platform (default) or android');
@@ -221,7 +237,34 @@ Future<int> _package(
     stderr.write(utf8.decode(data));
   });
   final exitCode = await process.exitCode;
-  return exitCode;
+  if (exitCode != 0 || !targets.split(',').contains('deb')) return exitCode;
+  return _renameDebianArtifact(rootDir, arch);
+}
+
+Future<int> _renameDebianArtifact(String rootDir, String arch) async {
+  final dist = Directory(p.join(rootDir, 'dist'));
+  final built = dist
+      .listSync()
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.deb'))
+      .toList();
+  if (built.length != 1) {
+    stderr.writeln(
+      'Expected one .deb in dist/, found ${built.length}; refusing to guess '
+      'which one the APT repository should index.',
+    );
+    return 1;
+  }
+  final name = debianArtifactName(
+    pubspec: File(p.join(rootDir, 'pubspec.yaml')).readAsStringSync(),
+    makeConfig: File(
+      p.join(rootDir, 'linux', 'packaging', 'deb', 'make_config.yaml'),
+    ).readAsStringSync(),
+    arch: arch,
+  );
+  await built.single.rename(p.join(dist.path, name));
+  stdout.writeln('Renamed the Debian package to $name');
+  return 0;
 }
 
 String _detectArch() {

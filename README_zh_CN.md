@@ -19,8 +19,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="snapshots/preview-dark.png">
-    <img alt="FlClash 在 MacBook 与手机上的仪表盘" src="snapshots/preview.png" width="92%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/preview-dark.png">
+    <img alt="FlClash 在 MacBook 与手机上的仪表盘" src="docs/snapshots/preview.png" width="92%">
   </picture>
 </p>
 
@@ -45,19 +45,37 @@
 | Android | `arm64-v8a`、`armeabi-v7a`、`x86_64` 三种 APK | 绝大多数手机选 `arm64-v8a`。也可以通过下方的 F-Droid 仓库安装。 |
 | Windows 10 及以上 | 安装版（`.exe`）或便携版（`.zip`），分 x64 与 ARM64 | 骁龙等 ARM 架构笔记本选 ARM64。 |
 | macOS 12 及以上 | Apple Silicon 与 Intel 两种 DMG | 也可以通过 Homebrew 安装。 |
-| Linux | `.deb`、`.rpm` 和 AppImage，分 x64 与 ARM64 | 托盘依赖见下方说明。 |
+| Linux | `.deb`、`.rpm` 和 AppImage，分 x64 与 ARM64 | `.deb` 也可以通过下方的 APT 源安装。托盘依赖见下方说明。 |
 
 <p>
-  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" height="56"></a>
-  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" height="56"></a>
+  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="docs/snapshots/get-it-on-fdroid.svg" height="56"></a>
+  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="docs/snapshots/get-it-on-github.svg" height="56"></a>
 </p>
 
-**Homebrew**
+**Homebrew**（macOS）
 
 ```bash
-brew tap chen08209/tap
-brew install --cask flclash
+brew tap farfarfun/packages https://github.com/farfarfun/packages
+brew trust farfarfun/packages
+brew install funclash
 ```
+
+`tap` 那行要把 URL 写出来：`brew tap farfarfun/packages` 默认去找名为 `homebrew-packages` 的仓库，而那一个仓库同时
+还是下面的 APT 源。`trust` 那行也不能省，Homebrew 6.0 起第三方 tap 默认不可信，不 trust 的话裸名字会被直接拒绝。
+
+**APT**（Debian 与 Ubuntu）
+
+```bash
+curl -fsSL https://farfarfun.github.io/packages/farfarfun.gpg \
+  | sudo tee /usr/share/keyrings/farfarfun.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/farfarfun.gpg] https://farfarfun.github.io/packages/deb stable main" \
+  | sudo tee /etc/apt/sources.list.d/farfarfun.list
+sudo apt update && sudo apt install funclash
+```
+
+两条渠道都由 [farfarfun/packages](https://github.com/farfarfun/packages) 按本仓库的 release 生成，而它一个仓库只收
+一个包名 —— 所以包名是 `funclash`，而应用在别处仍然叫 FlClash。apt 那边留着最近两版，`apt-cache madison funclash`
+能看到可以退回去的那一版；Homebrew 只有最新版。
 
 **Linux 托盘图标**
 
@@ -99,7 +117,7 @@ adb shell am start -a com.follow.clash.action.TOGGLE
 git clone --recursive https://github.com/chen08209/FlClash.git
 cd FlClash
 flutter pub get
-dart setup.dart android   # 或 windows、macos、linux
+dart tool/setup.dart android   # 或 windows、macos、linux
 ```
 
 安装包输出到 `dist/`。Go 内核和 Rust 库会在 Flutter 构建过程中一并编译。
@@ -111,7 +129,7 @@ dart setup.dart android   # 或 windows、macos、linux
 | macOS | Xcode 与 Node.js。脚本会通过 npm 安装 `appdmg`。 |
 | Linux | Debian 或 Ubuntu。脚本会用 apt 安装构建所需的软件包，并下载 `appimagetool`。 |
 
-其余选项可以运行 `dart setup.dart --help` 查看，例如用 `--targets` 只构建部分安装包格式。
+其余选项可以运行 `dart tool/setup.dart --help` 查看，例如用 `--targets` 只构建部分安装包格式。
 
 ## 支持
 

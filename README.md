@@ -19,8 +19,8 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="snapshots/preview-dark.png">
-    <img alt="FlClash dashboard on a MacBook and a phone" src="snapshots/preview.png" width="92%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/preview-dark.png">
+    <img alt="FlClash dashboard on a MacBook and a phone" src="docs/snapshots/preview.png" width="92%">
   </picture>
 </p>
 
@@ -48,19 +48,39 @@ Get the latest build from [GitHub Releases](https://github.com/chen08209/FlClash
 | Android | APK for `arm64-v8a`, `armeabi-v7a` and `x86_64` | Most phones use `arm64-v8a`. Also on the F-Droid repository below. |
 | Windows 10 and later | Installer (`.exe`) or portable `.zip`, for x64 and ARM64 | Pick ARM64 on Snapdragon and other ARM laptops. |
 | macOS 12 and later | DMG for Apple Silicon and Intel | Also on Homebrew. |
-| Linux | `.deb`, `.rpm` and AppImage, for x64 and ARM64 | See the tray note below. |
+| Linux | `.deb`, `.rpm` and AppImage, for x64 and ARM64 | The `.deb` is also on the APT source below. See the tray note too. |
 
 <p>
-  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" height="56"></a>
-  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" height="56"></a>
+  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="docs/snapshots/get-it-on-fdroid.svg" height="56"></a>
+  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="docs/snapshots/get-it-on-github.svg" height="56"></a>
 </p>
 
-**Homebrew**
+**Homebrew** (macOS)
 
 ```bash
-brew tap chen08209/tap
-brew install --cask flclash
+brew tap farfarfun/packages https://github.com/farfarfun/packages
+brew trust farfarfun/packages
+brew install funclash
 ```
+
+The tap URL has to be spelled out: `brew tap farfarfun/packages` on its own looks for a `homebrew-packages`
+repository, and that one repository is also the APT source below. `brew trust` is what Homebrew 6.0 and later want
+before a third-party tap's casks will install under their bare name.
+
+**APT** (Debian and Ubuntu)
+
+```bash
+curl -fsSL https://farfarfun.github.io/packages/farfarfun.gpg \
+  | sudo tee /usr/share/keyrings/farfarfun.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/farfarfun.gpg] https://farfarfun.github.io/packages/deb stable main" \
+  | sudo tee /etc/apt/sources.list.d/farfarfun.list
+sudo apt update && sudo apt install funclash
+```
+
+Both channels are served by [farfarfun/packages](https://github.com/farfarfun/packages) from this repository's
+releases, and both index one package per repository — hence the package name `funclash` for an application that
+calls itself FlClash everywhere else. `apt` keeps the last two versions — `apt-cache madison funclash` lists the one
+you can downgrade to; Homebrew carries the latest only.
 
 **Linux tray icon**
 
@@ -106,7 +126,7 @@ host, except Android, which builds anywhere.
 git clone --recursive https://github.com/chen08209/FlClash.git
 cd FlClash
 flutter pub get
-dart setup.dart android   # or windows, macos, linux
+dart tool/setup.dart android   # or windows, macos, linux
 ```
 
 Packages land in `dist/`. The Go core and the Rust libraries are compiled as part of the Flutter build.
@@ -118,7 +138,7 @@ Packages land in `dist/`. The Go core and the Rust libraries are compiled as par
 | macOS | Xcode and Node.js. The script installs `appdmg` through npm. |
 | Linux | Debian or Ubuntu. The script installs the build packages with apt and downloads `appimagetool`. |
 
-Run `dart setup.dart --help` for the remaining options, such as `--targets` to build only some package formats.
+Run `dart tool/setup.dart --help` for the remaining options, such as `--targets` to build only some package formats.
 
 ## Support
 

@@ -3,7 +3,37 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaml/yaml.dart';
 
+import '../../tool/setup.dart';
+
 void main() {
+  group('Debian naming', () {
+    test('apt accepts the package name', () {
+      final config =
+          loadYaml(
+                File('linux/packaging/deb/make_config.yaml').readAsStringSync(),
+              )
+              as YamlMap;
+
+      expect(
+        config['package_name'],
+        matches(RegExp(r'^[a-z0-9][a-z0-9+.-]+$')),
+        reason: 'Debian package names are lower case',
+      );
+    });
+
+    test('the built file is the one dpkg-scanpackages globs for', () {
+      final name = debianArtifactName(
+        pubspec: File('pubspec.yaml').readAsStringSync(),
+        makeConfig: File(
+          'linux/packaging/deb/make_config.yaml',
+        ).readAsStringSync(),
+        arch: 'amd64',
+      );
+
+      expect(name, matches(RegExp(r'^funclash_\d+\.\d+\.\d+_amd64\.deb$')));
+    });
+  });
+
   group('Linux packaging teardown', () {
     for (final format in ['deb', 'rpm']) {
       test('$format removes the Helper unit only on a real uninstall', () {

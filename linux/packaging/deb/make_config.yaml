@@ -1,12 +1,18 @@
 display_name: FlClash
-package_name: FlClash
+# The name `apt install` takes, which Debian requires to be lower case. It is
+# the repository name rather than the display name because the APT source at
+# farfarfun.github.io/packages indexes one package per repository.
+package_name: funclash
 maintainer:
-  name: chen08209
-  email: chen08209@gmail.com
+  name: farfarfun
+  email: farfarfun@qq.com
 
 priority: optional
 section: x11
-installed_size: 6604
+# KiB of the unpacked tree, which is what `apt install` reports as the disk it
+# is about to use and what it checks the free space against. Measured, not
+# guessed: `dpkg-deb -c` over a built package sums to ~156 MB.
+installed_size: 156000
 essential: false
 icon: ./assets/images/icon.png
 
