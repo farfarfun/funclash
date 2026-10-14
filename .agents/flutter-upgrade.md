@@ -19,9 +19,9 @@ listed in the SDK's `CHANGELOG.md`.
 - **Fix upstream:** landed on `main` before 2026-08-25 and verified on `3.48.0-1.0.pre-404`; it is not in any
   3.47.x hotfix (checked through 3.47.6).
 - **Workaround:** the release job for `macos-15-intel` (`arch: amd64`) runs
-  `plutil -replace FLTEnableImpeller -bool NO macos/Runner/Info.plist` before `dart setup.dart`, so only the Intel
-  DMG falls back to Skia. The checked-in `Info.plist` does not set the key, so local builds and the arm64 DMG keep
-  Impeller. The macOS embedder reads the key at launch in `FlutterDartProject.mm` (`enableImpeller`), release
+  `plutil -replace FLTEnableImpeller -bool NO macos/Runner/Info.plist` before `dart tool/setup.dart`, so only the
+  Intel DMG falls back to Skia. The checked-in `Info.plist` does not set the key, so local builds and the arm64 DMG
+  keep Impeller. The macOS embedder reads the key at launch in `FlutterDartProject.mm` (`enableImpeller`), release
   builds included.
 - **Side effect:** Skia on Intel renders blur, shadows and text slightly differently; judge Intel-only visual reports
   against Skia, not Impeller.

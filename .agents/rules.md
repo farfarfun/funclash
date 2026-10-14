@@ -4,11 +4,11 @@ These are repository coding and testing conventions. Codex command permission ru
 
 ## Dart and Flutter Style
 
-The lint set lives in `lint_options.yaml` at the repo root. The root `analysis_options.yaml` and every local plugin under
+The lint set lives in `tool/lint_options.yaml`. The root `analysis_options.yaml` and every local plugin under
 `plugins/*` include it, so application and plugin code are held to the same rules. Add or change a rule there, not in an
 individual `analysis_options.yaml`; those files carry only their own `analyzer.exclude` entries.
 
-`lint_options.yaml` enforces these non-default rules:
+`tool/lint_options.yaml` enforces these non-default rules:
 
 - `prefer_single_quotes: true`: always use single quotes.
 - `require_trailing_commas: true`: use trailing commas in multi-line argument lists.
@@ -62,11 +62,11 @@ Flutter lengths are logical pixels, the unit Android calls dp. Comments, test na
 as in `48 dp`, never px: a reader takes px for physical pixels and misjudges the size by the device pixel ratio. Write
 "physical pixel" in full where the code really works in them, as the hairline snapping in
 `lib/widgets/list_row_separator.dart` and the Win32 frame metrics in `plugins/window` do; raster image sizes in
-`tool/` and CSS under `site/` keep px. `test/lint/length_unit_test.dart` fails on a number followed by px in `lib/`
-and `test/`.
+`tool/` and CSS under `docs/site/` keep px. `test/lint/length_unit_test.dart` fails on a number followed by px in
+`lib/` and `test/`.
 
 CI gates formatting: `dart format --output=none --set-exit-if-changed lib test
-tool plugins setup.dart` runs before `flutter analyze`.
+tool plugins` runs before `flutter analyze`.
 
 These directories are excluded from analysis:
 
@@ -596,9 +596,9 @@ l10n paths for that reason. It is harmless because the file only needs `Locale`,
 human writes takes Material from `material_ui`; `cupertino_ui` is banned outright and
 survives only as a transitive dependency of `material_ui`.
 
-Strings live in `arb/intl_{en,zh_CN,ja,ru}.arb` — flat JSON, no `@` metadata. Add a key to all four, then regenerate with
-`dart run intl_utils:generate`, which rewrites `lib/l10n/`. A key present in only some locales silently falls back to
-English at runtime, so add the translation rather than leaving it out.
+Strings live in `lib/l10n/arb/intl_{en,zh_CN,ja,ru}.arb` — flat JSON, no `@` metadata. Add a key to all four, then
+regenerate with `dart run intl_utils:generate`, which rewrites `lib/l10n/`. A key present in only some locales
+silently falls back to English at runtime, so add the translation rather than leaving it out.
 
 Labels for enum values go through the exhaustive switches in `lib/common/l10n_labels.dart`, never
 `Intl.message(<runtime string>)`. A key built from an enum name or a stored string is invisible to the analyzer, and a

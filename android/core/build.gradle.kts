@@ -71,7 +71,7 @@ val goModule = rootProject.layout.projectDirectory.dir("../core")
 val coreLibraryName = "clash"
 
 val buildConfig =
-    providers.fileContents(rootProject.layout.projectDirectory.file("../build_config.yaml")).asText.map { text ->
+    providers.fileContents(rootProject.layout.projectDirectory.file("../tool/build_config.yaml")).asText.map { text ->
         text.lines()
             .mapNotNull { Regex("""^(\w+):\s*(.*?)\s*$""").find(it)?.destructured }
             .associate { (key, value) -> key to value.trim('"', '\'') }

@@ -13,7 +13,7 @@ Do not use this for README translation sync or manual edits to generated localiz
 
 ## Workflow
 
-1. Scan user-facing Dart text before opening many files. `flutter_intl` reads `arb/` and writes `lib/l10n/`:
+1. Scan user-facing Dart text before opening many files. `flutter_intl` reads `lib/l10n/arb/` and writes `lib/l10n/`:
 
    ```bash
    rg -n "[\\p{Han}]" lib -g '!lib/l10n/intl/**' -g '!lib/**/generated/**'
@@ -21,10 +21,10 @@ Do not use this for README translation sync or manual edits to generated localiz
 
 2. Inspect the smallest relevant call sites and nearby ARB keys.
 3. Add or update every source ARB:
-   - `arb/intl_en.arb`
-   - `arb/intl_zh_CN.arb`
-   - `arb/intl_ja.arb`
-   - `arb/intl_ru.arb`
+   - `lib/l10n/arb/intl_en.arb`
+   - `lib/l10n/arb/intl_zh_CN.arb`
+   - `lib/l10n/arb/intl_ja.arb`
+   - `lib/l10n/arb/intl_ru.arb`
 4. Replace inline strings with existing project accessors:
    - Widgets with `BuildContext`: `context.appLocalizations.key` from `lib/common/context.dart`.
    - Controllers/providers/non-widget code: `currentAppLocalizations.key` from `lib/common/app_localizations.dart`.

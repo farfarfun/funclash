@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
 
-import '../setup.dart' as setup;
+import '../tool/setup.dart' as setup;
 
 void main() {
-  group('setup.dart', () {
+  group('tool/setup.dart', () {
     test('parses -v as verbose mode', () {
       final results = setup.createSetupArgParser().parse(['android', '-v']);
 

@@ -34,14 +34,14 @@ class BuildConfig {
     coreDir: 'core',
     coreName: 'FlClashCore',
     outputDir: 'libclash',
-    helperDir: 'services/helper',
+    helperDir: 'platform/services/helper',
     helperName: 'FlClashHelperService',
   );
 
   static BuildConfig load({required String rootDir}) {
-    final file = File(p.join(rootDir, 'build_config.yaml'));
+    final file = File(p.join(rootDir, 'tool', 'build_config.yaml'));
     if (!file.existsSync()) {
-      _log.fine('No build_config.yaml found, using defaults');
+      _log.fine('No tool/build_config.yaml found, using defaults');
       return _defaults;
     }
     final yaml = loadYaml(file.readAsStringSync()) as YamlMap?;

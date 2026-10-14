@@ -8,13 +8,13 @@ Update submodules first. The ClashMeta Go core lives in `core/Clash.Meta/`.
 git submodule update --init --recursive
 ```
 
-Full package build, including Go core, Flutter, and packaging, runs through `setup.dart`:
+Full package build, including Go core, Flutter, and packaging, runs through `tool/setup.dart`:
 
 ```bash
-dart setup.dart macos
-dart setup.dart linux
-dart setup.dart windows
-dart setup.dart android
+dart tool/setup.dart macos
+dart tool/setup.dart linux
+dart tool/setup.dart windows
+dart tool/setup.dart android
 ```
 
 The desktop Go core and the Rust helper build automatically: Flutter runs
@@ -56,7 +56,7 @@ stays on there because the editor tests in `test/plugins/code_forge/` and the so
 test in `test/core/desktop/ipc_native_test.dart` load the Rust library the hook
 builds; the release-notes job, which runs no tests, flips both.
 Never commit `false`: a build with it set stages whatever `libclash/` already
-holds and bundles no Rust library, which is why `setup.dart` refuses to package
+holds and bundles no Rust library, which is why `tool/setup.dart` refuses to package
 while it is set. Locally, `false` is worth setting for a Dart-only test loop,
 but the hook cache keys on the user-define, so the first build afterwards runs
 the hooks again. The editor and IPC socket tests still need the Rust library: keep `rust_api`
@@ -87,8 +87,7 @@ controller, so it does not compete with the installed app for the mixed, DNS, RE
 flutter run --dart-define-from-file=env.json --dart-define=SAFE_MODE=true
 ```
 
-`.run/main_safe_mode.run.xml` is the same launch for IntelliJ, and `Flutter App (Safe Mode)` in `.zed/debug.json` (debugger) or `flutter run (Safe Mode)` in `.zed/tasks.json`
-(plain run) for Zed. The build is bannered `SAFE MODE`, the tray shows the
+The build is bannered `SAFE MODE`, the tray shows the
 `status_4` bug icon with a menu of only show and exit and no traffic title, and the settings keep their values, so
 nothing has to be flipped back before a normal run. See the safe mode section of `architecture.md` for the owners that consult the flag.
 
@@ -121,7 +120,7 @@ Generated output paths, configured in `build.yaml`:
 - `lib/providers/generated/*.g.dart`.
 - `lib/database/generated/*.g.dart`.
 
-Tray and Windows app icons are generated, not hand-edited. `assets_source/images/icon/*.svg` is
+Tray and Windows app icons are generated, not hand-edited. `tool/assets_source/images/icon/*.svg` is
 the source of truth; the script needs `rsvg-convert` (librsvg) on `PATH`:
 
 ```bash
@@ -132,7 +131,7 @@ It writes the tray PNGs with Flutter `2.0x/`–`4.0x/` resolution variants to `a
 multi-size tray `.ico` files to `assets/images/tray/windows/`, and `windows/runner/resources/app_icon.ico`
 from `assets/images/icon.png`. macOS draws its menu bar icon as a template, so it skips the ringed color
 icons, whose logo shrinks to a small glyph once only alpha shows: `status_1` renders the bare logo from
-`assets_source/images/icon/glyph.svg` and `status_4` reuses `status_4.svg`, both recolored to black into
+`tool/assets_source/images/icon/glyph.svg` and `status_4` reuses `status_4.svg`, both recolored to black into
 `assets/images/tray/macos/`; the sources keep their colors. `glyph.svg` is also the geometry of the Android notification drawables
 `android/service/src/main/res/drawable/ic.xml` and `ic_service.xml`; change them together. `pubspec.yaml` declares the three tray directories with `platforms:` so each
 build only bundles the format its tray loads; a new status icon needs a source SVG and an entry in the
@@ -201,9 +200,9 @@ The Windows Helper's loopback/session protocol tests are host-independent by def
 service implementation:
 
 ```bash
-cargo fmt --manifest-path services/helper/Cargo.toml -- --check
-cargo test --manifest-path services/helper/Cargo.toml
-cargo test --manifest-path services/helper/Cargo.toml --features windows-service
+cargo fmt --manifest-path platform/services/helper/Cargo.toml -- --check
+cargo test --manifest-path platform/services/helper/Cargo.toml
+cargo test --manifest-path platform/services/helper/Cargo.toml --features windows-service
 ```
 
 The last command requires Windows for meaningful service coverage. Native Android lifecycle edits should at minimum
@@ -283,13 +282,13 @@ while `v<pubspec version>` is still tagged it refuses to collect anything and th
 
 ### Website
 
-`site/` is the GitHub Pages site: a static page that renders `CHANGELOG.md` and the download links in the browser, and
-works as is for local previews. `tool/build_site.sh [dir]` assembles it with the preview images, the app icon,
+`docs/site/` is the GitHub Pages site: a static page that renders `CHANGELOG.md` and the download links in the
+browser, and works as is for local previews. `tool/build_site.sh [dir]` assembles it with the preview images, the app icon,
 `CHANGELOG.md` read at the latest release tag, and a `release.json` of asset names, sizes and digests fetched through
 `gh`. Without `gh` access the page falls back to the newest version in `CHANGELOG.md` and lists the files without sizes.
 It then runs `tool/render_site.mjs` (Node), which writes the English page and a `zh/` copy for search engines: page
 text, the first changelog releases, canonical and `hreflang` links, JSON-LD and `sitemap.xml`, all from the strings,
-changelog parser and release markup in `site/assets/shared.js`, plus the GitHub star count from `release.json` so the
+changelog parser and release markup in `docs/site/assets/shared.js`, plus the GitHub star count from `release.json` so the
 nav does not grow when the page loads. `SITE_URL` overrides the published URL these point at.
 On the built site each URL keeps its language: the language button links to the other page and carries the section in
 view, the chosen platform and the changelog search. Only the English root sends readers who chose or prefer Chinese on
@@ -302,13 +301,13 @@ tool/build_site.sh && python3 -m http.server -d build/site
 ```
 
 The page's look is deliberate: low-saturation flat colour, no blur, glow, glass or soft shadow, and motion that follows
-the logo's 30° lattice. `site/assets/field.js` draws the hero's capsules on that lattice with the glyph's own
+the logo's 30° lattice. `docs/site/assets/field.js` draws the hero's capsules on that lattice with the glyph's own
 proportions, and the slanted wipes, the dot-to-bar marks and the theme transition reuse the same angle. Text that sits
 inside the hero has to be listed in `wireField` in `app.js`, or the capsules run behind it.
 
 `.github/workflows/pages.yaml` deploys it after every successful stable tag build and on pushes to `main` that touch the
 site, in the public repository only; its Pages source has to be set to GitHub Actions once. The file names come from the
-release matrix in `build.yaml`, so a renamed artifact needs the same change in `buildsFor` in `site/assets/app.js`.
+release matrix in `build.yaml`, so a renamed artifact needs the same change in `buildsFor` in `docs/site/assets/app.js`.
 
 ## Verify
 
@@ -319,7 +318,7 @@ The `dart` job performs these root-package checks in order:
 ```bash
 bash tool/hooks/test.sh
 flutter pub get
-dart format --output=none --set-exit-if-changed lib test tool plugins setup.dart
+dart format --output=none --set-exit-if-changed lib test tool plugins
 flutter analyze --no-fatal-infos
 dart run tool/changelog.dart verify   # main and tags only
 flutter test --reporter expanded --coverage

@@ -7,7 +7,7 @@ description: Use when changing FlClash Core integration, lifecycle/process owner
 
 ## When To Use
 
-Use this for changes touching `lib/core/`, `lib/manager/`, `core/`, `services/helper/`, Android app/service modules,
+Use this for changes touching `lib/core/`, `lib/manager/`, `core/`, `platform/services/helper/`, Android app/service modules,
 build hooks, system proxy, tray, VPN, TUN, or platform-specific desktop/mobile behavior.
 
 ## Read First
@@ -29,10 +29,10 @@ Every behavior here has one authoritative owner, and a change lands there:
 - Shared facade/protocol: `lib/core/controller.dart`, `lib/core/interface.dart`, and `lib/core/method.dart`.
 - Android Core connection: `lib/core/lib.dart`, `lib/plugins/service.dart`, and Android `ServicePlugin`.
 - Android start/stop intent: `ServiceState`; binding/process-time bookkeeping: `ServiceController`.
-- Desktop composition: `lib/core/service.dart`; lifecycle/process ownership: `lib/core/desktop/lifecycle.dart`.
+- Desktop composition: `lib/core/service_native.dart`; lifecycle/process ownership: `lib/core/desktop/lifecycle.dart`.
 - Desktop IPC/RPC: `lib/core/desktop/transport.dart` and `lib/core/desktop/rpc_client.dart`.
 - Desktop launch ownership: `lib/core/desktop/launcher.dart`; Windows and Linux Helper HTTP contract:
-  `lib/core/desktop/helper_client.dart` and `services/helper/`.
+  `lib/core/desktop/helper_client.dart` and `platform/services/helper/`.
 - Flutter orchestration: `lib/providers/actions/core.dart` and `system.dart`; application exit:
   `SystemExitCoordinator`; UI/event observation: `lib/manager/`.
 

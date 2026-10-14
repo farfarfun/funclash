@@ -62,7 +62,7 @@ Read these only when the task touches their area:
 - Keep the UI isolate within its frame: work that grows with user data and can exceed about 8 ms on the largest
   expected data runs in an isolate, once its algorithm is linear or cached. See the UI Isolate Work section of
   [.agents/rules.md](.agents/rules.md).
-- Follow `lint_options.yaml` (included by every `analysis_options.yaml`), especially single quotes, trailing commas, `child:` last, no `print()`, const/final
+- Follow `tool/lint_options.yaml` (included by every `analysis_options.yaml`), especially single quotes, trailing commas, `child:` last, no `print()`, const/final
   preferences, and declared return types.
 - Before reporting a change done, run `flutter pub get`, `flutter analyze --no-fatal-infos`, and the `flutter test`
   suites that cover it, as CI does. If a toolchain the build hook needs is missing (Go, and on Linux and Windows

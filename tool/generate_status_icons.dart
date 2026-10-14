@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'src/icons/ico.dart';
 
-const sourceDir = 'assets_source/images/icon';
+const sourceDir = 'tool/assets_source/images/icon';
 const pngOutputDir = 'assets/images/tray/unix';
 const icoOutputDir = 'assets/images/tray/windows';
 const macosOutputDir = 'assets/images/tray/macos';
