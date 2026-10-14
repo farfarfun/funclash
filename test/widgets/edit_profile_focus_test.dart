@@ -140,12 +140,17 @@ bool _isTextFieldFocused() {
 
 void main() {
   late Directory tempDir;
+  late Profile downloaded;
 
   setUpAll(() async {
     tempDir = Directory.systemTemp.createTempSync('edit_profile_focus_test');
     PathProviderPlatform.instance = _FakePathProvider(tempDir.path);
     // A path resolved inside one test's fake zone never wakes a later test.
     await appPath.dataDir.future;
+    downloaded = _urlProfile();
+    File(await downloaded.path)
+      ..createSync(recursive: true)
+      ..writeAsStringSync('');
   });
 
   tearDownAll(() {
@@ -197,11 +202,7 @@ void main() {
   testWidgets(
     'the profile file row shows its size and update time without chips',
     (tester) async {
-      final profile = _urlProfile();
-      File(await profile.path)
-        ..createSync(recursive: true)
-        ..writeAsStringSync('');
-      await pumpEditProfile(tester, profile: profile);
+      await pumpEditProfile(tester, profile: downloaded);
       final row = await _settleFileRow(tester);
 
       expect(row, findsOneWidget);
