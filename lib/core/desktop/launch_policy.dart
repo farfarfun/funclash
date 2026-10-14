@@ -1,8 +1,5 @@
-import 'dart:io';
-
-import 'package:fl_clash/core/desktop/helper_client.dart';
+import 'package:fl_clash/core/desktop/launch_host.dart';
 import 'package:fl_clash/core/desktop/model.dart';
-import 'package:win32_registry/win32_registry.dart';
 
 /// CreateProcess reports these when a policy, not the file, refused the image:
 /// ERROR_VIRUS_INFECTED, ERROR_INVALID_IMAGE_HASH, ERROR_ACCESS_DISABLED_BY_POLICY.
@@ -16,38 +13,15 @@ typedef SmartAppControlStateReader = SmartAppControlState Function();
 SmartAppControlStateReader smartAppControlStateReader =
     readSmartAppControlState;
 
-SmartAppControlState readSmartAppControlState() {
-  if (!Platform.isWindows) {
-    return SmartAppControlState.unknown;
-  }
-  try {
-    final key = LOCAL_MACHINE.open(
-      r'SYSTEM\CurrentControlSet\Control\CI\Policy',
-    );
-    try {
-      return switch (key.getInt('VerifiedAndReputablePolicyState')) {
-        0 => SmartAppControlState.off,
-        1 => SmartAppControlState.on,
-        2 => SmartAppControlState.evaluation,
-        _ => SmartAppControlState.unknown,
-      };
-    } finally {
-      key.close();
-    }
-  } catch (_) {
-    return SmartAppControlState.unknown;
-  }
-}
-
 /// The OS error behind a failed Core launch, whether the Helper spawned it
 /// (the code travels in the response details, older Helpers only in the
-/// message) or the app did (dart:io keeps it on the exception).
+/// message) or the app did, which only the host that owns the exception type
+/// can say.
 int? launchOsError(Object? error) {
   return switch (error) {
     DesktopCoreFailure(:final cause) => launchOsError(cause),
-    ProcessException(:final errorCode) => errorCode == 0 ? null : errorCode,
     HelperException(code: 'processLaunchFailed') => _helperOsError(error),
-    _ => null,
+    _ => hostLaunchOsError(error),
   };
 }
 

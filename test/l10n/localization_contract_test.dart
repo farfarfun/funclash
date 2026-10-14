@@ -20,7 +20,7 @@ void main() {
     final arbByLocale = <String, Map<String, dynamic>>{
       for (final locale in lookups.keys)
         locale:
-            jsonDecode(File('arb/intl_$locale.arb').readAsStringSync())
+            jsonDecode(File('lib/l10n/arb/intl_$locale.arb').readAsStringSync())
                 as Map<String, dynamic>,
     };
     final expectedKeys = arbByLocale['en']!.keys

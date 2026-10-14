@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:flutter/foundation.dart' show listEquals;
@@ -40,8 +38,7 @@ final _domainLabel = RegExp(
 
 final _port = RegExp(r'^[0-9]{1,5}$');
 
-bool _isIpv6(String value) =>
-    InternetAddress.tryParse(value)?.type == InternetAddressType.IPv6;
+bool _isIpv6(String value) => parseIpv6(value, allowZone: true) != null;
 
 bool _isHost(String value) => value.contains(':')
     ? _isIpv6(value)

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/common/linux_elevation.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -130,7 +131,7 @@ void main() {
 
   setUp(() {
     processes = _FakeProcesses();
-    system.runProcess = processes.run;
+    SystemShell.runProcess = processes.run;
     MacOS().runProcess = processes.run;
     linuxElevation.run = processes.run;
     linuxElevation.runWithInput = processes.runWithInput;
@@ -139,19 +140,19 @@ void main() {
   });
 
   tearDown(() {
-    system.runProcess = Process.run;
+    SystemShell.runProcess = Process.run;
     MacOS().runProcess = Process.run;
     linuxElevation.run = Process.run;
   });
 
   group('statArguments', () {
     test('selects the BSD format on macOS and the GNU one elsewhere', () {
-      expect(System.statArguments('/a/core', isMacOS: true), [
+      expect(SystemShell.statArguments('/a/core', isMacOS: true), [
         '-f',
         '%Su:%Sg %Sp',
         '/a/core',
       ]);
-      expect(System.statArguments('/a/core', isMacOS: false), [
+      expect(SystemShell.statArguments('/a/core', isMacOS: false), [
         '-c',
         '%U:%G %A',
         '/a/core',
@@ -161,7 +162,7 @@ void main() {
     test('passes a path containing spaces through untouched', () {
       const path = '/Users/a b/FlClash.app/Contents/MacOS/FlClashCore';
       for (final isMacOS in [true, false]) {
-        final arguments = System.statArguments(path, isMacOS: isMacOS);
+        final arguments = SystemShell.statArguments(path, isMacOS: isMacOS);
         expect(arguments.last, path);
         expect(arguments.last, isNot(contains(r'\')));
       }
@@ -170,7 +171,7 @@ void main() {
 
   group('aclArguments', () {
     test('grants the inheriting user access to the whole tree', () {
-      final arguments = System.aclArguments('/Users/a/Support', 'alice');
+      final arguments = SystemShell.aclArguments('/Users/a/Support', 'alice');
 
       expect(arguments.first, '-R');
       expect(arguments[1], '+a');
@@ -192,7 +193,7 @@ void main() {
     });
 
     test('never hands out ownership or the ACL itself', () {
-      final arguments = System.aclArguments('/Users/a/Support', 'alice');
+      final arguments = SystemShell.aclArguments('/Users/a/Support', 'alice');
 
       expect(arguments[2], isNot(contains('writesecurity')));
       expect(arguments[2], isNot(contains('chown')));
@@ -201,7 +202,7 @@ void main() {
     test('passes a path containing spaces through untouched', () {
       const path = '/Users/a b/Library/Application Support/com.follow.clash';
 
-      final arguments = System.aclArguments(path, 'alice');
+      final arguments = SystemShell.aclArguments(path, 'alice');
 
       expect(arguments.last, path);
       expect(arguments.last, isNot(contains(r'\')));
@@ -210,7 +211,7 @@ void main() {
 
   group('grantHomeDirAccess', () {
     test('only touches the filesystem on macOS', () async {
-      await system.grantHomeDirAccess('/Users/a/Support');
+      await SystemShell.grantHomeDirAccess('/Users/a/Support');
 
       final userName = Platform.environment['USER'];
       expect(
@@ -223,14 +224,14 @@ void main() {
       processes.stub('chmod', '', exitCode: 1);
 
       await expectLater(
-        system.grantHomeDirAccess('/Users/a/Support'),
+        SystemShell.grantHomeDirAccess('/Users/a/Support'),
         completes,
       );
 
       processes.stubThrow('chmod');
 
       await expectLater(
-        system.grantHomeDirAccess('/Users/a/Support'),
+        SystemShell.grantHomeDirAccess('/Users/a/Support'),
         completes,
       );
     });
@@ -239,14 +240,14 @@ void main() {
   group('isPrivilegedStatOutput', () {
     test('accepts a root-owned setuid binary closed to others', () {
       expect(
-        System.isPrivilegedStatOutput(
+        SystemShell.isPrivilegedStatOutput(
           'root:admin -rwsr-x---\n',
           ownerPrefix: 'root:admin',
         ),
         isTrue,
       );
       expect(
-        System.isPrivilegedStatOutput(
+        SystemShell.isPrivilegedStatOutput(
           'root:alice -rws------+',
           ownerPrefix: 'root:',
         ),
@@ -262,7 +263,7 @@ void main() {
         '-rwsr-x--t',
       ]) {
         expect(
-          System.isPrivilegedStatOutput(
+          SystemShell.isPrivilegedStatOutput(
             'root:admin $mode',
             ownerPrefix: 'root:admin',
           ),
@@ -274,7 +275,7 @@ void main() {
 
     test('rejects a root-owned binary without the setuid bit', () {
       expect(
-        System.isPrivilegedStatOutput(
+        SystemShell.isPrivilegedStatOutput(
           'root:admin -rwxr-xr-x',
           ownerPrefix: 'root:admin',
         ),
@@ -284,7 +285,7 @@ void main() {
 
     test('rejects a setuid binary owned by somebody else', () {
       expect(
-        System.isPrivilegedStatOutput(
+        SystemShell.isPrivilegedStatOutput(
           'alice:staff -rwsr-sr-x',
           ownerPrefix: 'root:admin',
         ),
@@ -294,7 +295,7 @@ void main() {
 
     test('rejects the empty output stat leaves for a missing file', () {
       expect(
-        System.isPrivilegedStatOutput('', ownerPrefix: 'root:admin'),
+        SystemShell.isPrivilegedStatOutput('', ownerPrefix: 'root:admin'),
         isFalse,
       );
     });
@@ -306,7 +307,7 @@ void main() {
       test('stats the core path verbatim', () async {
         processes.stub('stat', 'root:admin -rwsr-x---');
 
-        expect(await system.checkIsAdmin(), isTrue);
+        expect(await SystemShell.checkIsAdmin(), isTrue);
         expect(processes.argumentsFor('stat').last, appPath.corePath);
       });
 
@@ -315,23 +316,23 @@ void main() {
         () async {
           processes.stub('stat', 'root:admin -rwsr-sr-x');
 
-          expect(await system.checkIsAdmin(), isFalse);
+          expect(await SystemShell.checkIsAdmin(), isFalse);
         },
       );
 
       test('reports a core that is not setuid root', () async {
         processes.stub('stat', 'alice:staff -rwxr-xr-x');
 
-        expect(await system.checkIsAdmin(), isFalse);
+        expect(await SystemShell.checkIsAdmin(), isFalse);
       });
 
       test('reports a core stat could not find', () async {
         processes.stub('stat', '');
 
-        expect(await system.checkIsAdmin(), isFalse);
+        expect(await SystemShell.checkIsAdmin(), isFalse);
       });
     },
-    skip: system.hasHelperService
+    skip: SystemShell.hasHelperService
         ? 'the Helper probe replaces stat here'
         : false,
   );
@@ -339,14 +340,14 @@ void main() {
   group('elevation shells', () {
     test('macOS hands the Core to the admin group and nobody else', () {
       expect(
-        System.macOSElevationShell('/Apps/Fl Clash/core'),
+        SystemShell.macOSElevationShell('/Apps/Fl Clash/core'),
         "chown root:admin '/Apps/Fl Clash/core' && "
         "chmod 4750 '/Apps/Fl Clash/core'",
       );
     });
 
     test('Linux hands the Core to the requesting user\'s group', () {
-      final shell = System.linuxElevationShell('/opt/FlClash/FlClashCore');
+      final shell = SystemShell.linuxElevationShell('/opt/FlClash/FlClashCore');
 
       expect(
         shell,
@@ -358,8 +359,8 @@ void main() {
 
     test('neither leaves execute to others', () {
       for (final shell in [
-        System.macOSElevationShell('/core'),
-        System.linuxElevationShell('/core'),
+        SystemShell.macOSElevationShell('/core'),
+        SystemShell.linuxElevationShell('/core'),
       ]) {
         expect(shell, isNot(contains('+sx')));
         expect(shell, contains('chmod 4750'));
@@ -371,14 +372,14 @@ void main() {
     test('refuses an account outside the admin group', () async {
       processes.stub('id', 'alice staff everyone');
 
-      expect(await system.authorizeCore(), AuthorizeCode.error);
+      expect(await SystemShell.authorizeCore(), AuthorizeCode.error);
       expect(processes.ran('osascript'), isFalse);
     });
 
     test('elevates the Core for an admin account', () async {
       processes.stub('id', 'alice staff admin');
 
-      expect(await system.authorizeCore(), AuthorizeCode.success);
+      expect(await SystemShell.authorizeCore(), AuthorizeCode.success);
       expect(processes.argumentsFor('osascript').last, contains('chmod 4750'));
     });
   }, skip: system.isMacOS ? false : 'macOS only');

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:fl_clash/common/common.dart';
@@ -109,7 +108,7 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
   }
 
   Future<MemorySnapshot> _readSnapshot() async {
-    final rss = ProcessInfo.currentRss;
+    final rss = AppPlatform.currentRss;
     final coreConnected = ref.read(coreStatusProvider) == CoreStatus.connected;
     final core = coreConnected ? await _core.getMemoryStats() : null;
     return MemorySnapshot.resolve(

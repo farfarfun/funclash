@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/common/wifi.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/plugins/battery.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi_ssid/wifi_ssid.dart';
 
 import 'app.dart';
 import 'config.dart';
@@ -19,7 +19,7 @@ class LocationPermissions extends _$LocationPermissions {
   bool _autoRequested = false;
 
   @override
-  WifiSsidPermission build() => WifiSsidPermission.denied;
+  WifiPermission build() => WifiPermission.denied;
 
   /// Only a request can tell a permanent denial apart, so a check leaves that
   /// answer in place until it sees the grant.
@@ -27,9 +27,9 @@ class LocationPermissions extends _$LocationPermissions {
     if (ref.read(safeModeProvider)) {
       return;
     }
-    final WifiSsidPermission permission;
+    final WifiPermission permission;
     try {
-      permission = await wifiSsidManager.checkPermission();
+      permission = await checkWifiPermission();
     } catch (error) {
       commonPrint.log(
         'checkPermission error $error',
@@ -37,15 +37,15 @@ class LocationPermissions extends _$LocationPermissions {
       );
       return;
     }
-    if (permission == WifiSsidPermission.granted ||
-        state != WifiSsidPermission.permanentlyDenied) {
+    if (permission == WifiPermission.granted ||
+        state != WifiPermission.permanentlyDenied) {
       state = permission;
     }
     if (ref.read(excludeSSIDsProvider).isEmpty) {
       _autoRequested = false;
       return;
     }
-    if (permission != WifiSsidPermission.denied || _autoRequested) {
+    if (permission != WifiPermission.denied || _autoRequested) {
       return;
     }
     try {
@@ -60,13 +60,13 @@ class LocationPermissions extends _$LocationPermissions {
 
   /// Null while another request is showing, so only the caller that raised
   /// the prompt follows up on the answer.
-  Future<WifiSsidPermission?> request() async {
+  Future<WifiPermission?> request() async {
     if (_requesting) {
       return null;
     }
     _requesting = true;
     try {
-      final permission = await wifiSsidManager.requestPermission();
+      final permission = await requestWifiPermission();
       state = permission;
       return permission;
     } finally {

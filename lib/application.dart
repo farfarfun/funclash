@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_clash/common/common.dart';
@@ -8,13 +7,19 @@ import 'package:fl_clash/bootstrap.dart';
 import 'package:fl_clash/common/system_dns.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/hotkey_manager.dart';
-import 'package:fl_clash/manager/manager.dart';
+import 'package:fl_clash/manager/app_manager.dart';
+import 'package:fl_clash/manager/connectivity_manager.dart';
+import 'package:fl_clash/manager/core_manager.dart';
+import 'package:fl_clash/manager/locale_manager.dart';
+import 'package:fl_clash/manager/platform_managers.dart';
+import 'package:fl_clash/manager/status_manager.dart';
+import 'package:fl_clash/manager/theme_manager.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/focus.dart';
 import 'package:fl_clash/widgets/keyboard_inset_hold.dart';
+import 'package:fl_clash/widgets/web_shell.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/services.dart';
@@ -26,28 +31,22 @@ Widget buildManagerStack({
   required bool isDesktop,
   required Future<void> Function(List<ConnectivityResult> results)
   onConnectivityChanged,
-  Stream<ProcessSignal>? terminateSignals,
+  Stream<void>? terminateSignals,
   required Widget child,
 }) {
-  final platformApp = isDesktop
-      ? WindowHeaderContainer(child: child)
-      : VpnManager(child: child);
   final state = AppStateManager(
     child: CoreManager(
       child: ConnectivityManager(
         onConnectivityChanged: onConnectivityChanged,
-        child: platformApp,
+        child: buildPlatformApp(isDesktop: isDesktop, child: child),
       ),
     ),
   );
-  final platformState = isDesktop
-      ? WindowManager(
-          terminateSignals: terminateSignals,
-          child: TrayManager(
-            child: HotKeyManager(child: ProxyManager(child: state)),
-          ),
-        )
-      : AndroidManager(child: TileManager(child: state));
+  final platformState = buildPlatformManagers(
+    isDesktop: isDesktop,
+    terminateSignals: terminateSignals,
+    child: state,
+  );
   return AppEnvManager(
     child: LocaleManager(
       child: StatusManager(child: ThemeManager(child: platformState)),
@@ -76,10 +75,7 @@ Widget _closeButtonIcon(BuildContext context) =>
 class ApplicationState extends ConsumerState<Application> {
   Timer? _autoUpdateProfilesTaskTimer;
   bool _preHasVpn = false;
-  // Windows can only watch SIGINT and SIGHUP.
-  final _terminateSignals = system.isDesktop && !system.isWindows
-      ? ProcessSignal.sigterm.watch()
-      : null;
+  final _terminateSignals = system.watchTerminateSignals();
 
   final _pageTransitionsTheme = const PageTransitionsTheme(
     builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -102,7 +98,7 @@ class ApplicationState extends ConsumerState<Application> {
       if (globalState.navigatorKey.currentContext != null) {
         await bootstrap.attach();
       } else {
-        exit(0);
+        system.forceExit();
       }
       _autoUpdateProfilesTask();
       _initLink();
@@ -190,12 +186,13 @@ class ApplicationState extends ConsumerState<Application> {
             ...GlobalMaterialLocalizations.delegates,
           ],
           builder: (context, child) {
-            return buildManagerStack(
+            final app = buildManagerStack(
               isDesktop: system.isDesktop,
               onConnectivityChanged: _handleConnectivityChanged,
               terminateSignals: _terminateSignals,
               child: RemoteFocusAdapter(enabled: system.isTV, child: child!),
             );
+            return system.isWeb ? WebShell(child: app) : app;
           },
           scrollBehavior: const BaseScrollBehavior(),
           title: appName,

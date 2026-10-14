@@ -382,6 +382,27 @@ void main() {
       );
     });
 
+    test('keeps a separator that a quoted filename holds', () {
+      expect(
+        getFileNameForDisposition('attachment; filename="a;b.yaml"'),
+        'a;b.yaml',
+      );
+    });
+
+    test('unescapes a quote inside the filename', () {
+      expect(
+        getFileNameForDisposition(r'attachment; filename="a\"b.yaml"'),
+        'a"b.yaml',
+      );
+    });
+
+    test('reads a parameter name whatever its case', () {
+      expect(
+        getFileNameForDisposition('attachment; FileName="profile.yaml"'),
+        'profile.yaml',
+      );
+    });
+
     test('returns null when no filename parameter is present', () {
       expect(getFileNameForDisposition('attachment'), isNull);
     });

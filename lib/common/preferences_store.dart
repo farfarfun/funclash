@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_clash/common/file.dart';
 import 'package:fl_clash/common/print.dart';
@@ -27,11 +26,7 @@ class AtomicFilePreferencesStore extends SharedPreferencesStorePlatform {
   }
 
   Future<Map<String, Object>> _load() async {
-    final file = File(await _path);
-    if (!await file.exists()) {
-      return {};
-    }
-    final content = await file.readAsString();
+    final content = await readPathAsStringOrEmpty(await _path);
     if (content.isEmpty) {
       return {};
     }
@@ -47,9 +42,8 @@ class AtomicFilePreferencesStore extends SharedPreferencesStorePlatform {
   }
 
   Future<bool> _write(String content) async {
-    final file = File(await _path);
     try {
-      await file.writeAsStringAtomically(content);
+      await writePathAsStringAtomically(await _path, content);
       return true;
     } catch (error) {
       commonPrint.log(

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -438,7 +437,7 @@ Future<FileInfo?> _geoFileInfo(GeoResource type) async {
     GeoResource.GEOSITE => GEOSITE,
   };
   final homePath = await appPath.homeDirPath;
-  return File(join(homePath, fileName)).getFileInfo();
+  return readFileInfo(join(homePath, fileName));
 }
 
 class _GeoResourceItem extends ConsumerWidget {

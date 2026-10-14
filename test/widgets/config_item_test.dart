@@ -20,6 +20,7 @@ void main() {
       'localhost:53',
       '[::]:1053',
       '[fe80::1]:53',
+      '[fe80::1%eth0]:53',
     ]) {
       expect(
         validateListenAddress(value, appLocalizations),

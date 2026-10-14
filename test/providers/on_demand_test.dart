@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/constant.dart';
+import 'package:fl_clash/common/wifi_permission.dart';
 import 'package:fl_clash/plugins/battery.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -8,7 +9,6 @@ import 'package:fl_clash/providers/on_demand.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:wifi_ssid/wifi_ssid.dart';
 
 class _AndroidBatteryOptimizationIgnored extends BatteryOptimizationIgnored {
   @override
@@ -65,7 +65,7 @@ void main() {
       expect(calls, ['checkPermission', 'requestPermission']);
       expect(
         container.read(locationPermissionsProvider),
-        WifiSsidPermission.granted,
+        WifiPermission.granted,
       );
     });
 
@@ -84,7 +84,7 @@ void main() {
       expect(calls, isEmpty);
       expect(
         container.read(locationPermissionsProvider),
-        WifiSsidPermission.denied,
+        WifiPermission.denied,
       );
     });
 
@@ -153,14 +153,14 @@ void main() {
       await notifier().refresh();
       expect(
         container.read(locationPermissionsProvider),
-        WifiSsidPermission.permanentlyDenied,
+        WifiPermission.permanentlyDenied,
       );
 
       checked = 0;
       await notifier().refresh();
       expect(
         container.read(locationPermissionsProvider),
-        WifiSsidPermission.granted,
+        WifiPermission.granted,
       );
     });
 
@@ -173,7 +173,7 @@ void main() {
       prompt.complete(0);
 
       expect(second, isNull);
-      expect(await first, WifiSsidPermission.granted);
+      expect(await first, WifiPermission.granted);
       expect(calls, ['requestPermission']);
     });
   });

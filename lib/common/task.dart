@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -46,12 +45,9 @@ Future<String?> readTextFileTask(String path) {
   return compute(_readTextFile, path);
 }
 
-String? _readTextFile(String path) {
-  final file = File(path);
-  if (!file.existsSync()) {
-    return null;
-  }
-  return utf8.decode(file.readAsBytesSync());
+Future<String?> _readTextFile(String path) async {
+  final bytes = await readPathAsBytesOrNull(path);
+  return bytes == null ? null : utf8.decode(bytes);
 }
 
 Future<List<Group>> toGroupsTask(ComputeGroupsState data) async {
@@ -417,21 +413,16 @@ List<String> shakeOrphanFiles({
 }) {
   final List<String> targets = [];
   void scanDirectory(
-    Directory dir,
+    String dirPath,
     bool Function(String baseName) isLive, {
     bool includeDirectories = false,
   }) {
-    if (!dir.existsSync()) return;
-    final entities = dir.listSync(recursive: false, followLinks: false);
-
-    for (final entity in entities) {
-      final selected =
-          entity is File || (includeDirectories && entity is Directory);
-      if (!selected) {
+    for (final entry in listPathEntriesSync(dirPath)) {
+      if (entry.isDirectory && !includeDirectories) {
         continue;
       }
-      if (!isLive(basenameWithoutExtension(entity.path))) {
-        targets.add(entity.path);
+      if (!isLive(basenameWithoutExtension(entry.path))) {
+        targets.add(entry.path);
       }
     }
   }
@@ -439,17 +430,17 @@ List<String> shakeOrphanFiles({
   bool Function(String) isLiveId(Iterable<int> ids) =>
       (baseName) => ids.contains(int.tryParse(baseName));
 
-  scanDirectory(Directory(profilesDirPath), isLiveId(profileIds));
+  scanDirectory(profilesDirPath, isLiveId(profileIds));
   scanDirectory(
-    Directory(providersDirPath),
+    providersDirPath,
     isLiveId(profileIds),
     includeDirectories: true,
   );
   scanDirectory(
-    Directory(join(providerCacheDirPath, rulesProviderDirectoryName)),
+    join(providerCacheDirPath, rulesProviderDirectoryName),
     providerFileNames.toSet().contains,
   );
-  scanDirectory(Directory(scriptsDirPath), isLiveId(scriptIds));
+  scanDirectory(scriptsDirPath, isLiveId(scriptIds));
   return targets;
 }
 
@@ -459,15 +450,8 @@ void _migrateLegacyProviderFile({
   required String legacyPath,
   required String newPath,
 }) {
-  if (legacyPath == newPath || File(newPath).existsSync()) {
-    return;
-  }
   try {
-    final legacyFile = File(legacyPath);
-    if (legacyFile.existsSync()) {
-      Directory(dirname(newPath)).createSync(recursive: true);
-      legacyFile.renameSync(newPath);
-    }
+    movePathSync(legacyPath, newPath);
   } catch (_) {}
 }
 
@@ -541,8 +525,7 @@ Future<MigrationData> migrateLegacyConfig({
     }
     final newId = idMap.updateCacheValue(rawScript['id'], () => snowflake.id);
     final path = BackupEntries.resolve(targetPath, BackupEntries.script(newId));
-    final file = File(path);
-    await file.safeWriteAsString(content);
+    await safeWritePathAsString(path, content);
     scripts.add(
       Script(id: newId, label: label, lastUpdateTime: DateTime.now()),
     );
@@ -599,14 +582,15 @@ Future<MigrationData> migrateLegacyConfig({
     final rawUrl = rawProfile['url'];
     rawProfile['type'] = rawUrl is String && rawUrl.isNotEmpty ? 'url' : 'file';
 
-    final sourceFile = File(
-      BackupEntries.resolve(sourcePath, BackupEntries.profile(rawId)),
+    final sourceFilePath = BackupEntries.resolve(
+      sourcePath,
+      BackupEntries.profile(rawId),
     );
     final targetFilePath = BackupEntries.resolve(
       targetPath,
       BackupEntries.profile(profileId),
     );
-    await sourceFile.safeCopy(targetFilePath);
+    await safeCopyPath(sourceFilePath, targetFilePath);
     profiles.add(Profile.fromJson(rawProfile));
   }
   final currentProfileId = configMap['currentProfileId'];

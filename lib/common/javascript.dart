@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:fl_clash/common/exception.dart';
+import 'package:fl_clash/common/rust_runtime.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rust_api/rust_api.dart';
 
 typedef ScriptEvaluator =
     Future<String> Function({required String script, required String config});
 
 @visibleForTesting
-ScriptEvaluator scriptEvaluator = evaluateScript;
+ScriptEvaluator scriptEvaluator = evaluateScriptSource;
 
 Future<Map<String, dynamic>> handleEvaluate(
   String scriptContent,

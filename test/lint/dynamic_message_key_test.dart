@@ -5,7 +5,7 @@ import 'package:fl_clash/common/l10n_labels.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _arbDir = 'arb';
+const _arbDir = 'lib/l10n/arb';
 const _libDir = 'lib';
 
 Map<String, Set<String>> _arbKeys() {
@@ -29,7 +29,7 @@ void main() {
     expect(byFile, isNotEmpty, reason: 'no .arb files were read from $_arbDir');
 
     final reference = byFile['intl_en.arb'];
-    expect(reference, isNotNull, reason: 'arb/intl_en.arb is the reference');
+    expect(reference, isNotNull, reason: 'lib/l10n/arb/intl_en.arb is the reference');
 
     for (final entry in byFile.entries) {
       expect(

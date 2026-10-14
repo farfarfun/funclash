@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/common/rust_runtime.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/editor/editor.dart';
 import 'package:fl_clash/icons/icons.dart';
@@ -29,14 +30,13 @@ import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/styles/atom-one-dark.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
-import 'package:rust_api/rust_api.dart' show isRustLibInitialized;
 
 export 'package:fl_clash/features/editor/editor.dart'
     show EditorSchema, readRelaxed;
 
-void _requireRustLib() {
-  if (!isRustLibInitialized) {
-    throw StateError('RustLib is not initialized');
+void _requireRustRuntime() {
+  if (!isRustRuntimeReady) {
+    throw StateError('the Rust runtime is not available');
   }
 }
 
@@ -351,7 +351,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
 /// The code editor without page chrome, so it can fill a page or one pane
 /// of it. The editor mounts after the enclosing route has settled and shows
-/// its unavailable state when `main` did not initialise `RustLib`.
+/// its unavailable state where no Rust runtime was initialised for it.
 class EditorView extends ConsumerStatefulWidget {
   final String? content;
   final Language language;
@@ -420,7 +420,7 @@ class EditorViewState extends ConsumerState<EditorView> {
     }
     _routeWaitStarted = true;
     whenRouteSettled(context)
-        .then((_) => _requireRustLib())
+        .then((_) => _requireRustRuntime())
         .then(
           (_) {
             if (!mounted) {

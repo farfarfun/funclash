@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+
+const _httpOk = 200;
+const _httpTooManyRequests = 429;
 
 typedef IpQualityFailure = ({
   IpQualitySource source,
@@ -153,10 +155,10 @@ Future<_Answer> _query(
         ),
       )
       .timeout(timeout);
-  if (response.statusCode == HttpStatus.tooManyRequests) {
+  if (response.statusCode == _httpTooManyRequests) {
     throw const _SourceFailure(IpQualitySourceStatus.rateLimited);
   }
-  if (response.statusCode != HttpStatus.ok) {
+  if (response.statusCode != _httpOk) {
     throw const _SourceFailure(IpQualitySourceStatus.failed);
   }
   final json = jsonDecode(response.data ?? '') as Map<String, dynamic>;

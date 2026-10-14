@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' as io;
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -39,12 +38,12 @@ class DAVClient {
 
   Future<void> upload(String localPath) async {
     await _transport.mkcol(root);
-    await _transport.put(backupFile, await io.File(localPath).readAsBytes());
+    await _transport.put(backupFile, await readPathAsBytes(localPath));
   }
 
   Future<void> download(String localPath) async {
     final bytes = await _transport.get(backupFile);
-    await io.File(localPath).safeWriteAsBytes(bytes);
+    await safeWritePathAsBytes(localPath, bytes);
   }
 }
 

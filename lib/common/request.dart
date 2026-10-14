@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/state.dart';
@@ -24,20 +23,13 @@ class Request {
   Request() {
     dio = Dio(BaseOptions(headers: {'User-Agent': browserUa}));
     _clashDio = Dio();
-    _clashDio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        final client = HttpClient();
-        client.findProxy = (Uri uri) {
-          client.userAgent = globalState.ua;
-          final read = _read;
-          if (read == null) {
-            return 'DIRECT';
-          }
-          return FlClashHttpOverrides.findProxyForReader(read, uri);
-        };
-        return client;
-      },
+    final adapter = proxiedHttpClientAdapter(
+      reader: () => _read,
+      userAgent: () => globalState.ua,
     );
+    if (adapter != null) {
+      _clashDio.httpClientAdapter = adapter;
+    }
   }
 
   Future<Response<T>> _download<T>(String url, ResponseType responseType) {
@@ -117,7 +109,7 @@ class Request {
         validateStatus: (status) => status != null && status < 400,
       ),
     );
-    final location = response.headers.value(HttpHeaders.locationHeader);
+    final location = response.headers.value('location');
     final segments = Uri.tryParse(location ?? '')?.pathSegments ?? const [];
     final tagIndex = segments.indexOf('tag') + 1;
     if (tagIndex == 0 || tagIndex >= segments.length) {
@@ -130,18 +122,19 @@ class Request {
 final request = Request();
 
 /// Some subscription servers send a gzip or zlib body without saying so in
-/// Content-Encoding, which is the only signal dart:io decompresses on.
+/// Content-Encoding, which is the only signal an HTTP client decompresses on.
 Uint8List decompressUnlabeled(Uint8List bytes) {
-  final codec = switch (bytes) {
-    [0x1f, 0x8b, ...] => gzip,
-    [0x78, final flags, ...] when (0x78 << 8 | flags) % 31 == 0 => zlib,
+  final inflate = switch (bytes) {
+    [0x1f, 0x8b, ...] => () => const GZipDecoder().decodeBytes(bytes),
+    [0x78, final flags, ...] when (0x78 << 8 | flags) % 31 == 0 =>
+      () => const ZLibDecoder().decodeBytes(bytes),
     _ => null,
   };
-  if (codec == null) {
+  if (inflate == null) {
     return bytes;
   }
   try {
-    return Uint8List.fromList(codec.decode(bytes));
+    return inflate();
   } on FormatException {
     return bytes;
   }
@@ -158,8 +151,7 @@ Uint8List decompressUnlabeled(Uint8List bytes) {
   return (
     uri: uri.replace(userInfo: ''),
     headers: {
-      HttpHeaders.authorizationHeader:
-          'Basic ${base64.encode(utf8.encode(credentials))}',
+      'authorization': 'Basic ${base64.encode(utf8.encode(credentials))}',
     },
   );
 }
@@ -174,22 +166,58 @@ String _decodeUserInfo(String value) {
 
 String? getFileNameForDisposition(String? disposition) {
   if (disposition == null) return null;
-  final parseValue = HeaderValue.parse(disposition);
-  final parameters = parseValue.parameters;
-  final fileNamePointKey = parameters.keys.firstWhere(
-    (key) => key == 'filename*',
-    orElse: () => '',
-  );
-  if (fileNamePointKey.isNotEmpty) {
-    final res = parameters[fileNamePointKey]?.split("''") ?? [];
-    if (res.length >= 2) {
-      return Uri.decodeComponent(res[1]);
+  final parameters = _headerParameters(disposition);
+  final encoded = parameters['filename*']?.split("''") ?? const [];
+  if (encoded.length >= 2) {
+    return Uri.decodeComponent(encoded[1]);
+  }
+  return parameters['filename'];
+}
+
+/// `HeaderValue.parse` without dart:io: a quoted value may hold the separator.
+Map<String, String> _headerParameters(String header) {
+  final parameters = <String, String>{};
+  for (final part in _splitUnquoted(header, ';').skip(1)) {
+    final separator = part.indexOf('=');
+    if (separator < 0) {
+      continue;
+    }
+    final name = part.substring(0, separator).trim().toLowerCase();
+    parameters[name] = _unquote(part.substring(separator + 1).trim());
+  }
+  return parameters;
+}
+
+List<String> _splitUnquoted(String value, String separator) {
+  final parts = <String>[];
+  var start = 0;
+  var quoted = false;
+  for (var index = 0; index < value.length; index++) {
+    final char = value[index];
+    if (char == '"') {
+      quoted = !quoted;
+    } else if (quoted && char == r'\') {
+      index++;
+    } else if (!quoted && char == separator) {
+      parts.add(value.substring(start, index));
+      start = index + 1;
     }
   }
-  final fileNameKey = parameters.keys.firstWhere(
-    (key) => key == 'filename',
-    orElse: () => '',
-  );
-  if (fileNameKey.isEmpty) return null;
-  return parameters[fileNameKey];
+  parts.add(value.substring(start));
+  return parts;
+}
+
+String _unquote(String value) {
+  if (value.length < 2 || !value.startsWith('"') || !value.endsWith('"')) {
+    return value;
+  }
+  final body = value.substring(1, value.length - 1);
+  final unescaped = StringBuffer();
+  for (var index = 0; index < body.length; index++) {
+    if (body[index] == r'\' && index + 1 < body.length) {
+      index++;
+    }
+    unescaped.write(body[index]);
+  }
+  return unescaped.toString();
 }

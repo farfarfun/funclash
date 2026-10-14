@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/form/form.dart';
@@ -210,7 +208,7 @@ class _RuleProviderItemState extends State<_RuleProviderItem> {
     if (provider == null) {
       return null;
     }
-    final info = await File(await provider.path).getFileInfo();
+    final info = await provider.fileInfo;
     return info?.lastModified;
   }
 

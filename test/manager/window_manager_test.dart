@@ -11,6 +11,7 @@ import 'package:fl_clash/models/config.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart' show AsyncCallback;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -46,6 +47,12 @@ class _RecordingWindowPort implements WindowPort {
   bool supportsPosition = true;
   bool supportsBlur = true;
   final blurRequests = <_BlurRequest>[];
+
+  @override
+  Future<void> init(int version, WindowProps props) async {}
+
+  @override
+  Future<void> showInitFailure({required AsyncCallback onExit}) async {}
 
   @override
   Future<bool> setBlur({

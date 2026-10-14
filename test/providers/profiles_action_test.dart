@@ -32,10 +32,10 @@ void main() {
   setUpAll(() async {
     await AppLocalizations.load(const Locale('en'));
     home = Directory.systemTemp.createTempSync('flclash-profiles-action-');
-    AppPath.supportDirectory = () async => home;
-    AppPath.temporaryDirectory = () async => home;
-    AppPath.cacheDirectory = () async => home;
-    AppPath.downloadDirectory = () async => home;
+    AppPath.supportDirectory = () async => home.path;
+    AppPath.temporaryDirectory = () async => home.path;
+    AppPath.cacheDirectory = () async => home.path;
+    AppPath.downloadDirectory = () async => home.path;
   });
 
   tearDownAll(() {
@@ -76,7 +76,8 @@ void main() {
   }
 
   Future<List<Map>> savedProxies(Profile profile) async {
-    final config = loadYaml(await (await profile.file).readAsString()) as Map;
+    final saved = await readPathAsStringOrEmpty(await profile.path);
+    final config = loadYaml(saved) as Map;
     return [for (final proxy in config['proxies'] as List) proxy as Map];
   }
 

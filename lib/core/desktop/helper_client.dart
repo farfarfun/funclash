@@ -36,21 +36,6 @@ final class HelperStopResponse {
   });
 }
 
-final class HelperException implements Exception {
-  final String code;
-  final String message;
-  final Object? details;
-
-  const HelperException({
-    required this.code,
-    required this.message,
-    this.details,
-  });
-
-  @override
-  String toString() => 'HelperException($code, $message, $details)';
-}
-
 final class HelperClient {
   final Dio _dio;
   final String Function() _expectedHelperPath;

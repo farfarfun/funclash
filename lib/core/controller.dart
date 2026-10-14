@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/core.dart';
@@ -50,12 +49,8 @@ class CoreController {
 
   static Future<void> ensureHomeDir() async {
     final homePath = await appPath.homeDirPath;
-    final homeDir = Directory(homePath);
-    final isExists = await homeDir.exists();
-    if (!isExists) {
-      await homeDir.create(recursive: true);
-    }
-    await system.grantHomeDirAccess(homePath);
+    await ensurePathDir(homePath);
+    await SystemShell.grantHomeDirAccess(homePath);
   }
 
   static Future<void> initGeo() async {
@@ -63,14 +58,13 @@ class CoreController {
     const geoFileNameList = [MMDB, GEOIP, GEOSITE, ASN];
     try {
       for (final geoFileName in geoFileNameList) {
-        final geoFile = File(join(homePath, geoFileName));
-        final isExists = await geoFile.exists();
-        if (isExists) {
+        final geoPath = join(homePath, geoFileName);
+        if (await pathExists(geoPath)) {
           continue;
         }
         final data = await rootBundle.load('assets/data/$geoFileName');
         final List<int> bytes = data.buffer.asUint8List();
-        await geoFile.writeAsBytes(bytes, flush: true);
+        await safeWritePathAsBytes(geoPath, bytes, flush: true);
       }
     } catch (e) {
       commonPrint.log(
@@ -101,12 +95,12 @@ class CoreController {
     String path, [
     String ageSecretKey = '',
   ]) async {
-    final file = File(path);
-    if (await file.isAgeEncrypted) {
+    if (await isPathAgeEncrypted(path)) {
       if (ageSecretKey.isEmpty) {
         throw const AgeSecretKeyRequiredException();
       }
-      await file.safeWriteAsString(
+      await safeWritePathAsString(
+        path,
         await _interface.decryptConfig(path, ageSecretKey),
       );
     }
@@ -123,7 +117,10 @@ class CoreController {
     if (proxies.isEmpty) {
       return message;
     }
-    await file.safeWriteAsString(await encodeYamlTask({'proxies': proxies}));
+    await safeWritePathAsString(
+      path,
+      await encodeYamlTask({'proxies': proxies}),
+    );
     return validateConfig(path);
   }
 
@@ -159,10 +156,9 @@ class CoreController {
 
   Future<String> validateConfigWithData(String data) async {
     final path = await appPath.tempFilePath;
-    final file = File(path);
-    await file.safeWriteAsString(data);
+    await safeWritePathAsString(path, data);
     final res = await _interface.validateConfig(path);
-    await File(path).safeDelete();
+    await safeDeletePath(path);
     return res;
   }
 

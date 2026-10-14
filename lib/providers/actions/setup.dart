@@ -552,7 +552,7 @@ class SetupAction extends _$SetupAction {
 
   @protected
   Future<AuthorizeCode> authorizeCore() {
-    return system.authorizeCore();
+    return SystemShell.authorizeCore();
   }
 
   @visibleForTesting
@@ -670,7 +670,7 @@ class SetupAction extends _$SetupAction {
       () async {
         try {
           final configFilePath = await appPath.configFilePath;
-          await File(configFilePath).writeAsStringAtomically(yamlString);
+          await writePathAsStringAtomically(configFilePath, yamlString);
           final profileId = profile?.id;
           if (profileId != null) {
             await appPath.ensureProviderDirs(profileId);

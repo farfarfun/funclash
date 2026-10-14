@@ -3,6 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('SupportPlatform', () {
+    test('the panel is a platform of its own, and not a desktop', () {
+      expect(SupportPlatform.values, contains(SupportPlatform.Web));
+      expect(desktopPlatforms, isNot(contains(SupportPlatform.Web)));
+    });
+
+    test('a widget that needs the host is not offered on the panel', () {
+      final hostOnly = DashboardWidget.values
+          .where((item) => !item.platforms.contains(SupportPlatform.Web))
+          .toList();
+
+      expect(hostOnly, [
+        DashboardWidget.tunButton,
+        DashboardWidget.vpnButton,
+        DashboardWidget.systemProxyButton,
+      ]);
+    });
+  });
+
   group('GroupType', () {
     test('parses clash group type aliases case-insensitively', () {
       expect(GroupType.parse('url-test'), GroupType.URLTest);

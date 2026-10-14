@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -276,7 +274,7 @@ class LoopbackItem extends StatelessWidget {
       title: Text(context.appLocalizations.loopback),
       onTap: () {
         windows?.runas(
-          '"${join(dirname(Platform.resolvedExecutable), "EnableLoopback.exe")}"',
+          '"${join(dirname(AppPlatform.executablePath), "EnableLoopback.exe")}"',
           '',
         );
       },

@@ -657,10 +657,10 @@ tun:
     setUp(() async {
       await AppLocalizations.load(const Locale('en'));
       home = Directory.systemTemp.createTempSync('flclash-custom-import-');
-      AppPath.supportDirectory = () async => home;
-      AppPath.temporaryDirectory = () async => home;
-      AppPath.cacheDirectory = () async => home;
-      AppPath.downloadDirectory = () async => home;
+      AppPath.supportDirectory = () async => home.path;
+      AppPath.temporaryDirectory = () async => home.path;
+      AppPath.cacheDirectory = () async => home.path;
+      AppPath.downloadDirectory = () async => home.path;
       testDatabase = db.Database(NativeDatabase.memory());
       db.database = testDatabase;
       await testDatabase.profiles.put(custom.toCompanion());
@@ -748,7 +748,7 @@ dns:
           .singleWhere((profile) => profile.label == 'local');
       expect(local.type, ProfileType.file);
       expect(local.lastUpdateDate, isNotNull);
-      expect(await (await local.file).readAsString(), isEmpty);
+      expect(await readPathAsStringOrEmpty(await local.path), isEmpty);
       expect(
         [
           for (final provider

@@ -43,12 +43,12 @@ class BackupAction extends _$BackupAction {
   }
 
   Future<bool> _withWorkDir(Future<bool> Function(String workDir) run) async {
-    final workDir = Directory(join(await appPath.tempPath, 'backup$uniqueId'));
-    await workDir.create(recursive: true);
+    final workDir = join(await appPath.tempPath, 'backup$uniqueId');
+    await ensurePathDir(workDir);
     try {
-      return await run(workDir.path);
+      return await run(workDir);
     } finally {
-      await workDir.safeDelete(recursive: true);
+      await safeDeletePath(workDir);
       await _discardLegacyStaging();
     }
   }
@@ -57,8 +57,8 @@ class BackupAction extends _$BackupAction {
   /// the downloaded archive.
   Future<void> _discardLegacyStaging() async {
     final homeDirPath = await appPath.homeDirPath;
-    await File(join(homeDirPath, 'backup.zip')).safeDelete();
-    await Directory(join(homeDirPath, 'restore')).safeDelete(recursive: true);
+    await safeDeletePath(join(homeDirPath, 'backup.zip'));
+    await safeDeletePath(join(homeDirPath, 'restore'));
   }
 
   Future<String> _createArchive(String workDir) async {
@@ -152,28 +152,32 @@ class BackupAction extends _$BackupAction {
       for (final MapEntry(key: entry, value: replaced) in copied.entries) {
         final target = BackupEntries.resolve(homeDirPath, entry);
         if (replaced) {
-          await File(
+          await safeCopyPath(
             BackupEntries.resolve(replacedDirPath, entry),
-          ).safeCopy(target);
+            target,
+          );
         } else {
-          await File(target).safeDelete();
+          await safeDeletePath(target);
         }
       }
     }
 
     try {
       for (final entry in BackupEntries.ofData(data)) {
-        final staged = File(BackupEntries.resolve(stagingDirPath, entry));
-        if (!await staged.exists()) {
+        final staged = BackupEntries.resolve(stagingDirPath, entry);
+        if (!await pathExists(staged)) {
           continue;
         }
-        final target = File(BackupEntries.resolve(homeDirPath, entry));
-        final replaced = await target.exists();
+        final target = BackupEntries.resolve(homeDirPath, entry);
+        final replaced = await pathExists(target);
         if (replaced) {
-          await target.safeCopy(BackupEntries.resolve(replacedDirPath, entry));
+          await safeCopyPath(
+            target,
+            BackupEntries.resolve(replacedDirPath, entry),
+          );
         }
         copied[entry] = replaced;
-        await staged.safeCopy(target.path);
+        await safeCopyPath(staged, target);
       }
     } catch (_) {
       await putBack();
@@ -190,8 +194,8 @@ class BackupAction extends _$BackupAction {
       if (kept.contains(provider.fileName)) {
         continue;
       }
-      await File(await provider.path).safeDelete();
-      await File(await provider.compiledPath).safeDelete();
+      await safeDeletePath(await provider.path);
+      await safeDeletePath(await provider.compiledPath);
     }
   }
 
@@ -201,7 +205,7 @@ class BackupAction extends _$BackupAction {
   ) async {
     for (final provider in restored) {
       if (!provider.isRemote) {
-        await File(await provider.compiledPath).safeDelete();
+        await safeDeletePath(await provider.compiledPath);
       }
     }
   }

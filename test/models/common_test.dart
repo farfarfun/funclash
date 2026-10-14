@@ -4,62 +4,22 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
-class MockFile extends Mock implements File {}
 
 void main() {
-  group('FileInfo', () {
-    late MockFile file;
+  group('readFileInfo', () {
+    test('carries what the file system reports for a path', () async {
+      final root = Directory.systemTemp.createTempSync('file_info_test');
+      addTearDown(() => root.deleteSync(recursive: true));
+      final modified = DateTime(2026, 7, 29);
+      File('${root.path}/config.yaml')
+        ..writeAsStringSync('mixed-port: 7890')
+        ..setLastModifiedSync(modified);
 
-    setUp(() {
-      file = MockFile();
-    });
-
-    test('reads size and valid last modified time', () async {
-      final lastModified = DateTime(2026, 7, 29);
-      when(() => file.exists()).thenAnswer((_) async => true);
-      when(() => file.length()).thenAnswer((_) async => 2048);
-      when(() => file.lastModified()).thenAnswer((_) async => lastModified);
-
-      final fileInfo = await file.getFileInfo();
-
-      expect(fileInfo, FileInfo(size: 2048, lastModified: lastModified));
-    });
-
-    test(
-      'treats positive timestamps within the epoch year as unknown',
-      () async {
-        when(() => file.exists()).thenAnswer((_) async => true);
-        when(() => file.length()).thenAnswer((_) async => 1024);
-        when(
-          () => file.lastModified(),
-        ).thenAnswer((_) async => DateTime(1970, 12, 31, 23, 59, 59));
-
-        final fileInfo = await file.getFileInfo();
-
-        expect(fileInfo, const FileInfo(size: 1024));
-      },
-    );
-
-    test('keeps size when last modified time cannot be read', () async {
-      when(() => file.exists()).thenAnswer((_) async => true);
-      when(() => file.length()).thenAnswer((_) async => 1024);
-      when(
-        () => file.lastModified(),
-      ).thenThrow(const FileSystemException('last modified unavailable'));
-
-      final fileInfo = await file.getFileInfo();
-
-      expect(fileInfo, const FileInfo(size: 1024));
-    });
-
-    test('returns null when file does not exist', () async {
-      when(() => file.exists()).thenAnswer((_) async => false);
-
-      expect(await file.getFileInfo(), isNull);
-      verifyNever(() => file.length());
-      verifyNever(() => file.lastModified());
+      expect(
+        await readFileInfo('${root.path}/config.yaml'),
+        FileInfo(size: 16, lastModified: modified),
+      );
+      expect(await readFileInfo('${root.path}/missing'), isNull);
     });
   });
 

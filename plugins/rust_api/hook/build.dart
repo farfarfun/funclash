@@ -9,6 +9,11 @@ void main(List<String> args) async {
       stdout.writeln('Skipping the Rust build: user-define build_assets=false');
       return;
     }
+    // The web target loads no code asset, so there is no library to produce.
+    if (!input.config.buildCodeAssets) {
+      stdout.writeln('Skipping the Rust build: the target takes no code asset');
+      return;
+    }
     await FlutterRustBridgeNativeAssetsBuilder(
       cratePath: 'rust',
       extraCargoEnvironmentVariables: _bindgenEnvironment(input),

@@ -56,8 +56,7 @@ void main() {
         ),
       );
 
-      final savedFile = await profile.file;
-      expect(await savedFile.length(), 0);
+      expect(await pathExists(await profile.path), isFalse);
     });
 
     test('copies validated bytes and stamps the update time', () async {
@@ -67,8 +66,7 @@ void main() {
       final saved = await profile.saveFile(bytes, validate: (_, _) async => '');
 
       expect(saved.lastUpdateDate, isNotNull);
-      final savedFile = await profile.file;
-      expect(await savedFile.readAsString(), 'proxies: []');
+      expect(await readPathAsStringOrEmpty(await profile.path), 'proxies: []');
     });
 
     test('validates with the profile age key', () async {

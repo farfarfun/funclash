@@ -453,12 +453,7 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> clearEffect(int profileId) async {
-    final profilePath = await appPath.getProfilePath(profileId.toString());
-    final profileFile = File(profilePath);
-    final isExists = await profileFile.exists();
-    if (isExists) {
-      await profileFile.safeDelete(recursive: true);
-    }
+    await safeDeletePath(await appPath.getProfilePath(profileId.toString()));
     try {
       final error = await _core.clearEffect(profileId);
       if (error.isNotEmpty) {

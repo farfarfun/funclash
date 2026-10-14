@@ -91,9 +91,9 @@ void main() {
 
   setUpAll(() {
     home = Directory.systemTemp.createTempSync('flclash-rule-sets-view-');
-    AppPath.supportDirectory = () async => home;
-    AppPath.temporaryDirectory = () async => home;
-    AppPath.cacheDirectory = () async => home;
+    AppPath.supportDirectory = () async => home.path;
+    AppPath.temporaryDirectory = () async => home.path;
+    AppPath.cacheDirectory = () async => home.path;
   });
 
   tearDownAll(() {

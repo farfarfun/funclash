@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -429,24 +428,11 @@ abstract class FileInfo with _$FileInfo {
       _FileInfo;
 }
 
-extension FileInfoFileExt on File {
-  Future<FileInfo?> getFileInfo() async {
-    if (!await exists()) {
-      return null;
-    }
-    final size = await length();
-    final lastModified = await _getValidLastModified();
-    return FileInfo(size: size, lastModified: lastModified);
-  }
-
-  Future<DateTime?> _getValidLastModified() async {
-    try {
-      final value = await lastModified();
-      return value.year > 1970 ? value : null;
-    } on FileSystemException {
-      return null;
-    }
-  }
+Future<FileInfo?> readFileInfo(String path) async {
+  final stat = await readPathStat(path);
+  return stat == null
+      ? null
+      : FileInfo(size: stat.size, lastModified: stat.lastModified);
 }
 
 @freezed
@@ -763,31 +749,18 @@ extension ScriptExt on Script {
 
   Future<String> get path async => appPath.getScriptPath(id.toString());
 
-  Future<FileInfo?> get fileInfo async => File(await path).getFileInfo();
+  Future<FileInfo?> get fileInfo async => readFileInfo(await path);
 
   Future<String?> get content async => readTextFileTask(await path);
 
   Future<Script> save(String content) async {
-    final file = File(await path);
-    if (!await file.exists()) {
-      await file.create(recursive: true);
-    }
-    await file.writeAsString(content);
+    await safeWritePathAsString(await path, content);
     return copyWith(lastUpdateTime: DateTime.now());
   }
 
   Future<Script> update() async {
     final response = await request.getTextResponseForUrl(url!);
     return save(response.data ?? '');
-  }
-
-  Future<Script> saveWithPath(String copyPath) async {
-    final file = File(await path);
-    if (!await file.exists()) {
-      await file.create(recursive: true);
-    }
-    await File(copyPath).copy(copyPath);
-    return copyWith(lastUpdateTime: DateTime.now());
   }
 }
 
@@ -834,7 +807,7 @@ extension ClashProviderExt on ClashProvider {
 
   Future<String> get corePath => isCompiled ? compiledPath : path;
 
-  Future<FileInfo?> get fileInfo async => File(await path).getFileInfo();
+  Future<FileInfo?> get fileInfo async => readFileInfo(await path);
 
   Future<String?> get content async => readTextFileTask(await path);
 

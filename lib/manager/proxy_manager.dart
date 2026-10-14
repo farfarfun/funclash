@@ -24,9 +24,9 @@ class _ProxyManagerState extends ConsumerState<ProxyManager> {
     final port = proxyState.port;
     bool? result;
     if (isStart && systemProxy) {
-      result = await proxy?.startProxy(port, proxyState.bassDomain);
+      result = await startSystemProxy(port, proxyState.bassDomain);
     } else {
-      result = await proxy?.stopProxy();
+      result = await stopSystemProxy();
     }
     if (result == false) {
       commonPrint.log('update system proxy failed', logLevel: LogLevel.warning);

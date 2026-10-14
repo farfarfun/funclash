@@ -22,7 +22,7 @@ Desktop core mode:
 - `rust_api`'s `ipc` module provides the native local-IPC primitives: a Unix domain socket on macOS/Linux and a named pipe
   on Windows, served by an `IpcServer` handle. Dart owns the transport state, RPC correlation, process ownership, and
   lifecycle convergence above those primitives.
-- `lib/core/service.dart` (`CoreService`) is the composition root. It wires the IPC transport, launcher selection,
+- `lib/core/service_native.dart` (`CoreService`) is the composition root. It wires the IPC transport, launcher selection,
   lifecycle controller, RPC client, and crash-event bridge, and holds no lifecycle logic of its own.
 - `lib/core/desktop/transport.dart` binds an `IpcServer` and turns its events into ready, connected, disconnected, and
   failed transport events plus a frame stream. A connection that ends on an I/O error is a disconnect carrying that
@@ -764,6 +764,451 @@ contains no `lib/views` file. Data the provider layer needs from the UI layer
 goes through a port in `lib/common/app_ports.dart` rather than an import in the
 other direction.
 
+#### The Web Target
+
+`lib/common/app_platform.dart` is a conditional export: `AppPlatform` resolves
+to `app_platform_native.dart` everywhere and to `app_platform_web.dart` under
+`dart.library.js_interop`. It is the one place that knows the operating system —
+`System.isWindows`, `isMacOS`, `isLinux`, `isAndroid` and `isWeb` forward to it,
+and `SupportPlatform.currentPlatform` reads those. The web variant answers
+false to the four operating systems and true to `isWeb`: a browser tab is no
+operating system, and the desktop it controls answers for itself. `isWeb` is a
+family beside the other four rather than their absence, which is what lets
+`currentPlatform` answer for a tab instead of falling off the end of its
+conditions, and the layering test's at-most-one-true assertion covers all five.
+
+`AppPlatform` also carries the process facts a browser has no answer for:
+`executablePath` throws there, and `currentRss` reports zero, which is already
+the figure `MemorySnapshot` starts a memory reading from.
+
+Detection cannot travel through a port the way `WindowPort` and `TrayPort` do.
+Ports are null in tests and a null port cannot answer a question, while
+`system_shell_native.dart` reads its own answer while loading
+(`final windows = system.isWindows ? Windows() : null`) and tests take
+`system.isDesktop` as the expected value instead of binding it.
+`defaultTargetPlatform` is no substitute either: `flutter_test` defaults it to
+`TargetPlatform.android`, which flips `isAndroid` true under every test. Hence
+the split — a conditional export for what the platform *is*, a port for what it
+*does*.
+
+Everything above the platform layer reaches the file system through the
+path-taking functions in `lib/common/file.dart` — the `*Path*` family, plus
+`readFileInfo` on the model side — rather than building a `File` at the call
+site. Concentrating the access is what makes the web half one conditional
+export instead of one per caller, and it is also the shape the Rust file API
+takes, which has no Dart `File` to receive. Each one states in its name what it
+does about a file that is not there, because that is the decision a caller
+cannot delegate: `readPathAsBytes` refuses the way `File.readAsBytes` does, so
+a vanished backup archive cannot be uploaded as nothing, while
+`readPathAsBytesOrEmpty` and `readPathAsStringOrEmpty` read a missing file as
+an empty one, and `readPathHead` answers null to keep the two apart. The
+layering test pins the result: nothing under `lib/views`, `lib/widgets`,
+`lib/pages` or `lib/features` imports `dart:io`, `dart:ffi` or `dart:isolate`.
+
+The same test holds a ratchet of every file left in the web build that imports
+one of those three. It is anchored on the compilation graph
+rather than a listing of `lib`: the walk starts at `lib/main.dart` and takes the
+web side of each conditional directive, so the native half of a conditional
+export leaves the measurement instead of parking on the list forever. A
+dedicated test pins that resolution, because a walk that breaks reports every
+entry as fixed and would then measure a graph nothing builds.
+
+A second ratchet runs the same walk over the packages with no web
+implementation, because one of those breaks the build exactly as `dart:io`
+does and the two do not have to travel together: `path_provider` was reached
+through a file whose only `dart:` offense was `dart:io`, so clearing that import
+alone would have reported ground no web build can stand on. A key ending in `/`
+names a whole package, anything else one entry point of a package whose rest is
+fine — `package:dio/io.dart` and `package:drift/native.dart` are the io halves
+of packages the web build otherwise wants. It is also the measure that held
+the UI layer honest about packages: `lib/views/config/on_demand.dart` named
+`package:wifi_ssid` directly, which the `dart:`-library test over `lib/views`
+cannot see. Both maps are empty as of the seams below, which is the whole of
+what a ratchet can report — `lib/main.dart` came off last, for the
+`package:rust_api` whose generated bindings are `dart:ffi` — and a build is
+what turns that into a web target.
+
+Every seam is a `*.dart` holding nothing but the conditional export, beside a
+`*_native.dart` and a `*_web.dart`; that test finds them by name rather than by
+a list, so a new one is measured the moment it is added. The barrel exports the
+seam, never a variant: a file reaching for `FileExt` on a `File` has to name
+`file_native.dart` itself, which is also how a web build reports such a reach as
+a missing method instead of compiling it. The web answers are the ones a browser
+tab can honestly give — `file_web.dart` throws `UnsupportedError`, because a
+panel asking the desktop's file system for bytes is a route that does not exist
+yet rather than an empty directory, while `lock_web.dart` reports that it holds
+the only instance, a tab having no data directory to keep another process off.
+That lock is held as an open file on the desktop; raising the window of an
+instance already running is left to the platform — LaunchServices reopen on
+macOS, GApplication activation on Linux, the app_links hand-off in the Windows
+runner.
+
+`system_fonts.dart` is a whole-module seam rather than a port, even though
+enumerating fonts is something the platform *does*: the module already had the
+indirection a port would add, a `@visibleForTesting systemFontFamiliesReader`
+field, and what made it web-hostile was the default's imports, not the
+indirection. Sealing the module cleared `dart:ffi`, `dart:io`, `dart:isolate`
+and `package:win32` from the web walk in one move, and emptied the
+`dart:isolate` list. The web half answers an empty list — a tab enumerates
+nothing, the engine resolving a family against whatever the browser has. The two
+pure helpers stayed on the native side because only that file and its test ever
+call them, so `test/common/system_fonts_test.dart` names
+`system_fonts_native.dart`, the same way a file wanting `FileExt` does.
+
+`AppPath` draws the same line between naming a path and reaching it. Naming is
+string arithmetic that works anywhere, so the class itself holds no `dart:io`
+and returns `String` throughout, including the four `@visibleForTesting` hooks a
+test redirects at a temporary directory. Only the lookup of the four platform
+directories sits behind a seam, `lib/common/app_dirs.dart`, which is also where
+`package:path_provider` is confined — it has no web implementation and its API
+hands back a `dart:io` `Directory`, so importing it would break the web build
+whether or not the call ran. `app_dirs_web.dart` answers a constant root rather
+than throwing, because a path a tab computes but never opens is harmless, and
+the reach that does fail should be reported by `file_web.dart`, where it
+happens. `appDirPath` was dropped in the move: it read the executable path
+eagerly in the constructor, which is the one thing in that class a browser
+cannot answer, and nothing had ever read it.
+
+`lib/common/system.dart` was the barrel's own worst entry: it imported both
+`dart:ffi` and `dart:io`, and `common.dart` exports it, so every file in the
+graph carried them. The split is by concern rather than by import. `System`
+keeps what the app *is* and what its own process does — the platform booleans,
+the device-info read, the Android bridge, terminate signals and `forceExit`.
+Everything that asks the host operating system to *do* something moved to
+`lib/common/system_shell.dart`: `SystemShell`, which authorizes the Core for
+TUN, and the `Windows`, `Linux` and `MacOS` arms it reaches through. Moving
+`authorizeCore` next to `windows` and `linux` is what left `system.dart` with no
+reason to name them, and it carried the `core/desktop/helper_client.dart` import
+along with it — the one that would have broken a web build after the `dart:`
+ratchet had gone quiet about that file.
+
+The web half carries what the web walk names and no more: the three
+`SystemShell` members its callers reach, `Windows.runas` because one view calls
+it behind `if (system.isWindows)`, and `MacOS` as a `SystemDnsPort` because
+`system_dns.dart` names `macOS!`. `Linux`, the pure argument builders their test
+reaches through `system_shell_native.dart`, and the `ProcessRunner` typedef are
+native-only. `watchTerminateSignals` and `forceExit` kept their call sites and
+handed their primitives to `AppPlatform`, which already holds the process facts;
+the policy that Windows watches no SIGTERM stayed with `System`, being a
+decision rather than a platform fact.
+
+The networking trio cleared the same way, each by its own answer. The whole of
+`network_error.dart`'s `dart:io` was one function classifying a socket failure,
+and the vocabulary for its result already existed: the Core names its own
+transport failures `timeout`, `dns`, `tls` and `connection` across the IPC
+channel, so the local classifier answers in those words, no new type crosses the
+seam, and the two now share one mapper. It lives in `network_native.dart` beside
+the interface list, both being what the host's network layer will tell you and
+neither being something a tab can ask. The web half answers null, a browser
+reporting one opaque failure for DNS, refusal and TLS alike, which leaves the
+caller's existing fallback — the `connection` or `unknown` kind Dio already
+named — as the honest result.
+
+`http.dart` became a seam and took Dio's client adapter with it. Dio builds its
+own `HttpClient` rather than consulting `HttpOverrides`, so the Core proxy was
+named twice in two files; `proxiedHttpClientAdapter` now sits beside the
+override that shares its answer, and `request.dart` no longer names
+`FlClashHttpOverrides` at all, which is why `http_web.dart` carries a no-op
+install and a null adapter and no proxy policy — a tab reaches the network only
+through the browser, and Dio's own browser adapter is already that route.
+
+`request.dart`'s last three reaches each wanted a different answer.
+`HttpHeaders.locationHeader` and `authorizationHeader` are the strings
+`location` and `authorization`, which is all Dio ever wanted of them. The
+unlabeled-body inflate moved to `package:archive`'s `GZipDecoder` and
+`ZLibDecoder` with no seam at all: those classes already choose `dart:io`'s
+native codec on a `dart:io` platform and a Dart implementation on the web, so
+the desktop keeps the codec it had, and `ArchiveException` extends
+`FormatException`, so the best-effort catch around a body that only starts like
+gzip is unchanged.
+`HeaderValue.parse` had no such counterpart, so the parameter reading it did for
+`Content-Disposition` is now in the file, with the cases a plain `split(';')`
+would get wrong — a separator inside a quoted filename, an escaped quote — held
+by tests.
+
+`protocol.dart` split by concern in the smallest possible way. What the app's
+URL schemes *are* — three scheme names and the two plan classes that turn one
+into a registry key or a .desktop entry — is string arithmetic any platform
+can do, and `link.dart` reads the list to recognize an incoming `clash://`
+URL. Asking the host to *claim* those schemes was all the `dart:io` and all
+the `package:win32_registry` in the file, so it moved behind
+`protocol_handler.dart`, which leaves the pure module in the barrel and its
+test untouched. The web half is a no-op rather than a thrower: a tab does have
+`navigator.registerProtocolHandler`, but a panel pointing the operating system
+at itself would take the link away from the desktop already registered for it.
+
+`task.dart` took no seam of its own. It is a six-hundred-line config pipeline
+the panel needs, of which four lines touched files, so each went through
+`file.dart` — what the layering test's own advice says to do. Two of the new
+path-taking functions are synchronous, against the grain of the rest of that
+file: `shakeOrphanFiles` is driven synchronously by its test, and
+`_migrateLegacyProviderFile` runs inside a `void` closure in the config
+builder, so an await would reorder the work the `compute` body does. The
+directory lister names the two things it decides — a link is neither a file nor
+a directory, a missing directory is empty — and `movePathSync` folds the legacy
+provider rename, both of its no-op conditions included, into one operation,
+leaving the best-effort catch at the call site where that policy belongs.
+
+`linux_elevation.dart` needed no seam, only to leave the barrel. The whole
+class asks the host shell for a privilege — pkexec, then sudo with the password
+on stdin — and the `ProcessRunner` it stores is the typedef declared in
+`system_shell_native.dart`, so the file could never have compiled for web
+whatever it imported. It was in the web walk only because `common.dart`
+exported it, and nothing but `system_shell_native.dart` and that pair's test
+ever named it; both now import it directly. No new guard was needed either: the
+ratchet reports the module the moment a re-export brings it, and its `dart:io`,
+back into the walk.
+
+`backup.dart` split along the line `protocol.dart` drew, the archive work being
+the half that leaves. `BackupEntries` is the vocabulary — an entry name is also
+the file's path relative to the home directory, which `task.dart` and the
+backup action each resolve against a root of their own — and the two request
+records are what crosses the seam, so neither is duplicated on either side of
+it. Everything that opens the zip went to `backup_archive.dart`: the
+`package:archive` streams, the drift snapshot pointed at its own temp
+directory, the `user_version` read out of the SQLite header, the zip-slip
+guard. That empties the `package:archive/archive_io.dart` list and takes the
+last `lib/common` file off the `dart:io` one; what the directory still had on
+the package map then was the four platform modules and `javascript.dart`. The
+web half throws and carries only `backupTask` and `restoreTask` — the walk
+names no more — while the archive test keeps driving the two
+`@visibleForTesting` entry points through the barrel, which on the VM is the
+native side.
+
+`app_localizations.dart` is where a Core failure becomes a sentence, and that
+put the whole of `core/desktop/helper_client.dart` — Dio's io adapter, the
+Windows registry, the Helper RPC — in every file that reads a localized string.
+`HelperException` was thirteen pure lines living in that file, so it moved to
+`desktop/model.dart`, beside the `DesktopCoreFailure` it always travels inside.
+`launch_policy.dart` then split the way `network_error.dart` did: classifying
+an OS error and naming the Smart App Control states is the vocabulary, while
+reading `ProcessException.errorCode` and opening the `CI\Policy` key are what
+only a host can do, so both sit behind `launch_host.dart`. The web half answers
+unknown and null — a panel launches nothing, so a refusal it hears about was
+classified by the desktop that hit it and arrives as a `HelperException`, which
+the pure half reads unaided.
+
+`bootstrap.dart` needed no seam for either of its two reaches. `exit(0)` became
+`system.forceExit()`, the call `application.dart` already makes, and deleting a
+corrupt preferences file became `safeDeletePath`. Its three port bindings stay:
+the file that owns the window, the tray and the navigator is where they belong,
+and a web build wants a different answer there rather than no answer.
+
+Sealing `CoreService` is what took `core/desktop/` out of the web build. Seven
+files — the Helper client and its manifest, the launcher, the process probe,
+the lifecycle, the IPC transport and the RPC channel — were in the walk because
+`lib/core/core.dart` exports `service.dart`, and nothing else anywhere in `lib`
+names any of them. One seam removed all seven: `dart:ffi` left the walk
+entirely, `package:dio/io.dart`, `package:ffi/ffi.dart` and
+`package:win32_registry` emptied, `dart:io` fell to five files with none of
+them under `lib/core/`, and what is left of that directory in the walk is the
+pure `model.dart` and `launch_policy.dart`. The web half is
+`const CoreHandlerInterface? coreService = null` rather than a stub throwing
+from forty-seven methods — `controller.dart` reads `coreService!` on both
+sides, `coreLib` already answers null off Android, and a panel client is what
+fills the slot. `test/core/service_test.dart` names `service_native.dart`,
+`CoreService.forTesting` being a native name.
+
+`controller.dart` took `task.dart`'s route rather than a seam of its own, being
+the one interface every platform's Core sits behind: its five reaches moved,
+not the file. Two members joined the path-taking family to carry them.
+`pathExists` is how `initGeo` skips a geo asset already seeded without loading
+megabytes out of the bundle to find out, and `safeWritePathAsBytes` gained the
+`flush` that write had been asking `writeAsBytes` for directly — a geo file
+half-written through a power loss is one mihomo cannot read.
+`isPathAgeEncrypted` replaced the `FileExt` getter whose only caller this was
+and reads its head through `readPathHead`, so a path that is not there answers
+false instead of throwing, and the `validateConfig` immediately after it
+reports the absence in the Core's own words.
+
+`models/common.dart` and `models/profile.dart` kept their vocabulary and gave
+up their handles. `FileInfo` is still a model and `readFileInfo` still reads
+one; what moved behind the seam is the stat under it, `readPathStat`, which
+answers a record so that `lib/common` need not import `lib/models` to fill a
+model in. `Profile.file` became `Profile.path`, and the creation it had been
+doing as a side effect of being read went with it — that side effect is why
+exporting a profile with no file saved empty bytes, and why two tests asserted
+on a zero-length file they had themselves brought into being. The replacements
+say what they do: `pathExists` for the update check, `safeCopyPath` for the
+save, `readPathAsBytesOrEmpty` for the export, which also takes a synchronous
+read off the frame that draws the profile list. `ScriptExt.saveWithPath` went
+rather than moved — nothing called it, and what it called was
+`File(copyPath).copy(copyPath)`, a file copied onto itself. The `FileInfo`
+tests had been mocking a `File` to drive the stat; the branches a real file
+system can reproduce are now `readPathStat` tests, and the catch around an
+unreadable date keeps none, there being no portable way to fail `lastModified`
+on a file whose `length` just succeeded.
+
+The provider layer is where building a `File` at the call site concentrated
+outside `lib/common`, and each of those reaches had been carrying a policy the
+path family now states, so they came off one decision at a time rather than by
+substitution. `BackupAction` holds its work directory as a string, one
+`safeDeletePath` taking down the tree a `Directory` handle was being kept for.
+`StoreAction`'s orphan sweep reads a synchronous listing where it had an
+`await for`: it collects every profile id before it acts on any, so the stream
+bought it nothing. `ClashProvidersAction` keeps `renamePath` where it had
+`rename`, a compiled rule set displacing the old one in one operation being the
+whole point of staging it under `.new`, and `SetupAction` keeps
+`writePathAsStringAtomically` whole for the same reason — an atomic write
+decomposed at a call site is no longer atomic. `ProfilesAction.clearEffect`
+went from four lines to one, `safeDeletePath` already answering for a path that
+is not there, and the `recursive: true` it had been passing described a
+directory that a profile file never was.
+
+Each of the views' own reaches had an owner nearer than the file system.
+`lib/views/profiles/edit.dart` and `lib/views/resources.dart` take a `FileInfo`
+from `readFileInfo`, and the rule-set row in
+`lib/views/profiles/custom/providers.dart` asks the provider model for its own
+`fileInfo` rather than naming a path the model already knows. The editor then
+had to stop writing its post-save size through `copyWith`: the info it holds
+can be null now that reading one no longer creates the file, and `?.copyWith`
+would have dropped the size it just computed, so it constructs the `FileInfo`
+it knows. Exporting a profile reads `readPathAsBytesOrEmpty`, which also takes
+a `readAsBytesSync` off the frame drawing the profile list.
+`lib/views/proxies/providers.dart` probes a provider file with `readPathHead`,
+whose null is the absence it had been spending a separate `exists` call to
+learn, and the memory card reads `AppPlatform.currentRss` where it had
+`ProcessInfo.currentRss`.
+
+The four platform modules took seams of their own rather than web
+implementations inside the plugins they name. A web implementation of a
+desktop-only plugin is a dead shell relocated into the plugin, and two of the
+packages are not ours to put one in — `launch_at_startup`, and the
+`screen_retriever` that `plugins/window` pulls along — so the seam is the one
+route that serves all of them. `proxy.dart` had to hand off a lodger first: a
+seam file holds nothing but its conditional export, and `proxyEnvCommand` is
+pure, so it moved to `proxy_env.dart` and the barrel exports the seam and the
+pure file side by side. The null that `startSystemProxy` already answered on a
+platform with no system proxy to set is what the web half answers with, which
+is why `providers/actions/system.dart` could drop its `proxy != null` guard:
+the guard is the native half's now. The launch seam is `syncAutoLaunch`, named
+apart from the `SystemAction.updateAutoLaunch` that flips the setting because
+this is the one that applies it to the operating system — and what the
+operating system starts is the desktop host, which registered itself for it, so
+a tab's answer is to do nothing.
+
+`tray.dart` and `window.dart` are handles rather than functions, so their web
+halves are a typed null, and the type is the port the provider layer already
+reaches them through. Both ports widened to cover what the handle's own callers
+use and the port did not: `init` and `showInitFailure` on `WindowPort`,
+`updateTitle` on `TrayPort`. The native handles are then declared by the port
+as well — `final WindowPort? window`, `final TrayPort? appTray` rather than the
+inferred `Window?` and `AppTray?` — which is what makes the seam enforce
+itself: a caller reaching for a member the port does not carry now fails on the
+desktop build too, instead of compiling there and breaking the web one. What
+stayed in the native halves is what only `Window` and `AppTray` call —
+`restoredWindowPosition` and the displays it measures, the init-failure
+listener, `WindowVisibilityController`, the tray icon paths and the menu — and
+the tests that drive those name the native file. `launch_at_startup`, `proxy`
+and `screen_retriever` emptied on the package map with them, leaving `tray`
+and `window` on `manager/tray_manager.dart` and `manager/window_manager.dart`,
+which the walk reached through the manager barrel that `application.dart`
+imports.
+
+`lib/manager/platform_managers.dart` is the seam over that barrel's reach — the
+stack `application.dart` wraps the app in, which is where the window, the tray,
+the hotkeys, the system proxy, the Android tile and the VPN enter the widget
+tree. It is a builder rather than a handle because what it chooses is
+structural: `WindowManager` around `TrayManager` around `HotKeyManager` around
+`ProxyManager` on desktop, `AndroidManager` around `TileManager` otherwise, and
+on web the child unwrapped, a tab having none of those to run and no title bar
+of its own to draw. That is what emptied `package:tray/` and `package:window/`,
+and it took `hotkey_manager.dart`'s `package:rust_api` out of the walk with
+them.
+
+`lib/database/database.dart` opened SQLite through drift's
+`NativeDatabase.createInBackground`, which is `dart:io` for the file and a
+background isolate for the work. `lib/database/executor.dart` is the seam, and
+the web half answers a `LazyDatabase` whose open throws rather than throwing
+where the executor is built. Holding the database must not be the failure:
+`AppDatabase` is constructed once and reached by the whole provider layer, so a
+constructor that threw would take the panel down at startup, while a lazy one
+takes down only the query that asked — and the rows a panel shows are the
+desktop's, so that query is the thing still to be routed.
+
+`package:wifi_ssid/` came off last among the plugins, and it is the entry where
+the ratchet was measuring more than compilation: the plugin's Dart is a bare
+method channel and compiles for web, but a channel with no handler answers
+`MissingPluginException`, which is not the `PlatformException` that
+`LocationPermissions.refresh` and `lib/views/config/on_demand.dart` catch. So
+the web half answers rather than throws — no SSID, and a denial from both
+permission reads. `WifiPermission` moved to `lib/common/wifi_permission.dart`
+and the barrel exports it, an enum the plugin owns being unnameable by a half
+that does not import the plugin. `wifi_native.dart` maps the plugin's states
+onto it and is the only file left naming the package, with
+`test/common/wifi_test.dart` driving the real channel over it to pin what each
+answer the channel can give comes out as, the absent one included.
+
+`lib/common/rust_runtime.dart` is the seam over `package:rust_api` itself.
+Three files named it — `RustLib.init()` in `lib/main.dart`,
+`isRustLibInitialized` in `lib/pages/editor.dart`, and the `evaluateScript`
+that `lib/common/javascript.dart` installs as its default `scriptEvaluator` —
+and one seam is cheaper than three guards, the generated bindings being
+`dart:ffi` for all three. The web answers are deliberately not symmetric: init
+does nothing, there being no library in a tab to load; the readiness getter is
+false, which is the unavailable state the editor already draws where no runtime
+was initialised for it; and the evaluator throws, which `handleEvaluate`
+already turns into a `MessageException` the way it does any engine failure.
+`javascript.dart` kept its pure half — the `proxy-providers` map a script gets
+before it runs is the same on both sides.
+
+`web/` is checked in by hand rather than by `flutter create`, there being no
+SDK on the machine that wrote it: `index.html` on the `flutter_bootstrap.js`
+loader, a manifest naming the panel what it is, and icons rendered from
+`assets/images/icon.png` — the maskable pair on white, because the logo's top
+bar is the brand colour and a brand-coloured plate swallows it. Flutter 3.47
+has no HTML renderer left to avoid, so the default CanvasKit is already the
+renderer the superellipse corners need. `flutter build web --release` runs in
+the `Dart` job of `.github/workflows/build.yaml` after the tests and on the
+same gate, because the web target compiles a different half of every seam and
+only a build reports on that half. `plugins/rust_api/hook/build.dart` had to
+learn to skip a target that takes no code asset, which is a cargo invocation
+with no target to name; the `setup` hook already answered that way. None of the
+four local plugins needed a web implementation of its own in the end — the
+seams keep their Dart out of the walk, which is the dead shell avoided again.
+
+`SupportPlatform` gained a fifth value, `Web`, which is what makes
+`currentPlatform` total and the dashboard renderable in a tab. Nothing in
+`lib/views/dashboard/dashboard.dart` changed: it keeps the widgets whose
+`platforms` list contains the running platform, and the three that need the
+host already name lists a panel is not in — `tunButton` and `systemProxyButton`
+carry `desktopPlatforms`, `vpnButton` carries Android alone. So the panel
+starts out offering every widget that is a reading and none that is a switch on
+the host. `test/enum/enum_test.dart` pins that split rather than the three
+names, which is the line that moves when the panel learns to ask the desktop to
+flip one. Adding the value is safe because nothing persists a
+`SupportPlatform`: it is an answer about the running build, never a stored one.
+
+`lib/widgets/web_shell.dart` is the panel's frame, and what it holds constant
+is the view mode. `defaultWindowSize` in `lib/common/constant.dart` is the one
+source of 680 by 580 — `WindowPropsExt.size` falls back to it for a desktop
+window never yet resized, and the shell draws a canvas of it, so the two cannot
+drift apart. The shell goes in `MaterialApp.builder` above `buildManagerStack`,
+which puts its `SizedBox` above the `LayoutBuilder` in `ThemeManager` that
+feeds `viewSizeProvider`. That is the measurement `ViewMode` is computed from,
+so a 680-wide canvas lands in `ViewMode.laptop`, the mode the desktop window
+opens in, instead of whatever mode the browser window's own width would name.
+
+Constraining the box is not enough by itself. `MaterialApp` installs a
+`MediaQuery.fromView` reporting the tab, and plenty of widgets read
+`MediaQuery.sizeOf` or `paddingOf` directly — the side sheet picks its width
+from the former, so a sheet measuring the tab rather than the canvas would open
+the wrong size. The shell therefore overrides `MediaQuery` inside the canvas,
+with `padding`, `viewPadding`, `viewInsets`, `systemGestureInsets` and
+`displayFeatures` zeroed: those insets describe the page's edges, which a
+canvas in the middle of the page does not have. `BoxFit.scaleDown` answers for
+a window too small to hold the canvas — exactly 1:1 while the page is big
+enough, a proportional shrink of the whole canvas when it is not, so a narrow
+browser window scales the panel instead of reshaping it into another view mode.
+Everything outside the canvas is filler, and deliberately so: one gradient
+mixed from the theme's own scheme, in a single widget so it can be replaced
+wholesale, with the canvas framed by a `Material` carrying `AppShape.md`, the
+superellipse the rest of the app is drawn with. The gate is `system.isWeb` at
+run time rather than a seam — the widget imports nothing a VM cannot compile,
+and a seam would have put it out of reach of
+`test/widgets/web_shell_test.dart`, which is where the canvas size, the
+measurement the app sees inside it, and the scale-down are pinned.
+
 ### High-Frequency Buffers
 
 `logsProvider`, `requestsProvider`, `dnsQueriesProvider` and `trafficsProvider` hold a `FixedList`
@@ -1000,9 +1445,9 @@ that asks the OS for a permission, a global shortcut or a registration, must con
 
 ## Build System
 
-`setup.dart` is the release build orchestrator: it writes `env.json` (`APP_ENV`), activates `flutter_distributor` from
-the `chen08209/flutter_distributor` fork pinned to a `v<version>-flclash.<n>` tag (cut a new tag there and bump
-`--git-ref` when the fork changes), and leaves the Core artifacts to the build hook.
+`tool/setup.dart` is the release build orchestrator: it writes `env.json` (`APP_ENV`), activates
+`flutter_distributor` from the `chen08209/flutter_distributor` fork pinned to a `v<version>-flclash.<n>` tag (cut a
+new tag there and bump `--git-ref` when the fork changes), and leaves the Core artifacts to the build hook.
 
 The desktop Go core and the Rust helper are built by a Dart build hook; Android's Core is built by Gradle (see Android
 Core Build). `plugins/setup/hook/build.dart` only constructs
@@ -1020,7 +1465,7 @@ What the hook protocol forces:
 - The hook does not know the build mode: the protocol carries none and `linkingEnabled` only says whether link hooks
   run, so nothing in the hook branches on debug versus release. It cannot tell `flutter test` from a build either; the
   `build_assets: false` user-define in the root `pubspec.yaml` is the one switch (see `.agents/commands.md`), and
-  `setup.dart` refuses to package while it is set.
+  `tool/setup.dart` refuses to package while it is set.
 - The hook declares the files it read but the *directories* it wrote: `hooks_runner` hashes a file by content and a
   directory by child names, so `libclash/macos/` catches a deleted artifact without MD5-ing a 55 MB Core on every
   build. A rebuild touches those directories after the runner's cutoff, so the next build runs the hook once more and
@@ -1096,15 +1541,59 @@ Windows helper integrity/version check:
   dead until Windows restarts it. `lock_surviving_poison` recovers the guard through `PoisonError::into_inner` instead.
   `hub.rs` uses it at every lock site, tests included, and two tests in that file pin the behaviour.
 
-Build configuration defaults live in `plugins/setup/setup_hooks/lib/src/options.dart` and can be overridden via the root
-`build_config.yaml`.
+Build configuration defaults live in `plugins/setup/setup_hooks/lib/src/options.dart` and can be overridden via
+`tool/build_config.yaml`.
 
-`core_version` in `build_config.yaml` is the mihomo release tag the `core/Clash.Meta` fork is based on. Upstream injects
-its version only from its own CI, so the fork alone reports the placeholder `1.10.0` in `/version` and in protocol
-user agents; `GoBuilder` passes the value as `-X github.com/metacubex/mihomo/constant.Version=...` for every build,
-local and CI alike. Bump it whenever the submodule moves onto a new upstream release.
+`core_version` in `tool/build_config.yaml` is the mihomo release tag the `core/Clash.Meta` fork is based on. Upstream
+injects its version only from its own CI, so the fork alone reports the placeholder `1.10.0` in `/version` and in
+protocol user agents; `GoBuilder` passes the value as `-X github.com/metacubex/mihomo/constant.Version=...` for every
+build, local and CI alike. Bump it whenever the submodule moves onto a new upstream release.
 
 Architecture detection is automatic. The `--description` flag passed to `flutter_distributor` adds arch suffixes to artifact names, such as `FlClash-0.8.93-macos-arm64.dmg`.
+
+### Distribution Channels
+
+`.github/workflows/build.yaml` publishes one thing: a GitHub Release on `farfarfun/funclash`, for a `v*` tag only.
+The repository gate is there because the release notes link to that repository, so a fork's own tag would publish
+notes pointing somewhere else. Everything downstream reads that release; the workflow pushes to no other repository
+(the Telegram, F-Droid and `chen08209/homebrew-tap` steps upstream has are deliberately absent, and
+`.github/homebrew_cask_template.rb` and `tool/release_telegram.py` are the orphans they left behind).
+
+`apt install funclash` and `brew install funclash` both come from [`farfarfun/packages`][packages], which is the
+org's APT source and Homebrew tap in one repository, served from GitHub Pages. It rebuilds from its own
+`packages.toml` on `repository_dispatch`, on edits to that file, manually, and every two hours — so a new release
+becomes installable within two hours without funclash holding a cross-repository token. Pushing one would mean
+storing a PAT here and watching it expire; `gh workflow run build.yml -R farfarfun/packages` covers impatience.
+
+Two asset-naming facts that channel depends on:
+
+- **The `.deb` file name, not its control fields, decides whether it is indexed.** `dpkg-scanpackages --arch <arch>`
+  globs `*_all.deb` and `*_<arch>.deb`; a package left under the distributor's `FlClash-<version>-linux-<arch>.deb`
+  name is skipped, and the scanner says nothing about it. What notices is a count check in that repository's
+  `build-deb-repo.sh` — which fails the whole organisation's publish, not just this package. `tool/setup.dart`
+  therefore renames the built package to `funclash_<version>_<arch>.deb` (`debianArtifactName`), and
+  `test/tool/packaging_config_test.dart` pins both that name and the lower-case `package_name` Debian requires. The
+  version in the name drops the `+<build>` suffix while the control `Version:` keeps it; apt reads the control, and
+  the glob only looks at the architecture. Nothing else is renamed: the other artifacts keep the fork's
+  `FlClash-<version>-<platform>-<arch>.<ext>` scheme to keep the diff against upstream small.
+- **`SHA256SUMS` carries bare names.** `sha256sum *` rather than `sha256sum ./*`, because the renderer there looks
+  assets up by the name the release lists them under.
+
+The package is named after the repository because that index holds one package per repository; the application is
+still `FlClash` everywhere it is visible — the `.app`, `/opt/FlClash`, `com.follow.clash`. `linux/packaging/rpm/`
+still says `FlClash` because no channel consumes the rpm.
+
+The Homebrew half is a **cask**, not a formula: `render-formula.py` there builds `bin.install` from a
+`<package>-<rust-target>.tar.gz`, which an application shipping DMGs does not have. So the entry is `[source.cask]`
+rather than `[source.brew]`, rendered from the DMGs' `SHA256SUMS` by a second renderer, and verified on a macOS
+runner because linuxbrew does not read casks at all. On macOS `brew install funclash` resolves to it without
+`--cask`, there being no formula of that name.
+
+One thing to fix when the docs site is retargeted at this fork: `docs/site/assets/app.js` composes download names as
+`FlClash-${release.version}-${build.id}`, which is no longer the Linux deb's name. The site is still fed by
+upstream's releases, so changing it now would break it.
+
+[packages]: https://github.com/farfarfun/packages
 
 #### Android Core Build
 
@@ -1114,8 +1603,8 @@ Android Studio's Make Project. It takes the AAR apart instead, `classes.jar` as 
 an `unpack<Variant>CoreJniLibs` task per variant handed to `variant.sources.jniLibs.addGeneratedSourceDirectory`; the
 legacy `sourceSets` DSL rejects a task-built directory. Gradle therefore runs the Go build before any task that needs
 its classes or libraries, in every variant and whether or not Flutter started the build, and its up-to-date check over
-`core/` (tests, `testdata` and `cmd/` left out), `build_config.yaml`, the Go version, the ABIs, the API level and the
-NDK version stands in for the hook's cache.
+`core/` (tests, `testdata` and `cmd/` left out), `tool/build_config.yaml`, the Go version, the ABIs, the API level and
+the NDK version stands in for the hook's cache.
 
 - `gomobile` and `gobind` come from the `tool` directives in `core/go.mod` and are built into the task's temporary
   directory, so their version moves only with `go.mod`. `bindCore` finds `go` on `PATH` or in the Homebrew and Go
@@ -1124,7 +1613,7 @@ NDK version stands in for the hook's cache.
 - The ABIs come from the `target-platform` property Flutter passes, and default to all three for a Gradle build Flutter
   did not start. `ANDROID_HOME` and `ANDROID_NDK_HOME` are AGP's SDK and its `ndkVersion` NDK, so the Core and the app
   share one NDK, and `-androidapi` is the app's `minSdk`.
-- `tags`, `go_ldflags` and `core_version` come from `build_config.yaml`, the file the hook reads.
+- `tags`, `go_ldflags` and `core_version` come from `tool/build_config.yaml`, the file the hook reads.
 - Both Cores take their GODEBUG defaults from the `go` line of `core/go.mod`, whatever toolchain builds them. The
   desktop Core gets them from the Go command because `core` is its main module. gomobile links the library as the main
   package of a module it generates, whose `go` line is the toolchain's, so `bindCore` hands the desktop Core's
@@ -1345,9 +1834,9 @@ returns the JSON the script produced. Nothing about the script runs in Dart.
 
 ## Rust Helper Service
 
-`services/helper/` is the privileged helper that starts the core elevated so TUN works. It ships on Windows and Linux
-and is built by the setup build hook alongside the Core, which always compiles the Helper in Rust release mode
-after calculating the SHA256 of the Core produced for the active Flutter configuration.
+`platform/services/helper/` is the privileged helper that starts the core elevated so TUN works. It ships on
+Windows and Linux and is built by the setup build hook alongside the Core, which always compiles the Helper in Rust
+release mode after calculating the SHA256 of the Core produced for the active Flutter configuration.
 
 The helper owns its Windows Service Control Manager lifecycle through two elevated commands:
 

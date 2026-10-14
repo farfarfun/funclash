@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/database/executor.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
@@ -47,17 +46,11 @@ part 'scripts.dart';
   ],
 )
 class Database extends _$Database {
-  Database([QueryExecutor? executor]) : super(executor ?? _openConnection());
+  Database([QueryExecutor? executor])
+    : super(executor ?? openDatabaseExecutor());
 
   @override
   int get schemaVersion => 20;
-
-  static LazyDatabase _openConnection() {
-    return LazyDatabase(() async {
-      final databaseFile = File(await appPath.databasePath);
-      return NativeDatabase.createInBackground(databaseFile);
-    });
-  }
 
   @override
   MigrationStrategy get migration {

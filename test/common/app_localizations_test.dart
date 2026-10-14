@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:fl_clash/common/app_localizations.dart';
 import 'package:fl_clash/common/network_error.dart';
 import 'package:fl_clash/common/webdav.dart';
-import 'package:fl_clash/core/desktop/helper_client.dart';
+import 'package:fl_clash/core/desktop/launch_host.dart';
 import 'package:fl_clash/core/desktop/launch_policy.dart';
 import 'package:fl_clash/core/desktop/model.dart';
 import 'package:fl_clash/core/method.dart';

@@ -42,14 +42,12 @@ class StoreAction extends _$StoreAction {
         .read(profilesProvider)
         .map((item) => item.id)
         .toSet();
-    final providersDir = Directory(await appPath.getProvidersRootPath());
-    if (await providersDir.exists()) {
-      await for (final entity in providersDir.list(followLinks: false)) {
-        if (entity is! Directory) continue;
-        final profileId = int.tryParse(basename(entity.path));
-        if (profileId != null && profileId > 0) {
-          profileIds.add(profileId);
-        }
+    final providersDir = await appPath.getProvidersRootPath();
+    for (final entry in listPathEntriesSync(providersDir)) {
+      if (!entry.isDirectory) continue;
+      final profileId = int.tryParse(basename(entry.path));
+      if (profileId != null && profileId > 0) {
+        profileIds.add(profileId);
       }
     }
     final clearResults = await Future.wait(

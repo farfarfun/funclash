@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fl_clash/common/boot_record.dart';
 import 'package:fl_clash/common/common.dart';
@@ -121,7 +120,7 @@ class App {
       if (path == null || path.isEmpty) {
         return null;
       }
-      return FileImage(File(path));
+      return pathImage(path);
     } catch (error) {
       commonPrint.log('getPackageIcon error: $error');
       return null;
@@ -153,7 +152,7 @@ class App {
   }
 
   Future<bool?> openAppSettings() async {
-    if (!Platform.isAndroid) return false;
+    if (!system.isAndroid) return false;
     return methodChannel.invokeMethod<bool>('openAppSettings');
   }
 

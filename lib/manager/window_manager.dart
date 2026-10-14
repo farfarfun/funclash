@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/launch.dart';
@@ -19,7 +18,7 @@ class WindowManager extends ConsumerStatefulWidget {
 
   /// A request to quit from outside the window, such as SIGTERM from `kill`
   /// or the session ending; exits like the tray's quit.
-  final Stream<ProcessSignal>? terminateSignals;
+  final Stream<void>? terminateSignals;
 
   const WindowManager({super.key, this.terminateSignals, required this.child});
 
@@ -30,7 +29,7 @@ class WindowManager extends ConsumerStatefulWidget {
 class _WindowContainerState extends ConsumerState<WindowManager>
     with WindowListener {
   Timer? _windowGeometryTimer;
-  StreamSubscription<ProcessSignal>? _terminateSubscription;
+  StreamSubscription<void>? _terminateSubscription;
   int _windowGeometryRevision = 0;
   int _windowBlurRevision = 0;
 
@@ -48,7 +47,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     ) {
       if (prev != next) {
         debouncer.call(FunctionTag.autoLaunch, () {
-          autoLaunch?.updateStatus(next);
+          syncAutoLaunch(next);
         });
       }
     });

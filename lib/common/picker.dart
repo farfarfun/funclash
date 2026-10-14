@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -17,25 +16,20 @@ class Picker {
       initialDirectory: await appPath.downloadDirPath,
       bytes: bytes,
     );
-    if (!system.isAndroid && uri != null && uri.scheme == 'file') {
-      final file = File(uri.toFilePath());
-      await file.safeWriteAsBytes(bytes);
+    if (system.isDesktop && uri != null && uri.scheme == 'file') {
+      await safeWritePathAsBytes(uri.toFilePath(), bytes);
     }
     return uri;
   }
 
   Future<Uri?> saveFileWithPath(String fileName, String localPath) async {
-    final localFile = File(localPath);
-    if (!await localFile.exists()) {
-      await localFile.create(recursive: true);
-    }
-    final bytes = await localFile.readAsBytes();
+    final bytes = await readPathAsBytesOrEmpty(localPath);
     final uri = await FilePicker.saveFile(
       fileName: fileName,
       initialDirectory: await appPath.downloadDirPath,
       bytes: bytes,
     );
-    await localFile.safeDelete();
+    await safeDeletePath(localPath);
     return uri;
   }
 

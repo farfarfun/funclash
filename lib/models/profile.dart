@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:fl_clash/common/common.dart';
@@ -146,31 +145,18 @@ extension ProfileExtension on Profile {
 
   String get updatingKey => 'profile_$id';
 
+  Future<String> get path => appPath.getProfilePath(id.toString());
+
   Future<Profile?> checkAndUpdateAndCopy({
     required ValidateConfig validate,
   }) async {
     if (type != ProfileType.url) {
       return null;
     }
-    final mFile = await _getFile(false);
-    if (await mFile.exists()) {
+    if (await pathExists(await path)) {
       return null;
     }
     return update(validate: validate);
-  }
-
-  Future<File> _getFile([bool autoCreate = true]) async {
-    final path = await appPath.getProfilePath(id.toString());
-    final file = File(path);
-    final isExists = await file.exists();
-    if (!isExists && autoCreate) {
-      return file.create(recursive: true);
-    }
-    return file;
-  }
-
-  Future<File> get file async {
-    return _getFile();
   }
 
   Future<Profile> update({required ValidateConfig validate}) async {
@@ -193,16 +179,14 @@ extension ProfileExtension on Profile {
     Uint8List bytes, {
     required ValidateConfig validate,
   }) async {
-    final path = await appPath.tempFilePath;
-    final tempFile = File(path);
-    await tempFile.safeWriteAsBytes(bytes);
-    final message = await validate(path, ageSecretKey);
+    final tempPath = await appPath.tempFilePath;
+    await safeWritePathAsBytes(tempPath, bytes);
+    final message = await validate(tempPath, ageSecretKey);
     if (message.isNotEmpty) {
       throw MessageException(message);
     }
-    final mFile = await file;
-    await tempFile.copy(mFile.path);
-    await tempFile.safeDelete();
+    await safeCopyPath(tempPath, await path);
+    await safeDeletePath(tempPath);
     return copyWith(lastUpdateDate: DateTime.now());
   }
 }

@@ -1,6 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -24,7 +23,7 @@ const helperPortKey =
 const helperPortValue = 'Port';
 const helperSocketPath = '/run/flclash/helper.sock';
 const helperProtocolVersionHeader = 'x-flclash-helper-protocol';
-final helperProtocolVersion = Platform.isWindows ? '8' : '6';
+final helperProtocolVersion = AppPlatform.isWindows ? '8' : '6';
 const maxTextScale = 1.4;
 const minTextScale = 0.8;
 final baseInfoEdgeInsets = EdgeInsets.symmetric(
@@ -132,6 +131,10 @@ const double dialogCommonWidth = 300;
 const repository = 'chen08209/FlClash';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
+
+/// The size the desktop window opens at, and the size of the canvas the web
+/// panel draws inside the browser so that both land in the same view mode.
+const defaultWindowSize = Size(680, 580);
 const defaultTestUrl = 'https://www.gstatic.com/generate_204';
 
 const shareLinkSchemes = {

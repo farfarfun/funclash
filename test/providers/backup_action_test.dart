@@ -32,10 +32,10 @@ void main() {
     SharedPreferences.setMockInitialValues({'version': 1});
     await AppLocalizations.load(const Locale('en'));
     home = Directory.systemTemp.createTempSync('flclash-backup-action-');
-    AppPath.supportDirectory = () async => home;
-    AppPath.temporaryDirectory = () async => home;
-    AppPath.cacheDirectory = () async => home;
-    AppPath.downloadDirectory = () async => home;
+    AppPath.supportDirectory = () async => home.path;
+    AppPath.temporaryDirectory = () async => home.path;
+    AppPath.cacheDirectory = () async => home.path;
+    AppPath.downloadDirectory = () async => home.path;
   });
 
   tearDownAll(() {

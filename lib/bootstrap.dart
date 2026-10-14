@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:fl_clash/common/boot_guard.dart';
@@ -80,7 +79,7 @@ class Bootstrap {
       return;
     }
     commonPrint.log('another instance owns the data directory, exiting');
-    exit(0);
+    system.forceExit();
   }
 
   Future<TonalPalette?> _getSystemPrimaryPalette() async {
@@ -167,9 +166,7 @@ class Bootstrap {
       _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
     );
     unawaited(_container.read(commonActionProvider.notifier).autoCheckUpdate());
-    unawaited(
-      autoLaunch?.updateStatus(_container.read(appSettingProvider).autoLaunch),
-    );
+    unawaited(syncAutoLaunch(_container.read(appSettingProvider).autoLaunch));
     if (!_container.read(appSettingProvider).silentLaunch) {
       unawaited(window?.show());
     } else {
@@ -230,8 +227,7 @@ class Bootstrap {
       message: TextSpan(text: currentAppLocalizations.cacheCorrupt),
     );
     if (res == true) {
-      final file = File(await appPath.sharedPreferencesPath);
-      await file.safeDelete();
+      await safeDeletePath(await appPath.sharedPreferencesPath);
     }
     // Saving here would rewrite the preferences file the user just chose to delete.
     await _container.read(systemActionProvider.notifier).handleExit(false);

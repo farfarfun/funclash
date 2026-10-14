@@ -9,7 +9,6 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi_ssid/wifi_ssid.dart';
 
 class OnDemandView extends ConsumerStatefulWidget {
   const OnDemandView({super.key, this.isAndroid, this.isMacOS});
@@ -49,14 +48,14 @@ class _OnDemandViewState extends ConsumerState<OnDemandView>
   Future<void> _handleRequestLocationPermission() async {
     final appLocalizations = context.appLocalizations;
     final permission = ref.read(locationPermissionsProvider);
-    if (permission == WifiSsidPermission.granted) {
+    if (permission == WifiPermission.granted) {
       return;
     }
-    if (permission == WifiSsidPermission.permanentlyDenied) {
+    if (permission == WifiPermission.permanentlyDenied) {
       _handlePermanentlyDeniedLocationPermission();
       return;
     }
-    final WifiSsidPermission? res;
+    final WifiPermission? res;
     try {
       res = await ref.read(locationPermissionsProvider.notifier).request();
     } on PlatformException catch (e) {
@@ -67,12 +66,12 @@ class _OnDemandViewState extends ConsumerState<OnDemandView>
       return;
     }
     switch (res) {
-      case WifiSsidPermission.granted:
+      case WifiPermission.granted:
         return;
-      case WifiSsidPermission.permanentlyDenied:
+      case WifiPermission.permanentlyDenied:
         _handlePermanentlyDeniedLocationPermission();
         return;
-      case WifiSsidPermission.denied:
+      case WifiPermission.denied:
         break;
     }
     final needGo = await dialogs.showMessage(
@@ -263,7 +262,7 @@ class _OnDemandViewState extends ConsumerState<OnDemandView>
     final appLocalizations = context.appLocalizations;
     final granted = ref.watch(
       locationPermissionsProvider.select(
-        (state) => state == WifiSsidPermission.granted,
+        (state) => state == WifiPermission.granted,
       ),
     );
     return _buildPrerequisiteItem(

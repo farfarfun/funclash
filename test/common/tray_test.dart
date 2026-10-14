@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/tray.dart';
+import 'package:fl_clash/common/tray_native.dart';
 import 'package:test/test.dart';
 
 void main() {

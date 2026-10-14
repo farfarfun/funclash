@@ -8,6 +8,7 @@ import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/actions/system_exit.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/state.dart';
+import 'package:flutter/foundation.dart' show AsyncCallback;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +58,12 @@ class _GeometryWindowPort implements WindowPort {
   final Error? error;
 
   _GeometryWindowPort(this.geometry, {this.error});
+
+  @override
+  Future<void> init(int version, WindowProps props) async {}
+
+  @override
+  Future<void> showInitFailure({required AsyncCallback onExit}) async {}
 
   @override
   Future<WindowProps?> captureNormalGeometry(WindowProps current) async {

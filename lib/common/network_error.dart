@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:fl_clash/common/network.dart';
 import 'package:fl_clash/common/webdav.dart';
 import 'package:fl_clash/core/method.dart';
 import 'package:fl_clash/l10n/l10n.dart';
@@ -74,14 +74,21 @@ _Failure _fromDio(DioException error) {
 }
 
 _Failure? _fromTransport(Object? cause) {
-  return switch (cause) {
-    TlsException() => const _Failure(_Kind.tls),
-    TimeoutException() => const _Failure(_Kind.timeout),
-    SocketException(:final message)
-        when message.startsWith('Failed host lookup') =>
-      const _Failure(_Kind.hostLookup),
-    SocketException() || HttpException() => const _Failure(_Kind.connection),
-    _ => null,
+  if (cause is TimeoutException) {
+    return const _Failure(_Kind.timeout);
+  }
+  final reason = transportFailureReason(cause);
+  return reason == null ? null : _Failure(_kindOfReason(reason));
+}
+
+/// The Core and the host's own socket layer name a transport failure alike.
+_Kind _kindOfReason(Object? reason) {
+  return switch (reason) {
+    'timeout' => _Kind.timeout,
+    'dns' => _Kind.hostLookup,
+    'tls' => _Kind.tls,
+    'connection' => _Kind.connection,
+    _ => _Kind.unknown,
   };
 }
 
@@ -104,13 +111,10 @@ _Failure? _fromCore(CoreMethodException error) {
     'request_bad_response' when statusCode != null => _Failure.httpStatus(
       statusCode,
     ),
-    'request_bad_response' || 'request_error' => _Failure(switch (reason) {
-      'timeout' => _Kind.timeout,
-      'dns' => _Kind.hostLookup,
-      'tls' => _Kind.tls,
-      'connection' => _Kind.connection,
-      _ => _Kind.unknown,
-    }, detail: error.message),
+    'request_bad_response' || 'request_error' => _Failure(
+      _kindOfReason(reason),
+      detail: error.message,
+    ),
     _ => null,
   };
 }

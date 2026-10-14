@@ -1,9 +1,16 @@
-import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:fl_clash/common/ip_address.dart';
+import 'package:flutter/foundation.dart' show compute;
+
 typedef _Range = ({BigInt start, BigInt end});
+
+typedef _SubtractArgs = ({
+  List<String> include,
+  List<String> exclude,
+  bool wholeWhenEmpty,
+});
 
 const _families = [32, 128];
 
@@ -39,8 +46,17 @@ Future<List<String>> subtractCidrsTask(
   List<String> exclude, {
   bool wholeWhenEmpty = false,
 }) {
-  return Isolate.run(
-    () => subtractCidrs(include, exclude, wholeWhenEmpty: wholeWhenEmpty),
+  return compute<_SubtractArgs, List<String>>(
+    _subtractCidrsTask,
+    (include: include, exclude: exclude, wholeWhenEmpty: wholeWhenEmpty),
+  );
+}
+
+List<String> _subtractCidrsTask(_SubtractArgs args) {
+  return subtractCidrs(
+    args.include,
+    args.exclude,
+    wholeWhenEmpty: args.wholeWhenEmpty,
   );
 }
 
@@ -53,29 +69,15 @@ bool isCidr(String value) {
   if (slash < 0) {
     return false;
   }
-  final address = value.substring(0, slash);
   final prefix = value.substring(slash + 1);
-  if (!_decimal.hasMatch(prefix) || address.contains('%')) {
+  if (!_decimal.hasMatch(prefix)) {
     return false;
   }
-  final int bits;
-  if (address.contains(':')) {
-    final parsed = InternetAddress.tryParse(address);
-    if (parsed?.type != InternetAddressType.IPv6 || address.trim() != address) {
-      return false;
-    }
-    bits = 128;
-  } else {
-    final octets = address.split('.');
-    if (octets.length != 4 ||
-        octets.any(
-          (octet) => !_decimal.hasMatch(octet) || int.parse(octet) > 255,
-        )) {
-      return false;
-    }
-    bits = 32;
+  final address = parseIpAddress(value.substring(0, slash));
+  if (address == null) {
+    return false;
   }
-  return int.parse(prefix) <= bits;
+  return int.parse(prefix) <= address.length * 8;
 }
 
 Map<int, List<_Range>> _parseAll(Iterable<String> cidrs) {
@@ -94,12 +96,11 @@ Map<int, List<_Range>> _parseAll(Iterable<String> cidrs) {
   if (slash < 0) {
     return null;
   }
-  final address = InternetAddress.tryParse(cidr.substring(0, slash).trim());
+  final raw = parseIpAddress(cidr.substring(0, slash).trim());
   final prefix = int.tryParse(cidr.substring(slash + 1).trim());
-  if (address == null || prefix == null) {
+  if (raw == null || prefix == null) {
     return null;
   }
-  final raw = address.rawAddress;
   final bits = raw.length * 8;
   if (prefix < 0 || prefix > bits) {
     return null;
@@ -182,5 +183,5 @@ String _format(int bits, BigInt value) {
     bytes[index] = (value & BigInt.from(0xFF)).toInt();
     value >>= 8;
   }
-  return InternetAddress.fromRawAddress(bytes).address;
+  return formatIpv6(bytes);
 }

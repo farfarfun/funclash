@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fl_clash/common/wifi_permission.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -30,10 +31,10 @@ class _TestExcludeSSIDs extends ExcludeSSIDs {
 class _TestLocationPermissions extends LocationPermissions {
   _TestLocationPermissions(this._initial);
 
-  final WifiSsidPermission _initial;
+  final WifiPermission _initial;
 
   @override
-  WifiSsidPermission build() => _initial;
+  WifiPermission build() => _initial;
 }
 
 class _TestBatteryOptimizationIgnored extends BatteryOptimizationIgnored {
@@ -58,7 +59,7 @@ void main() {
   Future<void> pumpView(
     WidgetTester tester, {
     List<String> ssids = const [],
-    WifiSsidPermission permission = WifiSsidPermission.denied,
+    WifiPermission permission = WifiPermission.denied,
     bool batteryIgnored = false,
     bool isAndroid = false,
     bool isMacOS = false,
@@ -175,7 +176,7 @@ void main() {
   ) async {
     await pumpView(
       tester,
-      permission: WifiSsidPermission.denied,
+      permission: WifiPermission.denied,
       isMacOS: true,
     );
 
@@ -188,7 +189,7 @@ void main() {
   ) async {
     await pumpView(
       tester,
-      permission: WifiSsidPermission.granted,
+      permission: WifiPermission.granted,
       isMacOS: true,
     );
 
@@ -213,7 +214,7 @@ void main() {
 
     expect(
       container.read(locationPermissionsProvider),
-      WifiSsidPermission.denied,
+      WifiPermission.denied,
     );
     expect(find.bySemanticsLabel('Tap to authorize'), findsOneWidget);
   });

@@ -5,7 +5,7 @@ import 'package:fl_clash/core/desktop/model.dart';
 import 'package:fl_clash/core/desktop/rpc_client.dart';
 import 'package:fl_clash/core/event.dart';
 import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/core/service.dart';
+import 'package:fl_clash/core/service_native.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 

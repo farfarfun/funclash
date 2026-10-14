@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -49,7 +48,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
 
   Future<void> _clearEffect(int id) async {
     final path = await appPath.getScriptPath(id.toString());
-    await File(path).safeDelete();
+    await safeDeletePath(path);
   }
 
   Widget _buildContent(List<Script> scripts, {required bool isLoading}) {

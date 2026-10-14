@@ -13,7 +13,7 @@ part of '../on_demand.dart';
 final locationPermissionsProvider = LocationPermissionsProvider._();
 
 final class LocationPermissionsProvider
-    extends $NotifierProvider<LocationPermissions, WifiSsidPermission> {
+    extends $NotifierProvider<LocationPermissions, WifiPermission> {
   LocationPermissionsProvider._()
     : super(
         from: null,
@@ -33,10 +33,10 @@ final class LocationPermissionsProvider
   LocationPermissions create() => LocationPermissions();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(WifiSsidPermission value) {
+  Override overrideWithValue(WifiPermission value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<WifiSsidPermission>(value),
+      providerOverride: $SyncValueProvider<WifiPermission>(value),
     );
   }
 }
@@ -44,17 +44,17 @@ final class LocationPermissionsProvider
 String _$locationPermissionsHash() =>
     r'e6e5d8a46af321983b65e81759facb07eee5f94c';
 
-abstract class _$LocationPermissions extends $Notifier<WifiSsidPermission> {
-  WifiSsidPermission build();
+abstract class _$LocationPermissions extends $Notifier<WifiPermission> {
+  WifiPermission build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<WifiSsidPermission, WifiSsidPermission>;
+    final ref = this.ref as $Ref<WifiPermission, WifiPermission>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<WifiSsidPermission, WifiSsidPermission>,
-              WifiSsidPermission,
+              AnyNotifier<WifiPermission, WifiPermission>,
+              WifiPermission,
               Object?,
               Object?
             >;

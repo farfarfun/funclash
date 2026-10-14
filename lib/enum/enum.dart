@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-import 'dart:io';
-
+import 'package:fl_clash/common/app_platform.dart';
 import 'package:fl_clash/common/context.dart';
 import 'package:fl_clash/common/system.dart';
 import 'package:fl_clash/icons/icons.dart';
@@ -13,19 +12,26 @@ enum SupportPlatform {
   Windows,
   MacOS,
   Linux,
-  Android;
+  Android,
+
+  /// The panel, which reads the host's data but holds none of its capabilities.
+  Web;
 
   static SupportPlatform get currentPlatform {
     if (system.isWindows) {
       return SupportPlatform.Windows;
     } else if (system.isMacOS) {
       return SupportPlatform.MacOS;
-    } else if (Platform.isLinux) {
+    } else if (system.isLinux) {
       return SupportPlatform.Linux;
     } else if (system.isAndroid) {
       return SupportPlatform.Android;
+    } else if (system.isWeb) {
+      return SupportPlatform.Web;
     }
-    throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
+    throw UnsupportedError(
+      'Unsupported platform: ${AppPlatform.operatingSystem}',
+    );
   }
 }
 

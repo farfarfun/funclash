@@ -108,6 +108,21 @@ final class DesktopCoreFailure implements Exception {
   }
 }
 
+final class HelperException implements Exception {
+  final String code;
+  final String message;
+  final Object? details;
+
+  const HelperException({
+    required this.code,
+    required this.message,
+    this.details,
+  });
+
+  @override
+  String toString() => 'HelperException($code, $message, $details)';
+}
+
 sealed class DesktopCoreState {
   const DesktopCoreState();
 

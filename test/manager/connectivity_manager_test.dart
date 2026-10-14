@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fl_clash/common/wifi_permission.dart';
 import 'package:fl_clash/manager/connectivity_manager.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -10,7 +11,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi_ssid/wifi_ssid.dart';
 
 void main() {
   late ProviderContainer container;
@@ -149,7 +149,7 @@ void main() {
 
     expect(
       container.read(locationPermissionsProvider),
-      WifiSsidPermission.granted,
+      WifiPermission.granted,
     );
     expect(currentSsid(), 'Home');
   });

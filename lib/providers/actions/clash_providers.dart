@@ -65,14 +65,14 @@ class ClashProvidersAction extends _$ClashProvidersAction {
     bool download = false,
   }) async {
     // Made here, or a Core running as root would create it as its own.
-    await File(await provider.path).parent.create(recursive: true);
+    await ensurePathDir(dirname(await provider.path));
     final info = await _core.compileRuleSet(
       provider.fileName,
       url: download ? provider.url : '',
     );
     final next = provider.withInfo(info);
     if (!next.isCompiled) {
-      await File(await next.compiledPath).safeDelete();
+      await safeDeletePath(await next.compiledPath);
     }
     return next;
   }
@@ -84,18 +84,18 @@ class ClashProvidersAction extends _$ClashProvidersAction {
     final stagedName = '${provider.fileName}.new';
     final staged = await appPath.getProviderCachePath(stagedName);
     try {
-      await File(staged).safeWriteAsBytes(content);
+      await safeWritePathAsBytes(staged, content);
       final next = provider.withInfo(await _core.compileRuleSet(stagedName));
       if (next.isCompiled) {
-        await File('$staged.mrs').rename(await next.compiledPath);
+        await renamePath('$staged.mrs', await next.compiledPath);
       } else {
-        await File(await next.compiledPath).safeDelete();
+        await safeDeletePath(await next.compiledPath);
       }
-      await File(staged).rename(await next.path);
+      await renamePath(staged, await next.path);
       return next;
     } finally {
-      await File(staged).safeDelete();
-      await File('$staged.mrs').safeDelete();
+      await safeDeletePath(staged);
+      await safeDeletePath('$staged.mrs');
     }
   }
 
@@ -128,14 +128,13 @@ class ClashProvidersAction extends _$ClashProvidersAction {
 
   /// Backups leave remote sets out and older sets have no mrs yet.
   Future<ClashProvider> prepare(ClashProvider provider) async {
-    if (await File(await provider.corePath).exists()) {
+    if (await pathExists(await provider.corePath)) {
       return provider;
     }
     try {
       final next = await _compile(
         provider,
-        download:
-            provider.isRemote && !await File(await provider.path).exists(),
+        download: provider.isRemote && !await pathExists(await provider.path),
       );
       if (next != provider) {
         await database.clashProviders.put(next.toCompanion());
@@ -180,8 +179,8 @@ class ClashProvidersAction extends _$ClashProvidersAction {
   }
 
   Future<void> _clearCache(ClashProvider provider) async {
-    await File(await provider.path).safeDelete();
-    await File(await provider.compiledPath).safeDelete();
+    await safeDeletePath(await provider.path);
+    await safeDeletePath(await provider.compiledPath);
   }
 
   Future<bool> _isReferenced(

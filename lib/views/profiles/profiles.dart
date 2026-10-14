@@ -393,10 +393,9 @@ class ProfileItem extends ConsumerWidget {
   Future<void> _handleExportFile(BuildContext context) async {
     final appLocalizations = context.appLocalizations;
     final res = await globalState.safeRun<bool>(() async {
-      final mFile = await profile.file;
       final value = await picker.saveFile(
         profile.realLabel,
-        mFile.readAsBytesSync(),
+        await readPathAsBytesOrEmpty(await profile.path),
       );
       if (value == null) return false;
       return true;

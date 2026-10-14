@@ -60,8 +60,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
   }
 
   Future<void> _updateFileInfo() async {
-    final file = await widget.profile.file;
-    final fileInfo = await file.getFileInfo();
+    final fileInfo = await readFileInfo(await widget.profile.path);
     if (!mounted) {
       return;
     }
@@ -184,7 +183,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     }
     _rawText = data;
     _fileData = Uint8List.fromList(utf8.encode(data));
-    _fileInfoNotifier.value = _fileInfoNotifier.value?.copyWith(
+    _fileInfoNotifier.value = FileInfo(
       size: _fileData?.length ?? 0,
       lastModified: DateTime.now(),
     );

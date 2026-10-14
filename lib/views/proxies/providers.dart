@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -389,13 +388,10 @@ Future<_ProviderFile> _probeProviderFile(String? path) async {
     return _ProviderFile.binary;
   }
   try {
-    final file = File(path);
-    if (!await file.exists()) {
+    final head = await readPathHead(path, _probeLength);
+    if (head == null) {
       return _ProviderFile.text;
     }
-    final head = await file
-        .openRead(0, _probeLength)
-        .fold<List<int>>(<int>[], (bytes, chunk) => bytes..addAll(chunk));
     if (listEquals(head.take(_zstdMagic.length).toList(), _zstdMagic)) {
       return _ProviderFile.ruleSet;
     }
@@ -425,7 +421,7 @@ Future<void> _sideLoadProvider(
       .read(proxiesActionProvider.notifier)
       .sideLoadExternalProvider(provider, data, showLoading: true);
   if (message.isNotEmpty) throw MessageException(message);
-  await File(path).safeWriteAsBytes(bytes);
+  await safeWritePathAsBytes(path, bytes);
 }
 
 class _EditProviderView extends ConsumerStatefulWidget {

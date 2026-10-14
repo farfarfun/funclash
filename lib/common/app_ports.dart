@@ -2,8 +2,15 @@ import 'dart:ui' show Brightness, Color;
 
 import 'package:fl_clash/common/provider_reader.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:flutter/foundation.dart' show AsyncCallback;
 
 abstract interface class WindowPort {
+  Future<void> init(int version, WindowProps props);
+
+  /// Every desktop runner leaves the window hidden until [init] reveals it, so
+  /// a failure before that point would leave the error screen with no window.
+  Future<void> showInitFailure({required AsyncCallback onExit});
+
   Future<WindowProps?> captureNormalGeometry(WindowProps current);
 
   /// Returns whether a backdrop is now drawn behind the content.
@@ -31,6 +38,11 @@ abstract interface class TrayPort {
     required TrayState trayState,
     required Traffic traffic,
     required ProviderReader read,
+  });
+
+  Future<void> updateTitle({
+    required bool showTrayTitle,
+    required Traffic traffic,
   });
 }
 

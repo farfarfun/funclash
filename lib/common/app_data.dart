@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/database/database.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -15,6 +13,6 @@ Future<void> clearAppData() async {
       logLevel: LogLevel.warning,
     );
   }
-  await File(await appPath.databasePath).safeDelete(recursive: true);
-  await Directory(await appPath.profilesPath).safeDelete(recursive: true);
+  await safeDeletePath(await appPath.databasePath);
+  await safeDeletePath(await appPath.profilesPath);
 }
