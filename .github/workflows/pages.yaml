@@ -3,9 +3,9 @@ name: pages
 on:
   push:
     branches:
-      - main
+      - master
     paths:
-      - 'site/**'
+      - 'docs/site/**'
       - 'tool/build_site.sh'
       - 'tool/render_site.mjs'
       - '.github/workflows/pages.yaml'
