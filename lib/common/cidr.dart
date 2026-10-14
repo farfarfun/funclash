@@ -46,10 +46,11 @@ Future<List<String>> subtractCidrsTask(
   List<String> exclude, {
   bool wholeWhenEmpty = false,
 }) {
-  return compute<_SubtractArgs, List<String>>(
-    _subtractCidrsTask,
-    (include: include, exclude: exclude, wholeWhenEmpty: wholeWhenEmpty),
-  );
+  return compute<_SubtractArgs, List<String>>(_subtractCidrsTask, (
+    include: include,
+    exclude: exclude,
+    wholeWhenEmpty: wholeWhenEmpty,
+  ));
 }
 
 List<String> _subtractCidrsTask(_SubtractArgs args) {

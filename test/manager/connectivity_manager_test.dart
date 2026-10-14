@@ -147,10 +147,7 @@ void main() {
     await container.read(locationPermissionsProvider.notifier).request();
     await tester.pumpAndSettle();
 
-    expect(
-      container.read(locationPermissionsProvider),
-      WifiPermission.granted,
-    );
+    expect(container.read(locationPermissionsProvider), WifiPermission.granted);
     expect(currentSsid(), 'Home');
   });
 

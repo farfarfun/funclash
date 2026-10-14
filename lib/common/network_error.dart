@@ -111,10 +111,8 @@ _Failure? _fromCore(CoreMethodException error) {
     'request_bad_response' when statusCode != null => _Failure.httpStatus(
       statusCode,
     ),
-    'request_bad_response' || 'request_error' => _Failure(
-      _kindOfReason(reason),
-      detail: error.message,
-    ),
+    'request_bad_response' ||
+    'request_error' => _Failure(_kindOfReason(reason), detail: error.message),
     _ => null,
   };
 }

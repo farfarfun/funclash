@@ -174,11 +174,7 @@ void main() {
   testWidgets('the location prerequisite reflects a denied permission', (
     tester,
   ) async {
-    await pumpView(
-      tester,
-      permission: WifiPermission.denied,
-      isMacOS: true,
-    );
+    await pumpView(tester, permission: WifiPermission.denied, isMacOS: true);
 
     expect(find.bySemanticsLabel('Tap to authorize'), findsOneWidget);
     expect(find.bySemanticsLabel('Authorized'), findsNothing);
@@ -187,11 +183,7 @@ void main() {
   testWidgets('the location prerequisite reflects a granted permission', (
     tester,
   ) async {
-    await pumpView(
-      tester,
-      permission: WifiPermission.granted,
-      isMacOS: true,
-    );
+    await pumpView(tester, permission: WifiPermission.granted, isMacOS: true);
 
     expect(find.bySemanticsLabel('Authorized'), findsOneWidget);
     expect(find.bySemanticsLabel('Tap to authorize'), findsNothing);
@@ -212,10 +204,7 @@ void main() {
     await tester.tap(find.text('Tap to authorize'));
     await tester.pumpAndSettle();
 
-    expect(
-      container.read(locationPermissionsProvider),
-      WifiPermission.denied,
-    );
+    expect(container.read(locationPermissionsProvider), WifiPermission.denied);
     expect(find.bySemanticsLabel('Tap to authorize'), findsOneWidget);
   });
 
