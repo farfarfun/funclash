@@ -1,5 +1,4 @@
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/migration.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:path/path.dart';
 

@@ -157,17 +157,19 @@ void _expectRatchet(
     ];
     final added = actual.where((f) => !expected.contains(f)).toList();
     final fixed = expected.where((f) => !actual.contains(f)).toList();
+    final gained =
+        'These files reach $uri, which the web target cannot compile. '
+        '$advice:\n${added.join('\n')}';
+    final lost =
+        'These no longer reach $uri. Strike them off `$name` so the ratchet '
+        'holds the ground they gained:\n${fixed.join('\n')}';
 
     expect(
       actual,
       expected,
       reason: [
-        if (added.isNotEmpty)
-          'These files reach $uri, which the web target cannot compile. '
-              '$advice:\n${added.join('\n')}',
-        if (fixed.isNotEmpty)
-          'These no longer reach $uri. Strike them off `$name` so the ratchet '
-              'holds the ground they gained:\n${fixed.join('\n')}',
+        if (added.isNotEmpty) gained,
+        if (fixed.isNotEmpty) lost,
       ].join('\n\n'),
     );
   }
