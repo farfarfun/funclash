@@ -1,8 +1,23 @@
+import 'package:funclash/common/print.dart';
 import 'package:funclash/core/interface.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:funclash/remote/panel_core_client.dart';
+import 'package:funclash/remote/panel_linker.dart';
 
-/// The desktop host owns the Core, so a panel gets a client that speaks to it
-/// over the bridge. Until one is linked every call reports a dead link, which
-/// is an answer the caller already handles — where a null handler here was a
-/// `coreService!` away from taking the panel down at startup.
-final CoreHandlerInterface? coreService = PanelCoreClient();
+/// A panel's Core is the host's, over the bridge beside its own page.
+final CoreHandlerInterface? coreService = _linkedPanelClient();
+
+PanelCoreClient _linkedPanelClient() {
+  final client = PanelCoreClient();
+  PanelLinker(client)
+      .link()
+      .then((result) => commonPrint.log('panel link: $result'))
+      .onError<Object>(
+        (error, _) => commonPrint.log(
+          'panel could not link: $error',
+          logLevel: LogLevel.warning,
+        ),
+      )
+      .ignore();
+  return client;
+}

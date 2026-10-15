@@ -119,6 +119,97 @@ Future<PanelSession?> acceptPanel(
   return handshake.future;
 }
 
+sealed class PanelLinkResult {
+  const PanelLinkResult();
+}
+
+final class PanelLinked extends PanelLinkResult {
+  final PanelSession session;
+  final Map<String, Object?> config;
+
+  const PanelLinked(this.session, this.config);
+}
+
+/// The host said no, said nothing this version can read, or went away before
+/// it said anything at all.
+final class PanelRefused extends PanelLinkResult {
+  final PanelRejectReason reason;
+
+  const PanelRefused(this.reason);
+
+  @override
+  String toString() => 'PanelRefused(${reason.name})';
+}
+
+/// The panel's half of [acceptPanel]: say hello, then take the welcome. The
+/// socket is closed for every answer but a welcome.
+Future<PanelLinkResult> linkPanel(
+  PanelSocket socket, {
+  required String token,
+  Duration timeout = panelHandshakeTimeout,
+}) {
+  final link = Completer<PanelLinkResult>();
+  late final StreamSubscription<String> subscription;
+  Timer? timer;
+  var given = false;
+
+  Future<void> giveUp(PanelRejectReason reason) async {
+    if (given || link.isCompleted) {
+      return;
+    }
+    given = true;
+    timer?.cancel();
+    await subscription.cancel();
+    await socket.close();
+    if (!link.isCompleted) {
+      link.complete(PanelRefused(reason));
+    }
+  }
+
+  subscription = socket.messages.listen(
+    (message) {
+      if (link.isCompleted || given) {
+        return;
+      }
+      final decoded = _decode(message);
+      final welcome = PanelWelcome.fromJson(decoded);
+      if (welcome == null || welcome.protocol != panelProtocolVersion) {
+        final refusal = PanelReject.fromJson(decoded);
+        unawaited(
+          giveUp(
+            refusal?.reason ??
+                (welcome == null
+                    ? PanelRejectReason.malformed
+                    : PanelRejectReason.protocolMismatch),
+          ),
+        );
+        return;
+      }
+      timer?.cancel();
+      link.complete(
+        PanelLinked(PanelSession._(socket, subscription), welcome.config),
+      );
+    },
+    onDone: () {
+      timer?.cancel();
+      if (!link.isCompleted) {
+        link.complete(const PanelRefused(PanelRejectReason.malformed));
+      }
+    },
+    onError: (Object _, StackTrace _) =>
+        unawaited(giveUp(PanelRejectReason.malformed)),
+  );
+
+  timer = Timer(timeout, () => unawaited(giveUp(PanelRejectReason.timeout)));
+  socket.send(
+    json.encode(
+      PanelHello(protocol: panelProtocolVersion, token: token).toJson(),
+    ),
+  );
+
+  return link.future;
+}
+
 Object? _decode(String message) {
   try {
     return json.decode(message);

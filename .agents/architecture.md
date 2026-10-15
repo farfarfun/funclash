@@ -1301,16 +1301,41 @@ stays raw across the hop, and the panel hands it to the `coreEventsFromData`
 the desktop RPC already uses — one event or a batch, the same as that side
 accepts.
 
+`linkPanel` is the panel's half of the handshake and the mirror of
+`acceptPanel`: it writes the hello, takes the welcome, and answers a sealed
+`PanelLinkResult` so that a refusal arrives with the host's own reason rather
+than as a bare null — a panel can tell a wrong token from a host that went
+away, which is the difference between telling the user to re-copy the link and
+telling them the desktop is gone.
+
+Where that socket comes from is a seam. `panel_dialer_web.dart` is
+`dart:js_interop` against the browser's own `WebSocket` rather than a package:
+`pubspec.lock` is checked in and CI fails on a dirty tree, so adding a
+dependency is not a one-file change, and the four handlers plus `readyState`
+are all this needs. Its `dialPanel` resolves only once the browser reports the
+socket open, so the hello cannot land on one still connecting.
+`panel_dialer_native.dart` exists for the tests: the desktop hosts a bridge
+rather than dialing one, but a `dart:io` `WebSocket` on the same interface is
+what lets `test/remote/panel_linker_test.dart` drive a real `PanelServer`, a
+real handshake and a real Core call from the panel's end, on the VM.
+
+`PanelLinker` is what ties it together, and `panel_address.dart` holds the two
+decisions it makes. The bridge is the one beside the page the panel was served
+on, because the `Origin` check has already decided that a panel loaded from
+anywhere else is refused. The token comes out of that page's fragment, which
+reaches no server and lands in no `Referer` — a query string does both. So
+`service_web.dart` answers `coreService` with a client that is already dialing:
+the link is not awaited there because the panel's providers read `coreService`
+while the page is still loading, and every call before the link lands reports
+the dead link they already handle.
+
 What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
-channels have no handler,
-so `executor_web.dart` still throws when a query asks and `file_web.dart` still
-refuses. And nothing dials: `PanelCoreClient.bind` wants a `PanelSession` that
-only a browser-side `PanelSocket` can produce, which is `dart:js_interop`
-against the browser's own `WebSocket` rather than a package — `pubspec.lock` is
-checked in and CI fails on a dirty tree, so a new dependency is not a one-file
-change. The panel page has to be served by the host too, the `Origin` check
-having already decided that: a panel loaded from anywhere else is refused, so
-`/bridge` needs the build output beside it.
+channels have no handler, so `executor_web.dart` still throws when a query asks
+and `file_web.dart` still refuses. And the host does not serve the panel page:
+`/bridge` is the only path `PanelServer` answers, so the `flutter build web`
+output has to get beside it — which is a build-system change, not a Dart one.
+Nothing opens the bridge either; that wants a settings surface, and with it the
+ARB keys for one.
 
 ### High-Frequency Buffers
 

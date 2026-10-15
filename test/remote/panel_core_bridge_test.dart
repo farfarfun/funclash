@@ -2,55 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:funclash/core/desktop/model.dart';
-import 'package:funclash/core/interface.dart';
 import 'package:funclash/core/method.dart';
 import 'package:funclash/remote/panel_core_bridge.dart';
 import 'package:funclash/remote/panel_protocol.dart';
 import 'package:funclash/remote/panel_session.dart';
 
+import 'fakes.dart';
+
 const _token = 'EJ4nVwqkqUJb4v0Wn0kcBp2ZptMXAOO8gN1MbcG2Mcc';
-
-typedef _Answer = Object? Function(CoreMethod method, Object? arguments);
-
-final class _FakeCore extends CoreHandlerInterface {
-  _FakeCore({this.answer, this.failure});
-
-  final _Answer? answer;
-  final Object? failure;
-  final calls = <CoreMethod>[];
-
-  Object? lastArguments;
-  Duration? lastTimeout;
-
-  @override
-  Future<T?> invokeMethod<T>({
-    required CoreMethod method,
-    Object? arguments,
-    Duration? timeout,
-  }) async {
-    calls.add(method);
-    lastArguments = arguments;
-    lastTimeout = timeout;
-    final thrown = failure;
-    if (thrown != null) {
-      Error.throwWithStackTrace(thrown, StackTrace.current);
-    }
-    return answer?.call(method, arguments) as T?;
-  }
-
-  @override
-  Future<CoreLifecycleResult> start() => throw UnimplementedError();
-
-  @override
-  Future<CoreLifecycleResult> restart() => throw UnimplementedError();
-
-  @override
-  Future<CoreLifecycleResult> stop() => throw UnimplementedError();
-
-  @override
-  Future<CoreLifecycleResult> close() => throw UnimplementedError();
-}
 
 final class _FakeSocket implements PanelSocket {
   final _incoming = StreamController<String>();
@@ -107,7 +66,7 @@ void _call(
 void main() {
   group('PanelCoreBridge', () {
     test('forwards a method and answers with what the Core gave', () async {
-      final core = _FakeCore(answer: (_, _) => {'now': 1});
+      final core = FakeCore(answer: (_, _) => {'now': 1});
       final socket = await _attached(PanelCoreBridge(core: core));
 
       _call(socket, 'getTraffic');
@@ -121,7 +80,7 @@ void main() {
     });
 
     test('hands the arguments and the timeout straight through', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       const timeout = Duration(seconds: 7);
       final socket = await _attached(
         PanelCoreBridge(core: core, timeout: timeout),
@@ -135,7 +94,7 @@ void main() {
     });
 
     test('answers null results without calling them a failure', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       final socket = await _attached(PanelCoreBridge(core: core));
 
       _call(socket, 'getProxies');
@@ -147,7 +106,7 @@ void main() {
     });
 
     test('refuses the methods that own the host Core', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       final socket = await _attached(PanelCoreBridge(core: core));
 
       for (final method in refusedPanelCoreMethods) {
@@ -166,7 +125,7 @@ void main() {
     });
 
     test('names a method the Core does not have', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       final socket = await _attached(PanelCoreBridge(core: core));
 
       _call(socket, 'nosuchmethod');
@@ -186,7 +145,7 @@ void main() {
     });
 
     test("passes a Core failure back in the Core's own words", () async {
-      final core = _FakeCore(
+      final core = FakeCore(
         failure: const CoreMethodException(
           code: 'transport_disconnected',
           message: 'no core',
@@ -205,7 +164,7 @@ void main() {
     });
 
     test('wraps a failure that is not the Core speaking', () async {
-      final core = _FakeCore(failure: StateError('broken'));
+      final core = FakeCore(failure: StateError('broken'));
       final socket = await _attached(PanelCoreBridge(core: core));
 
       _call(socket, 'getTraffic');
@@ -217,7 +176,7 @@ void main() {
     });
 
     test('says nothing to a frame it cannot read as a call', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       final socket = await _attached(PanelCoreBridge(core: core));
 
       socket.receive(const PanelFrame(PanelChannel.core, 'text').toJson());
@@ -231,7 +190,7 @@ void main() {
     });
 
     test('leaves the other channels alone', () async {
-      final core = _FakeCore();
+      final core = FakeCore();
       final socket = await _attached(PanelCoreBridge(core: core));
 
       for (final channel in PanelChannel.values) {
@@ -252,7 +211,7 @@ void main() {
     });
 
     test('answers each of several calls on its own id', () async {
-      final core = _FakeCore(answer: (_, arguments) => arguments);
+      final core = FakeCore(answer: (_, arguments) => arguments);
       final socket = await _attached(PanelCoreBridge(core: core));
 
       for (var i = 0; i < 3; i++) {
