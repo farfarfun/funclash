@@ -1,4 +1,4 @@
-cask "flclash" do
+cask "funclash" do
   version "VERSION"
 
   on_macos do
@@ -7,12 +7,12 @@ cask "flclash" do
     sha256 arm:   "ARM_SHA256",
            intel: "AMD_SHA256"
 
-    url "https://github.com/chen08209/FlClash/releases/download/v#{version}/FlClash-#{version}-macos-#{arch}.dmg"
+    url "https://github.com/farfarfun/funclash/releases/download/v#{version}/FunClash-#{version}-macos-#{arch}.dmg"
   end
 
-  name "FlClash"
+  name "FunClash"
   desc "Multi-platform proxy client based on ClashMeta"
-  homepage "https://github.com/chen08209/FlClash"
+  homepage "https://github.com/farfarfun/funclash"
 
   livecheck do
     url :url
@@ -21,21 +21,21 @@ cask "flclash" do
 
   depends_on :macos
 
-  app "FlClash.app"
+  app "FunClash.app"
 
   postflight_steps do
     run "/usr/bin/xattr",
-        args:           ["-rd", "com.apple.quarantine", "{{appdir}}/FlClash.app"],
-        writable_paths: ["FlClash.app"],
+        args:           ["-rd", "com.apple.quarantine", "{{appdir}}/FunClash.app"],
+        writable_paths: ["FunClash.app"],
         writable_base:  :appdir
   end
 
-  uninstall quit: "com.follow.clash"
+  uninstall quit: "com.farfarfun.funclash"
 
   zap trash: [
-    "~/Library/Application Support/com.follow.clash",
-    "~/Library/Caches/com.follow.clash",
-    "~/Library/Preferences/com.follow.clash.plist",
-    "~/Library/Saved Application State/com.follow.clash.savedState",
+    "~/Library/Application Support/com.farfarfun.funclash",
+    "~/Library/Caches/com.farfarfun.funclash",
+    "~/Library/Preferences/com.farfarfun.funclash.plist",
+    "~/Library/Saved Application State/com.farfarfun.funclash.savedState",
   ]
 end

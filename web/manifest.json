@@ -1,11 +1,11 @@
 {
-  "name": "FlClash",
-  "short_name": "FlClash",
+  "name": "FunClash",
+  "short_name": "FunClash",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#6666FB",
-  "description": "A remote control panel for a running FlClash desktop client.",
+  "description": "A remote control panel for a running FunClash desktop client.",
   "prefer_related_applications": false,
   "icons": [
     {
