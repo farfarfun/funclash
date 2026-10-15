@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:fl_clash/common/color.dart';
-import 'package:fl_clash/common/shape.dart';
-import 'package:fl_clash/widgets/drag_back.dart';
-import 'package:fl_clash/widgets/sheet_navigator.dart';
+import 'package:funclash/common/color.dart';
+import 'package:funclash/common/shape.dart';
+import 'package:funclash/widgets/drag_back.dart';
+import 'package:funclash/widgets/sheet_navigator.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 

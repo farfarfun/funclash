@@ -1,7 +1,7 @@
-import 'package:fl_clash/common/tray_native.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/tray_native.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';

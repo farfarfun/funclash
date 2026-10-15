@@ -1,7 +1,7 @@
-import 'package:fl_clash/widgets/navigator_resizable.dart';
-import 'package:fl_clash/widgets/paged_sheet.dart';
-import 'package:fl_clash/widgets/sheet.dart';
-import 'package:fl_clash/widgets/inherited.dart';
+import 'package:funclash/widgets/navigator_resizable.dart';
+import 'package:funclash/widgets/paged_sheet.dart';
+import 'package:funclash/widgets/sheet.dart';
+import 'package:funclash/widgets/inherited.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 

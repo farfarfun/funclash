@@ -1,9 +1,9 @@
 import 'package:drift/native.dart';
-import 'package:fl_clash/database/database.dart' as db;
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/providers/state.dart';
+import 'package:funclash/database/database.dart' as db;
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/providers/database.dart';
+import 'package:funclash/providers/state.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

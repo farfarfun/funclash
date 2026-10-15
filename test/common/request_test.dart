@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/request.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/request.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _StalledHttpClient extends Fake implements HttpClient {

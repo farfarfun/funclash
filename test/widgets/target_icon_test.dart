@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 

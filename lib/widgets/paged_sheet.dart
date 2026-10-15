@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/color.dart';
-import 'package:fl_clash/common/shape.dart';
-import 'package:fl_clash/widgets/deferred_push.dart';
-import 'package:fl_clash/widgets/drag_back.dart';
-import 'package:fl_clash/widgets/inherited.dart';
-import 'package:fl_clash/widgets/navigator_resizable.dart';
-import 'package:fl_clash/widgets/page_transition.dart';
-import 'package:fl_clash/widgets/pop_scope.dart';
-import 'package:fl_clash/widgets/sheet.dart';
-import 'package:fl_clash/widgets/sheet_navigator.dart';
+import 'package:funclash/common/color.dart';
+import 'package:funclash/common/shape.dart';
+import 'package:funclash/widgets/deferred_push.dart';
+import 'package:funclash/widgets/drag_back.dart';
+import 'package:funclash/widgets/inherited.dart';
+import 'package:funclash/widgets/navigator_resizable.dart';
+import 'package:funclash/widgets/page_transition.dart';
+import 'package:funclash/widgets/pop_scope.dart';
+import 'package:funclash/widgets/sheet.dart';
+import 'package:funclash/widgets/sheet_navigator.dart';
 import 'package:material_ui/material_ui.dart';
 
 Color _sheetColorOf(BuildContext context) {

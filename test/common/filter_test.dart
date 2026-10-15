@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/models/models.dart';
 import 'package:test/test.dart';
 
 void main() {

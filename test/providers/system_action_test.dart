@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:ui' show Brightness, Color;
 
-import 'package:fl_clash/common/app_ports.dart';
-import 'package:fl_clash/common/preferences.dart';
-import 'package:fl_clash/models/config.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/providers/actions/system_exit.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/app_ports.dart';
+import 'package:funclash/common/preferences.dart';
+import 'package:funclash/models/config.dart';
+import 'package:funclash/providers/action.dart';
+import 'package:funclash/providers/actions/system_exit.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/state.dart';
 import 'package:flutter/foundation.dart' show AsyncCallback;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';

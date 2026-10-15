@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum SourceKind { remote, file, custom }

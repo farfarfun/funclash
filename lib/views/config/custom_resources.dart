@@ -1,11 +1,11 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/views/config/filters.dart';
-import 'package:fl_clash/views/config/icon_sets.dart';
-import 'package:fl_clash/views/config/providers.dart';
-import 'package:fl_clash/views/profiles/custom/custom_proxies.dart';
-import 'package:fl_clash/widgets/list.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/views/config/filters.dart';
+import 'package:funclash/views/config/icon_sets.dart';
+import 'package:funclash/views/config/providers.dart';
+import 'package:funclash/views/profiles/custom/custom_proxies.dart';
+import 'package:funclash/widgets/list.dart';
+import 'package:funclash/widgets/scaffold.dart';
 import 'package:material_ui/material_ui.dart';
 
 class CustomResourcesView extends StatelessWidget {

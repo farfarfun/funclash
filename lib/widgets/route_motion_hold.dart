@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/navigator.dart';
+import 'package:funclash/common/navigator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';

@@ -1,9 +1,9 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/theme.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 

@@ -1,4 +1,4 @@
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'print.dart';

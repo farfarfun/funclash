@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/state.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void attachHttpOverrides(ProviderContainer container) {

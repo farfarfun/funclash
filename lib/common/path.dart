@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/app_dirs.dart';
-import 'package:fl_clash/common/common.dart';
+import 'package:funclash/common/app_dirs.dart';
+import 'package:funclash/common/common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 

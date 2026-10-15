@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/paged_sheet.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
-import 'package:fl_clash/widgets/sheet.dart';
-import 'package:fl_clash/widgets/sheet_header.dart';
-import 'package:fl_clash/widgets/snap_sheet.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/widgets/paged_sheet.dart';
+import 'package:funclash/widgets/scaffold.dart';
+import 'package:funclash/widgets/sheet.dart';
+import 'package:funclash/widgets/sheet_header.dart';
+import 'package:funclash/widgets/snap_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

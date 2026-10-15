@@ -1,6 +1,6 @@
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fl_clash/widgets/sheet.dart';
+import 'package:funclash/widgets/sheet.dart';
 import 'package:material_ui/material_ui.dart';
 
 class PageActivityScope extends InheritedWidget {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/database/database.dart';
+import 'package:funclash/models/models.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/backup.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/backup.dart';
+import 'package:funclash/models/models.dart';
 
 /// The archive is written beside the data it holds, on the desktop this panel
 /// controls; nothing carries the request there yet.

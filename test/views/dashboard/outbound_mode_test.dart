@@ -1,13 +1,13 @@
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/dashboard/widget_metrics.dart';
-import 'package:fl_clash/views/dashboard/widgets/outbound_mode.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/theme.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/providers/providers.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/views/dashboard/widget_metrics.dart';
+import 'package:funclash/views/dashboard/widgets/outbound_mode.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_color_utilities/hct/hct.dart';

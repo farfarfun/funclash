@@ -1,9 +1,9 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/config/general.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/database.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/views/config/general.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';

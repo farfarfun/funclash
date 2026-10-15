@@ -1,7 +1,7 @@
 import 'dart:ui' show Brightness, Color;
 
-import 'package:fl_clash/common/provider_reader.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/provider_reader.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter/foundation.dart' show AsyncCallback;
 
 abstract interface class WindowPort {

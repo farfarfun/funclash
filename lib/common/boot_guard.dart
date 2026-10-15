@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:fl_clash/common/boot_record.dart';
-import 'package:fl_clash/common/preferences.dart';
-import 'package:fl_clash/common/print.dart';
-import 'package:fl_clash/common/system.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/boot_record.dart';
+import 'package:funclash/common/preferences.dart';
+import 'package:funclash/common/print.dart';
+import 'package:funclash/common/system.dart';
+import 'package:funclash/enum/enum.dart';
 
 class BootGuard {
   final bool _supported;

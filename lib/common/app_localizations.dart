@@ -1,9 +1,9 @@
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/exception.dart';
-import 'package:fl_clash/common/network_error.dart';
-import 'package:fl_clash/core/desktop/launch_policy.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/l10n/l10n.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/exception.dart';
+import 'package:funclash/common/network_error.dart';
+import 'package:funclash/core/desktop/launch_policy.dart';
+import 'package:funclash/core/method.dart';
+import 'package:funclash/l10n/l10n.dart';
 
 import 'dart:ui';
 

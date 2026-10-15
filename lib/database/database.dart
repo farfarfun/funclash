@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/database/executor.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/database/executor.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 part 'clash_providers.dart';

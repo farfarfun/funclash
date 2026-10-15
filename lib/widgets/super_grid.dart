@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/widgets/activate_box.dart';
-import 'package:fl_clash/widgets/button.dart';
-import 'package:fl_clash/widgets/defer_pointer.dart';
-import 'package:fl_clash/widgets/motion_grid.dart';
-import 'package:fl_clash/widgets/navigation_dock.dart';
-import 'package:fl_clash/widgets/grid.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/widgets/activate_box.dart';
+import 'package:funclash/widgets/button.dart';
+import 'package:funclash/widgets/defer_pointer.dart';
+import 'package:funclash/widgets/motion_grid.dart';
+import 'package:funclash/widgets/navigation_dock.dart';
+import 'package:funclash/widgets/grid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';

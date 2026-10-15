@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/print.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/widgets/inherited.dart';
+import 'package:funclash/common/print.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/widgets/inherited.dart';
 import 'package:flutter/widgets.dart';
 
 typedef PollGuard = bool Function();

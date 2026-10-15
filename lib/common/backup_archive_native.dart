@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/migration.dart';
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/migration.dart';
+import 'package:funclash/database/database.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 

@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/widgets/donut_chart.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/widgets/donut_chart.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 

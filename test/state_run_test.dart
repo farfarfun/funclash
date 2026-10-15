@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/status_manager.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/theme.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/manager/status_manager.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/database.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

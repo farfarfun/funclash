@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:dio/dio.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/state.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 class Request {

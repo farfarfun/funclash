@@ -1,5 +1,5 @@
-import 'package:fl_clash/features/form/filter.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/features/form/filter.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

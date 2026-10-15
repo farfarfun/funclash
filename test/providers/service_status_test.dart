@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/service_probe.dart';
-import 'package:fl_clash/core/controller.dart';
-import 'package:fl_clash/core/interface.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/core.dart';
-import 'package:fl_clash/providers/route_state.dart';
-import 'package:fl_clash/providers/routed_probe.dart';
-import 'package:fl_clash/providers/service_status.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/service_probe.dart';
+import 'package:funclash/core/controller.dart';
+import 'package:funclash/core/interface.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/core.dart';
+import 'package:funclash/providers/route_state.dart';
+import 'package:funclash/providers/routed_probe.dart';
+import 'package:funclash/providers/service_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

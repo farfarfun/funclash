@@ -2,9 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:fl_clash/widgets/deferred_push.dart';
-import 'package:fl_clash/widgets/drag_back.dart';
-import 'package:fl_clash/widgets/keyboard_inset_hold.dart';
+import 'package:funclash/widgets/deferred_push.dart';
+import 'package:funclash/widgets/drag_back.dart';
+import 'package:funclash/widgets/keyboard_inset_hold.dart';
 
 typedef CloseContainerActionCallback<S> = void Function({S? returnValue});
 typedef OpenContainerBuilder<S> =

@@ -2,11 +2,11 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/linux_elevation.dart';
-import 'package:fl_clash/common/system_dns.dart';
-import 'package:fl_clash/core/desktop/helper_client.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/linux_elevation.dart';
+import 'package:funclash/common/system_dns.dart';
+import 'package:funclash/core/desktop/helper_client.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 typedef ProcessRunner =

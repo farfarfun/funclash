@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:fl_clash/common/app_localizations.dart';
-import 'package:fl_clash/common/app_ports.dart';
-import 'package:fl_clash/common/feature.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/window_manager.dart';
-import 'package:fl_clash/models/config.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/app_localizations.dart';
+import 'package:funclash/common/app_ports.dart';
+import 'package:funclash/common/feature.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/manager/window_manager.dart';
+import 'package:funclash/models/config.dart';
+import 'package:funclash/providers/providers.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show AsyncCallback;
 import 'package:flutter/services.dart';

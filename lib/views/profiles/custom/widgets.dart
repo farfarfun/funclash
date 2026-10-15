@@ -1,1 +1,1 @@
-export 'package:fl_clash/features/form/form_row.dart' show InfoMessageButton;
+export 'package:funclash/features/form/form_row.dart' show InfoMessageButton;

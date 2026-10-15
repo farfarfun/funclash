@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/wifi.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/plugins/battery.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/wifi.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/plugins/battery.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/plugins/app.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/activate_box.dart';
-import 'package:fl_clash/widgets/navigation_dock.dart';
-import 'package:fl_clash/widgets/null_status.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/plugins/app.dart';
+import 'package:funclash/providers/providers.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/widgets/activate_box.dart';
+import 'package:funclash/widgets/navigation_dock.dart';
+import 'package:funclash/widgets/null_status.dart';
+import 'package:funclash/widgets/scaffold.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

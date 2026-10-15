@@ -1,7 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:fl_clash/common/boot_record.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/plugins/app.dart';
+import 'package:funclash/common/boot_record.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/plugins/app.dart';
 import 'package:flutter/services.dart';
 
 class System {

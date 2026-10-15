@@ -1,9 +1,9 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/features/form/form.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/features/form/form.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/providers/providers.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

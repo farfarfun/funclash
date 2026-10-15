@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/linux_elevation.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/linux_elevation.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 

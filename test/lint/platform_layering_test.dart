@@ -91,8 +91,8 @@ String? _uriChosenBy(String directive, {required bool web}) {
 
 Set<String> _closureFrom(String entryPoint, {required bool web}) {
   String resolve(String uri, String from) {
-    if (uri.startsWith('package:fl_clash/')) {
-      return 'lib/${uri.substring('package:fl_clash/'.length)}';
+    if (uri.startsWith('package:funclash/')) {
+      return 'lib/${uri.substring('package:funclash/'.length)}';
     }
     if (uri.startsWith('dart:') || uri.startsWith('package:')) return uri;
     return p.normalize(p.join(p.dirname(from), uri));
@@ -355,7 +355,7 @@ void main() {
 
     for (final file in _dartFilesIn('lib/common')) {
       if (file.readAsStringSync().contains(
-        "import 'package:fl_clash/manager/manager.dart';",
+        "import 'package:funclash/manager/manager.dart';",
       )) {
         offenders.add(
           '${p.relative(file.path)} — import the one manager it needs, not the '

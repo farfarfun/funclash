@@ -1,8 +1,8 @@
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/widgets/paged_sheet.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
-import 'package:fl_clash/widgets/sheet.dart';
-import 'package:fl_clash/widgets/side_sheet.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/widgets/paged_sheet.dart';
+import 'package:funclash/widgets/scaffold.dart';
+import 'package:funclash/widgets/sheet.dart';
+import 'package:funclash/widgets/side_sheet.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

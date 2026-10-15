@@ -1,6 +1,6 @@
-import 'package:fl_clash/manager/app_manager.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/manager/app_manager.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

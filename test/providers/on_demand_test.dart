@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/wifi_permission.dart';
-import 'package:fl_clash/plugins/battery.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/on_demand.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/wifi_permission.dart';
+import 'package:funclash/plugins/battery.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/on_demand.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';

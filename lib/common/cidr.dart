@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:fl_clash/common/ip_address.dart';
+import 'package:funclash/common/ip_address.dart';
 import 'package:flutter/foundation.dart' show compute;
 
 typedef _Range = ({BigInt start, BigInt end});

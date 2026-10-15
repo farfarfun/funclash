@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/widgets/grid.dart';
-import 'package:fl_clash/widgets/super_grid.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/widgets/grid.dart';
+import 'package:funclash/widgets/super_grid.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

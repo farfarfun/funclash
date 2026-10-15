@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/wifi_permission.dart';
+import 'package:funclash/common/wifi_permission.dart';
 import 'package:wifi_ssid/wifi_ssid.dart';
 
 Future<String?> readWifiSsid() => wifiSsidManager.getSsid();

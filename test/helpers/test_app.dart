@@ -1,8 +1,8 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/status_manager.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/common/theme.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/manager/status_manager.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

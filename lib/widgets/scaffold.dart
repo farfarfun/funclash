@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/pop_scope.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/models/models.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/widgets/pop_scope.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';

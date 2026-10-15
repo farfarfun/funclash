@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/window_native.dart';
+import 'package:funclash/common/window_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeNativeWindow {

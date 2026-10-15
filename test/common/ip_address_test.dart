@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:fl_clash/common/ip_address.dart';
+import 'package:funclash/common/ip_address.dart';
 import 'package:test/test.dart';
 
 String? hex(Uint8List? bytes) =>

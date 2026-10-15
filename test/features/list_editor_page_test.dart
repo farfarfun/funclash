@@ -1,9 +1,9 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/features/form/form.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/features/form/form.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

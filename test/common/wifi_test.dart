@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/wifi_native.dart';
-import 'package:fl_clash/common/wifi_permission.dart';
+import 'package:funclash/common/wifi_native.dart';
+import 'package:funclash/common/wifi_permission.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

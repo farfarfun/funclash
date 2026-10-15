@@ -1,10 +1,10 @@
-import 'package:fl_clash/manager/android_manager.dart';
-import 'package:fl_clash/manager/hotkey_manager.dart';
-import 'package:fl_clash/manager/proxy_manager.dart';
-import 'package:fl_clash/manager/tile_manager.dart';
-import 'package:fl_clash/manager/tray_manager.dart';
-import 'package:fl_clash/manager/vpn_manager.dart';
-import 'package:fl_clash/manager/window_manager.dart';
+import 'package:funclash/manager/android_manager.dart';
+import 'package:funclash/manager/hotkey_manager.dart';
+import 'package:funclash/manager/proxy_manager.dart';
+import 'package:funclash/manager/tile_manager.dart';
+import 'package:funclash/manager/tray_manager.dart';
+import 'package:funclash/manager/vpn_manager.dart';
+import 'package:funclash/manager/window_manager.dart';
 import 'package:flutter/widgets.dart';
 
 Widget buildPlatformManagers({

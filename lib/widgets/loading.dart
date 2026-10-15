@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/context.dart';
-import 'package:fl_clash/common/shape.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/context.dart';
+import 'package:funclash/common/shape.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
 import 'package:material_ui/material_ui.dart';

@@ -1,10 +1,10 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/clash_config.dart';
-import 'package:fl_clash/models/common.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/models/clash_config.dart';
+import 'package:funclash/models/common.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum RulePreset {

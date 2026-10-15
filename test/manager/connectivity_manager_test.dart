@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:fl_clash/common/wifi_permission.dart';
-import 'package:fl_clash/manager/connectivity_manager.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/on_demand.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/common/wifi_permission.dart';
+import 'package:funclash/manager/connectivity_manager.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/on_demand.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

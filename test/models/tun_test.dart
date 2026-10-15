@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/models/models.dart';
 import 'package:test/test.dart';
 
 Set<String> _keysOf(String path, String struct, String tag) {

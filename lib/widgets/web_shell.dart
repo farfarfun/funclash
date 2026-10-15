@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/common.dart';
+import 'package:funclash/common/common.dart';
 import 'package:material_ui/material_ui.dart';
 
 const webCanvasKey = ValueKey('web-canvas');

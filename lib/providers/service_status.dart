@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/service_probe.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/common/service_probe.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

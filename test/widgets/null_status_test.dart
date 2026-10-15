@@ -1,8 +1,8 @@
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/widgets/null_status.dart';
-import 'package:fl_clash/widgets/paged_sheet.dart';
-import 'package:fl_clash/widgets/sheet.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/widgets/null_status.dart';
+import 'package:funclash/widgets/paged_sheet.dart';
+import 'package:funclash/widgets/sheet.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 

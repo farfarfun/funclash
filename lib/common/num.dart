@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/common.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/common.dart';
+import 'package:funclash/state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';

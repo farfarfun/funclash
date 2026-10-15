@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/wifi_permission.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/on_demand.dart';
-import 'package:fl_clash/providers/state.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/config/on_demand.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/common/wifi_permission.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/providers/on_demand.dart';
+import 'package:funclash/providers/state.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/state.dart';
+import 'package:funclash/views/config/on_demand.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:fl_clash/common/network.dart';
-import 'package:fl_clash/common/webdav.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/l10n/l10n.dart';
+import 'package:funclash/common/network.dart';
+import 'package:funclash/common/webdav.dart';
+import 'package:funclash/core/method.dart';
+import 'package:funclash/l10n/l10n.dart';
 
 enum _Kind {
   timeout,

@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/widgets/inherited.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
-import 'package:fl_clash/widgets/scroll.dart';
-import 'package:fl_clash/widgets/sheet.dart';
-import 'package:fl_clash/widgets/sheet_header.dart';
-import 'package:fl_clash/widgets/side_sheet.dart';
-import 'package:fl_clash/widgets/snap_sheet.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/widgets/inherited.dart';
+import 'package:funclash/widgets/scaffold.dart';
+import 'package:funclash/widgets/scroll.dart';
+import 'package:funclash/widgets/sheet.dart';
+import 'package:funclash/widgets/sheet_header.dart';
+import 'package:funclash/widgets/side_sheet.dart';
+import 'package:funclash/widgets/snap_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

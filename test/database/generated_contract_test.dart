@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/database/database.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

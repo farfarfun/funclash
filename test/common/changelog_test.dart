@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/changelog.dart';
-import 'package:fl_clash/models/changelog.dart';
+import 'package:funclash/common/changelog.dart';
+import 'package:funclash/models/changelog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 String _body(String payload) =>

@@ -1,10 +1,10 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/views/config/dns.dart';
-import 'package:fl_clash/views/config/network.dart';
-import 'package:fl_clash/views/config/scripts.dart';
-import 'package:fl_clash/widgets/list.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/views/config/dns.dart';
+import 'package:funclash/views/config/network.dart';
+import 'package:funclash/views/config/scripts.dart';
+import 'package:funclash/widgets/list.dart';
+import 'package:funclash/widgets/scaffold.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'rules.dart';

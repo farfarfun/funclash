@@ -1,5 +1,5 @@
-import 'package:fl_clash/core/desktop/launch_host.dart';
-import 'package:fl_clash/core/desktop/model.dart';
+import 'package:funclash/core/desktop/launch_host.dart';
+import 'package:funclash/core/desktop/model.dart';
 
 /// CreateProcess reports these when a policy, not the file, refused the image:
 /// ERROR_VIRUS_INFECTED, ERROR_INVALID_IMAGE_HASH, ERROR_ACCESS_DISABLED_BY_POLICY.

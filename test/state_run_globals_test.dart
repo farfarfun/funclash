@@ -1,8 +1,8 @@
-import 'package:fl_clash/bootstrap.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/bootstrap.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/providers/config.dart';
+import 'package:funclash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod/riverpod.dart';

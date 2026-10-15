@@ -1,4 +1,4 @@
-import 'package:fl_clash/manager/theme_manager.dart';
+import 'package:funclash/manager/theme_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';

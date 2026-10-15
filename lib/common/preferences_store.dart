@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:fl_clash/common/file.dart';
-import 'package:fl_clash/common/print.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/file.dart';
+import 'package:funclash/common/print.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 

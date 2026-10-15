@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
 
 const _httpOk = 200;
 const _httpTooManyRequests = 429;

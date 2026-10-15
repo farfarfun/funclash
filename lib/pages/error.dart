@@ -1,7 +1,7 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/widgets/navigation_dock.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/widgets/navigation_dock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';

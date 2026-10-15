@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/system_dns.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/system_dns.dart';
+import 'package:funclash/enum/enum.dart';
 
 Never _noHostShell(String what) =>
     throw UnsupportedError('a browser tab cannot run $what');

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:fl_clash/core/desktop/launch_policy.dart';
+import 'package:funclash/core/desktop/launch_policy.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 SmartAppControlState readSmartAppControlState() {

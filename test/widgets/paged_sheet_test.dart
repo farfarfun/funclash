@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/shape.dart';
-import 'package:fl_clash/widgets/inherited.dart';
-import 'package:fl_clash/widgets/paged_sheet.dart';
-import 'package:fl_clash/widgets/sheet.dart';
+import 'package:funclash/common/shape.dart';
+import 'package:funclash/widgets/inherited.dart';
+import 'package:funclash/widgets/paged_sheet.dart';
+import 'package:funclash/widgets/sheet.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

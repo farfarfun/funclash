@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/manager/locale_manager.dart';
-import 'package:fl_clash/manager/tray_manager.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
+import 'package:funclash/l10n/l10n.dart';
+import 'package:funclash/manager/locale_manager.dart';
+import 'package:funclash/manager/tray_manager.dart';
+import 'package:funclash/providers/providers.dart';
+import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

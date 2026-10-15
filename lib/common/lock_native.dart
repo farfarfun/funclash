@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:flutter/foundation.dart';
 
 /// Keeps two processes off one data directory; raising the window of the one

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/window_native.dart';
-import 'package:fl_clash/models/config.dart';
+import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/window_native.dart';
+import 'package:funclash/models/config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:screen_retriever/screen_retriever.dart';

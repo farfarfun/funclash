@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:fl_clash/core/desktop/launch_host.dart';
-import 'package:fl_clash/core/desktop/launch_policy.dart';
-import 'package:fl_clash/core/desktop/model.dart';
+import 'package:funclash/core/desktop/launch_host.dart';
+import 'package:funclash/core/desktop/launch_policy.dart';
+import 'package:funclash/core/desktop/model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/widgets/inherited.dart';
+import 'package:funclash/common/common.dart';
+import 'package:funclash/providers/app.dart';
+import 'package:funclash/widgets/inherited.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

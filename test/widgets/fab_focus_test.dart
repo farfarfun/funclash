@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:fl_clash/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:funclash/icons/icons.dart';
+import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

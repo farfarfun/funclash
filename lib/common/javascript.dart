@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:fl_clash/common/exception.dart';
-import 'package:fl_clash/common/rust_runtime.dart';
+import 'package:funclash/common/exception.dart';
+import 'package:funclash/common/rust_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 typedef ScriptEvaluator =

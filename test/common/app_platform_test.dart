@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/app_platform.dart';
-import 'package:fl_clash/common/system.dart';
+import 'package:funclash/common/app_platform.dart';
+import 'package:funclash/common/system.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
