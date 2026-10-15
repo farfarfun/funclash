@@ -1,2 +1,2 @@
 -keep class go.** { *; }
--keep class com.follow.clash.core.mobile.** { *; }
+-keep class com.farfarfun.funclash.core.mobile.** { *; }
