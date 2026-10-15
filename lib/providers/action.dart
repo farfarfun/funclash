@@ -13,6 +13,7 @@ import 'package:funclash/plugins/app.dart';
 import 'package:funclash/plugins/service.dart';
 import 'package:funclash/providers/actions/system_exit.dart';
 import 'package:funclash/providers/providers.dart';
+import 'package:funclash/remote/panel_host.dart';
 import 'package:funclash/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show compute;

@@ -122,10 +122,14 @@ const proxiesProviderDirectoryName = 'proxies';
 const rulesProviderDirectoryName = 'rules';
 
 const localhost = '127.0.0.1';
+const anyAddress = '0.0.0.0';
+const panelPort = 47891;
+const panelBridgePath = '/bridge';
 const clashConfigKey = 'clash_config';
 const configKey = 'config';
 const systemDnsRecordKey = 'system_dns_record';
 const bootRecordKey = 'boot_record';
+const panelSettingsKey = 'panel_settings';
 const defaultSystemDnsFallback = '223.5.5.5';
 const double dialogCommonWidth = 300;
 const repository = 'farfarfun/funclash';

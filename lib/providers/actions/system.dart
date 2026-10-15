@@ -51,6 +51,7 @@ class SystemAction extends _$SystemAction {
       ?saveOperation,
       bootGuard.markClosed(),
       if (systemDnsCoordinator != null) systemDnsCoordinator!.shutdown(),
+      if (panelHost != null) panelHost!.shutdown(),
       stopSystemProxy(),
     ]);
   }

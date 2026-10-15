@@ -5,6 +5,7 @@ import 'package:funclash/common/system_dns.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/models/models.dart';
 import 'package:funclash/providers/providers.dart';
+import 'package:funclash/remote/panel_host.dart';
 import 'package:funclash/state.dart';
 import 'package:funclash/widgets/animated_visibility.dart';
 import 'package:funclash/widgets/icon.dart';
@@ -67,6 +68,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       ref.listenManual(shouldPatchSystemDnsProvider, (prev, next) {
         unawaited(systemDns.sync(next));
       }, fireImmediately: true);
+    }
+    final panel = panelHost;
+    if (panel != null) {
+      unawaited(panel.load(config: () => ref.read(configProvider).toJson()));
     }
   }
 

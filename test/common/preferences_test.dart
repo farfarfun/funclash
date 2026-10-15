@@ -4,6 +4,7 @@ import 'package:funclash/common/boot_record.dart';
 import 'package:funclash/common/constant.dart';
 import 'package:funclash/common/preferences.dart';
 import 'package:funclash/models/models.dart';
+import 'package:funclash/remote/panel_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -150,6 +151,32 @@ void main() {
       await store.setString(bootRecordKey, 'not json');
 
       expect(await preferences.getBootRecord(), isNull);
+    });
+  });
+
+  group('panel settings', () {
+    test('getPanelSettings returns null when nothing is stored', () async {
+      expect(await preferences.getPanelSettings(), isNull);
+    });
+
+    test('savePanelSettings then getPanelSettings round-trips them', () async {
+      final settings = PanelSettings.fresh(enabled: true, allowLan: true);
+
+      await preferences.savePanelSettings(settings);
+
+      expect(await preferences.getPanelSettings(), settings);
+    });
+
+    test('getPanelSettings survives a corrupt entry', () async {
+      await store.setString(panelSettingsKey, 'not json');
+
+      expect(await preferences.getPanelSettings(), isNull);
+    });
+
+    test('getPanelSettings reads a stored non-map as nothing', () async {
+      await store.setString(panelSettingsKey, '"text"');
+
+      expect(await preferences.getPanelSettings(), isNull);
     });
   });
 }

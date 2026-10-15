@@ -1209,6 +1209,100 @@ and a seam would have put it out of reach of
 `test/widgets/web_shell_test.dart`, which is where the canvas size, the
 measurement the app sees inside it, and the scale-down are pinned.
 
+#### The Panel Bridge
+
+`lib/remote/` is the route the web target left unbuilt. `PanelChannel` names
+the four capabilities a tab does not have — `core`, `db`, `config` and `fs` —
+which are the four answers the seams above give as a null handler, a lazy
+throw, a welcome payload and an `UnsupportedError`. Every frame is
+`{'c': channel, 'p': payload}`, and `PanelFrame.fromJson` reads a channel it
+does not know as nothing, so a host one version ahead of a panel drops the
+frames it cannot place rather than closing the socket over them.
+
+The token travels in the first frame rather than in a header or the query
+string: a browser cannot set headers on a `WebSocket`, and a query string lands
+in logs and in `Referer`. `rejectHello` compares it in constant time, the
+bridge handing out the whole application and a loopback attacker being able to
+time a reply closely enough to read an early return a byte at a time. It judges
+the protocol before the token, so a panel built against another version hears
+that instead of a refusal it would read as a typo.
+
+`PanelServer._refuse` answers for what no WebSocket upgrade can be trusted
+about. A path that is not `/bridge` is a 404 and a request that is not an
+upgrade a 400. A `Host` that is a name rather than an address is a 403, because
+a page on any name that resolves to the loopback would otherwise pass the
+origin check by rebinding its own DNS. An `Origin` that is not that same host is
+a 403 too, upgrades being exempt from CORS: without it a page anywhere could
+open this socket and ride the browser to a host it cannot name. A full
+handshake queue is a 503, that queue being the one part of this a visitor can
+make unbounded. `_WebSocketPanelSocket.send` writes nothing to a socket no
+longer open — a reject into a dead socket throws inside a handshake nothing is
+awaiting any more, which surfaces as an unhandled asynchronous error rather
+than as a failure anyone can act on.
+
+`PanelSettings` sits outside `Config` on purpose: that one is mirrored to every
+panel and takes writes back, so a panel could widen `allowLan` or read the
+secret that let it in. It has its own preferences key, and its token is minted
+once — `PanelHost.load` stores a fresh one even while the bridge is off,
+because a token regenerated on every launch would change under the person being
+told what to type.
+
+`PanelHost` is where a setting becomes a listening socket, and it converges the
+way the desktop Core does: the wanted settings are a field, one drain applies
+them, and a second change in flight joins the first rather than racing it to
+bind the same port. A port it cannot have is logged and left — the settings
+still say what was asked for, `isRunning` says what came of it. `shutdown`
+takes the bridge down without touching the stored settings, the app going down
+not being the user turning the feature off. The single instance is
+`system.isDesktop && !safeModeBuild`: a panel is a browser tab beside the
+desktop it controls, and safe mode is the build that comes up without opening
+anything. `AppStateManager` loads it with `configProvider` as the source read
+for each panel that connects, and `SystemAction.cleanupExitResources` closes it
+beside the system DNS and the system proxy.
+
+A channel's host side is a `PanelChannelHandler`, and `PanelHost` hands each
+session that arrives to every one it holds. `PanelCall` and `PanelReply` are
+the envelope for a channel that answers — an id pairing a reply to its call, a
+method in the channel's own vocabulary — and they carry `CoreMethodError`
+rather than a second word for failure.
+
+`PanelCoreBridge` is the `core` channel, and it translates nothing: a panel
+sends the `CoreMethod` name the host already speaks, the bridge hands it to
+`CoreHandlerInterface.invokeMethod`, and a `CoreMethodException` goes back in
+the Core's own code and message. That is what keeps the envelope the only
+serialization layer across this hop too. `refusedPanelCoreMethods` is where the
+bridge stops being a conduit: `initClash`, `shutdown` and `crash` own the host's
+own Core process, and `message` is the Core answering rather than anyone
+calling, so all four are refused with `panel_method_refused` whoever holds the
+token. A frame it cannot read as a call is dropped unanswered, there being no
+id to answer on.
+
+`PanelCoreClient` is the other end, and it is what `service_web.dart` now
+answers with where it used to answer null — a `coreService!` away from taking
+the panel down at startup. It keeps no timer of its own: the host already
+bounds the call it forwards, and a closed socket reports a dead link outright
+where a second timer could only guess at one, so `transport_disconnected` is
+what every call gets before a host is linked and what everything in flight gets
+when one goes away. That code is already the one `CoreMethodException`
+classifies as unavailable, so a panel with no host logs at debug rather than
+shouting. `start`, `restart` and `stop` answer `coalesced` rather than
+forwarding: the host owns its own Core process, and a panel asking says nothing
+the host was not going to decide for itself.
+
+What the bridge does not carry yet is the rest. Core events reach the host
+through `CoreEventManager.addListener` and no `Stream<CoreEvent>` — its
+controller is single-subscription and listened to in its own constructor — so
+pushing events to a panel is a change to that owner, and a panel reads rather
+than watches until then. The `db`, `config` and `fs` channels have no handler,
+so `executor_web.dart` still throws when a query asks and `file_web.dart` still
+refuses. And nothing dials: `PanelCoreClient.bind` wants a `PanelSession` that
+only a browser-side `PanelSocket` can produce, which is `dart:js_interop`
+against the browser's own `WebSocket` rather than a package — `pubspec.lock` is
+checked in and CI fails on a dirty tree, so a new dependency is not a one-file
+change. The panel page has to be served by the host too, the `Origin` check
+having already decided that: a panel loaded from anywhere else is refused, so
+`/bridge` needs the build output beside it.
+
 ### High-Frequency Buffers
 
 `logsProvider`, `requestsProvider`, `dnsQueriesProvider` and `trafficsProvider` hold a `FixedList`

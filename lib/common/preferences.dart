@@ -6,6 +6,7 @@ import 'package:funclash/common/common.dart';
 import 'package:funclash/common/system_dns.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/models/models.dart';
+import 'package:funclash/remote/panel_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -149,6 +150,31 @@ class Preferences {
   Future<void> saveBootRecord(BootRecord record) async {
     final sharedPreferencesIns = await sharedPreferencesCompleter.future;
     await sharedPreferencesIns?.setString(bootRecordKey, json.encode(record));
+  }
+
+  Future<PanelSettings?> getPanelSettings() async {
+    try {
+      final sharedPreferencesIns = await sharedPreferencesCompleter.future;
+      final raw = sharedPreferencesIns?.getString(panelSettingsKey);
+      if (raw == null) {
+        return null;
+      }
+      return PanelSettings.fromJson(json.decode(raw));
+    } catch (e) {
+      commonPrint.log(
+        'getPanelSettings error ${e.toString()}',
+        logLevel: LogLevel.warning,
+      );
+      return null;
+    }
+  }
+
+  Future<void> savePanelSettings(PanelSettings settings) async {
+    final sharedPreferencesIns = await sharedPreferencesCompleter.future;
+    await sharedPreferencesIns?.setString(
+      panelSettingsKey,
+      json.encode(settings),
+    );
   }
 
   Future<void> clearPreferences() async {
