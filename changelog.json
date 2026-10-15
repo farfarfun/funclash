@@ -1,4 +1,46 @@
 {
   "schemaVersion": 2,
-  "versions": []
+  "versions": [
+    {
+      "version": "1.0.0",
+      "tag": "v1.0.0",
+      "date": "2026-10-15",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "breaking",
+          "entries": [
+            {
+              "id": "b90568f",
+              "text": "Rename the binaries, services and sockets to FunClash. An install of the project this one was renamed from does not migrate: the bundle id, the Windows service name, the systemd unit and the data directory all change, so profiles do not carry over and the old privileged Helper has to be removed by hand."
+            },
+            {
+              "id": "70ab975",
+              "scope": "android",
+              "text": "Move the app to com.farfarfun.funclash, which Android treats as a different application: install this one alongside, or uninstall the old one first."
+            },
+            {
+              "id": "47dd568",
+              "text": "Rename the Dart package to funclash"
+            },
+            {
+              "id": "2930f61",
+              "scope": "changelog",
+              "text": "Restart the changelog at 1.0.0; nothing before it is kept here."
+            }
+          ]
+        },
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "e1526f2",
+              "scope": "site",
+              "text": "Look the Debian package up under the name it ships as"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
