@@ -12,7 +12,7 @@
           "entries": [
             {
               "id": "b90568f",
-              "text": "Rename the binaries, services and sockets to FunClash. An install of the project this one was renamed from does not migrate: the bundle id, the Windows service name, the systemd unit and the data directory all change, so profiles do not carry over and the old privileged Helper has to be removed by hand."
+              "text": "Rename the binaries, services and sockets to FunClash. An install of the project this one was renamed from does not migrate: the bundle id, the Windows service name, the systemd unit and the data directory all change, so profiles do not carry over. Remove the old privileged Helper by hand before installing \u2014 FlClashHelperService uninstall on Windows, systemctl disable --now flclash-helper on Linux."
             },
             {
               "id": "70ab975",
