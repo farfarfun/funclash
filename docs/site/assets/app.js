@@ -120,7 +120,17 @@
         ];
       case 'linux':
         return [
-          { id: `linux-${goArch(arch)}.deb`, kind: 'DEB', title: 'Debian / Ubuntu', short: '.deb', note: 'noteDeb', rec: true },
+          {
+            id: `linux-${goArch(arch)}.deb`,
+            // The APT source indexes by file name, so this one artifact is
+            // renamed at build time; see tool/setup.dart.
+            asset: `funclash_{version}_${goArch(arch)}.deb`,
+            kind: 'DEB',
+            title: 'Debian / Ubuntu',
+            short: '.deb',
+            note: 'noteDeb',
+            rec: true,
+          },
           { id: `linux-${goArch(arch)}.rpm`, kind: 'RPM', title: 'Fedora / openSUSE', short: '.rpm', note: 'noteRpm' },
           { id: `linux-${goArch(arch)}.AppImage`, kind: 'APPIMAGE', title: 'AppImage', note: 'noteAppImage' },
         ];
@@ -134,7 +144,9 @@
     if (!release) return [];
     return buildsFor(platform, arch)
       .map((build) => {
-        const name = `FunClash-${release.version}-${build.id}`;
+        const name = build.asset
+          ? build.asset.replace('{version}', release.version)
+          : `FunClash-${release.version}-${build.id}`;
         const asset = release.assets ? release.assets.get(name) : null;
         if (release.assets && !asset) return null;
         return {
