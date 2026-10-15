@@ -31,7 +31,7 @@ Future<YamlMap?> _ntpOf({
       proxyGroups: const [],
       rules: const [],
       addedRules: const [],
-      defaultUA: 'FlClash-Test',
+      defaultUA: 'FunClash-Test',
     ),
   );
   final config = loadYaml(result.yaml) as YamlMap;

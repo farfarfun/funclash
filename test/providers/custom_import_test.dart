@@ -656,7 +656,7 @@ tun:
 
     setUp(() async {
       await AppLocalizations.load(const Locale('en'));
-      home = Directory.systemTemp.createTempSync('flclash-custom-import-');
+      home = Directory.systemTemp.createTempSync('funclash-custom-import-');
       AppPath.supportDirectory = () async => home.path;
       AppPath.temporaryDirectory = () async => home.path;
       AppPath.cacheDirectory = () async => home.path;

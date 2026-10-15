@@ -30,7 +30,7 @@ void main() {
   final cacheDirectory = AppPath.cacheDirectory;
 
   setUpAll(() async {
-    home = Directory.systemTemp.createTempSync('flclash-resources-');
+    home = Directory.systemTemp.createTempSync('funclash-resources-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

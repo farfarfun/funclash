@@ -46,7 +46,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(0);
-    home = Directory.systemTemp.createTempSync('flclash-store-');
+    home = Directory.systemTemp.createTempSync('funclash-store-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

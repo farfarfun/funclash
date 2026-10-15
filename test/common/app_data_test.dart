@@ -14,7 +14,7 @@ void main() {
   late Directory home;
 
   setUpAll(() {
-    home = Directory.systemTemp.createTempSync('flclash-app-data-');
+    home = Directory.systemTemp.createTempSync('funclash-app-data-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

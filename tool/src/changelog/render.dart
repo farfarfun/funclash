@@ -12,13 +12,13 @@ const changelogFrozenNote =
     '<!-- Nothing is kept below: the releases before funclash 1.0.0 belong to '
     'the project this one was renamed from. -->';
 
-const releaseBeginMarker = '<!-- flclash:changelog:begin -->';
-const releaseEndMarker = '<!-- flclash:changelog:end -->';
+const releaseBeginMarker = '<!-- funclash:changelog:begin -->';
+const releaseEndMarker = '<!-- funclash:changelog:end -->';
 
 /// Opens the HTML comment that carries the structured entries to the app. The
 /// update dialog reads them from the release GitHub already returns, so the
 /// notes cost no request of their own and stay invisible on the release page.
-const releaseJsonBeginMarker = '<!-- flclash:changelog:json';
+const releaseJsonBeginMarker = '<!-- funclash:changelog:json';
 const releaseJsonEndMarker = '-->';
 
 const telegramLimit = 900;

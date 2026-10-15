@@ -26,8 +26,8 @@ void main() {
   setUpAll(() {
     core = MockCoreHandlerInterface();
     globalState.packageInfo = PackageInfo(
-      appName: 'FlClash',
-      packageName: 'com.follow.clash',
+      appName: 'FunClash',
+      packageName: 'com.farfarfun.funclash',
       version: runningVersion,
       buildNumber: '1',
     );

@@ -10,13 +10,13 @@ import 'package:funclash/providers/state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void attachHttpOverrides(ProviderContainer container) {
-  HttpOverrides.global = FlClashHttpOverrides(container);
+  HttpOverrides.global = FunClashHttpOverrides(container);
 }
 
-class FlClashHttpOverrides extends HttpOverrides {
+class FunClashHttpOverrides extends HttpOverrides {
   final ProviderContainer _container;
 
-  FlClashHttpOverrides(this._container);
+  FunClashHttpOverrides(this._container);
 
   static String findProxyFor(ProviderContainer container, Uri url) {
     return findProxyForReader(container.read, url);
@@ -96,7 +96,7 @@ HttpClientAdapter? proxiedHttpClientAdapter({
         if (read == null) {
           return 'DIRECT';
         }
-        return FlClashHttpOverrides.findProxyForReader(read, uri);
+        return FunClashHttpOverrides.findProxyForReader(read, uri);
       };
       return client;
     },

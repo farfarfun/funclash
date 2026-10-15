@@ -45,7 +45,7 @@ Future<YamlMap?> _snifferOf({
       proxyGroups: const [],
       rules: const [],
       addedRules: const [],
-      defaultUA: 'FlClash-Test',
+      defaultUA: 'FunClash-Test',
     ),
   );
   final config = loadYaml(result.yaml) as YamlMap;

@@ -31,7 +31,7 @@ void main() {
 
   setUpAll(() async {
     await AppLocalizations.load(const Locale('en'));
-    home = Directory.systemTemp.createTempSync('flclash-profiles-action-');
+    home = Directory.systemTemp.createTempSync('funclash-profiles-action-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

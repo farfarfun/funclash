@@ -144,7 +144,7 @@ void main() {
           'the text changed when that dependency went away. Both forms parse '
           'back to the same bytes and the core takes either. The divergence is '
           'confined to `::/96` and `::ffff:0:0/96`, which is why every address '
-          'FlClash actually formats — the `privateRouteAddress` blocks and the '
+          'FunClash actually formats — the `privateRouteAddress` blocks and the '
           'complement `subtractCidrs` builds from them — is byte for byte what '
           'it was; see test/common/cidr_test.dart. The gain is text that no '
           'longer varies with the host libc.',

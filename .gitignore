@@ -59,7 +59,7 @@ app.*.map.json
 /android/core/**/cmake-build-*/
 /android/core/**/jniLibs/
 
-#FlClash
+#FunClash
 /libclash/
 /android/app/src/main/jniLibs/
 /platform/services/helper/target

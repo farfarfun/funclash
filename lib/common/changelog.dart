@@ -6,7 +6,7 @@ import 'package:funclash/models/changelog.dart';
 
 import 'common.dart';
 
-const releaseChangelogJsonMarker = '<!-- flclash:changelog:json';
+const releaseChangelogJsonMarker = '<!-- funclash:changelog:json';
 
 const _releaseChangelogJsonEndMarker = '-->';
 

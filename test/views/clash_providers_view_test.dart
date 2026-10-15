@@ -90,7 +90,7 @@ void main() {
   late Directory home;
 
   setUpAll(() {
-    home = Directory.systemTemp.createTempSync('flclash-rule-sets-view-');
+    home = Directory.systemTemp.createTempSync('funclash-rule-sets-view-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

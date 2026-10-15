@@ -67,7 +67,7 @@ void main() {
         proxyGroups: const [],
         rules: const [],
         addedRules: const [],
-        defaultUA: 'FlClash',
+        defaultUA: 'FunClash',
       ),
     );
     final config = loadYaml(result.yaml) as YamlMap;
@@ -114,7 +114,7 @@ void main() {
         proxyGroups: const [],
         rules: const [],
         addedRules: const [],
-        defaultUA: 'FlClash',
+        defaultUA: 'FunClash',
       ),
     );
     final config = loadYaml(result.yaml) as YamlMap;
@@ -150,7 +150,7 @@ void main() {
         proxyGroups: const [],
         rules: const [],
         addedRules: const [],
-        defaultUA: 'FlClash',
+        defaultUA: 'FunClash',
       ),
     );
 

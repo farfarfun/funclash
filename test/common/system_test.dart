@@ -160,7 +160,7 @@ void main() {
     });
 
     test('passes a path containing spaces through untouched', () {
-      const path = '/Users/a b/FlClash.app/Contents/MacOS/FlClashCore';
+      const path = '/Users/a b/FunClash.app/Contents/MacOS/FunClashCore';
       for (final isMacOS in [true, false]) {
         final arguments = SystemShell.statArguments(path, isMacOS: isMacOS);
         expect(arguments.last, path);
@@ -200,7 +200,7 @@ void main() {
     });
 
     test('passes a path containing spaces through untouched', () {
-      const path = '/Users/a b/Library/Application Support/com.follow.clash';
+      const path = '/Users/a b/Library/Application Support/com.farfarfun.funclash';
 
       final arguments = SystemShell.aclArguments(path, 'alice');
 
@@ -347,14 +347,14 @@ void main() {
     });
 
     test('Linux hands the Core to the requesting user\'s group', () {
-      final shell = SystemShell.linuxElevationShell('/opt/FlClash/FlClashCore');
+      final shell = SystemShell.linuxElevationShell('/opt/FunClash/FunClashCore');
 
       expect(
         shell,
         startsWith(r'group=$(id -g "${PKEXEC_UID:-$SUDO_UID}") && '),
       );
       expect(shell, contains(r'chown "root:$group" '));
-      expect(shell, endsWith("chmod 4750 '/opt/FlClash/FlClashCore'"));
+      expect(shell, endsWith("chmod 4750 '/opt/FunClash/FunClashCore'"));
     });
 
     test('neither leaves execute to others', () {

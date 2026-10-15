@@ -57,7 +57,7 @@ void main() {
   late List<({String name, String url})> compiles;
 
   setUpAll(() {
-    home = Directory.systemTemp.createTempSync('flclash-providers-action-');
+    home = Directory.systemTemp.createTempSync('funclash-providers-action-');
     AppPath.supportDirectory = () async => home.path;
     AppPath.temporaryDirectory = () async => home.path;
     AppPath.cacheDirectory = () async => home.path;

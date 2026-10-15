@@ -54,7 +54,7 @@ void main() {
     core = _MockCoreHandlerInterface();
     CoreController.resetInstance();
     CoreController.test(core);
-    home = Directory.systemTemp.createTempSync('flclash-providers-');
+    home = Directory.systemTemp.createTempSync('funclash-providers-');
   });
 
   setUp(() => reset(core));
