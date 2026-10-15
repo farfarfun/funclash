@@ -1337,8 +1337,10 @@ mod tests {
 
     #[test]
     fn verifies_core_sha256_in_all_build_modes() {
-        let path =
-            std::env::temp_dir().join(format!("funclash-helper-core-sha256-{}", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "funclash-helper-core-sha256-{}",
+            std::process::id()
+        ));
         let mut file = File::create(&path).unwrap();
         file.write_all(b"test").unwrap();
         drop(file);
@@ -1440,7 +1442,11 @@ mod tests {
                     .is_none());
             }
         }
-        for host in ["127.0.0.1:47890", "localhost:47890", "FunClashHelperService"] {
+        for host in [
+            "127.0.0.1:47890",
+            "localhost:47890",
+            "FunClashHelperService",
+        ] {
             let response = warp::test::request()
                 .path("/logs")
                 .header("host", host)

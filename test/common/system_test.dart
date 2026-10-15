@@ -200,7 +200,8 @@ void main() {
     });
 
     test('passes a path containing spaces through untouched', () {
-      const path = '/Users/a b/Library/Application Support/com.farfarfun.funclash';
+      const path =
+          '/Users/a b/Library/Application Support/com.farfarfun.funclash';
 
       final arguments = SystemShell.aclArguments(path, 'alice');
 
@@ -347,7 +348,9 @@ void main() {
     });
 
     test('Linux hands the Core to the requesting user\'s group', () {
-      final shell = SystemShell.linuxElevationShell('/opt/FunClash/FunClashCore');
+      final shell = SystemShell.linuxElevationShell(
+        '/opt/FunClash/FunClashCore',
+      );
 
       expect(
         shell,
