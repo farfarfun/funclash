@@ -5,7 +5,6 @@ import 'package:test/test.dart';
 import '../../tool/src/changelog/builder.dart';
 import '../../tool/src/changelog/git.dart';
 import '../../tool/src/changelog/models.dart';
-import '../../tool/src/changelog/render.dart';
 
 void main() {
   late Directory repo;
@@ -30,7 +29,7 @@ void main() {
   }
 
   setUp(() {
-    repo = Directory.systemTemp.createTempSync('flclash-changelog-');
+    repo = Directory.systemTemp.createTempSync('funclash-changelog-');
     git(['init', '--quiet', '--initial-branch=main']);
     git(['config', 'user.email', 'changelog-test@example.com']);
     git(['config', 'user.name', 'Changelog test']);
@@ -65,33 +64,34 @@ void main() {
     expect(versions.single.date, '2026-01-02');
   });
 
-  test('preserves frozen history before the first structured release', () {
-    git(['checkout', '--quiet', '--orphan', 'frozen-history']);
-    commit('chore: optimize commented policy');
-    git(['tag', 'v0.8.96']);
-    final builder = ChangelogBuilder(Git(workingDirectory: repo.path));
-    expect(builder.build().changelog.versions, isEmpty);
+  test('the base ref is the floor while the boundary tag is missing', () {
+    final result = ChangelogBuilder(
+      Git(workingDirectory: repo.path),
+      boundary: 'v0.0.1',
+      base: 'v1.0.0',
+    ).build();
 
-    commit('fix: new release fix');
-    final next = builder
-        .build(
-          pending: const PendingVersion(version: '0.8.97', date: '2026-09-10'),
-        )
-        .changelog;
-    expect(next.versions.single.tag, 'v0.8.97');
+    expect(result.changelog.versions.map((version) => version.tag), [
+      'v1.1.0',
+      'v1.0.0',
+    ]);
     expect(
-      next.versions.single.groups.single.entries.single.text,
-      'New release fix',
+      result.commitIdsByTag['v1.0.0'],
+      isEmpty,
+      reason:
+          'the oldest range starts at the base ref, so the commits behind it '
+          'reach no version.',
     );
+  });
 
-    const history =
-        '## v0.8.96 (2026-08-17)\n\n'
-        '- Optimize commented policy\n'
-        '- Fix whole group delay test failing on Windows\n'
-        '- Optimize package icon loading and connections polling\n';
-    final original = '${renderMarkdown(builder.build().changelog)}$history';
-    final merged = mergeMarkdown(renderMarkdown(next), original);
-    expect(merged.substring(merged.indexOf('## v0.8.96')), history);
+  test('a boundary tag that exists outranks the base ref', () {
+    final result = ChangelogBuilder(
+      Git(workingDirectory: repo.path),
+      boundary: 'v1.0.0',
+      base: 'v1.1.0',
+    ).build();
+
+    expect(result.commitIdsByTag['v1.1.0'], hasLength(3));
   });
 
   test('a prerelease tag does not split the stable range', () {

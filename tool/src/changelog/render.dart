@@ -9,8 +9,8 @@ const changelogTitle = '# Changelog';
 const changelogFrozenMarker = '<!-- changelog:frozen -->';
 
 const changelogFrozenNote =
-    '<!-- Entries below predate the structured pipeline. Their wording is kept as '
-    'written; only the heading and list style were normalized. -->';
+    '<!-- Nothing is kept below: the releases before funclash 1.0.0 belong to '
+    'the project this one was renamed from. -->';
 
 const releaseBeginMarker = '<!-- flclash:changelog:begin -->';
 const releaseEndMarker = '<!-- flclash:changelog:end -->';
