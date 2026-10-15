@@ -49,7 +49,7 @@ Future<void> _greet(PanelHost host) async {
   addTearDown(socket.close);
   socket.add(
     json.encode(
-      PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+      const PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
     ),
   );
   await socket.first;

@@ -13,3 +13,13 @@ Uri bridgeBeside(Uri page) => Uri(
 /// a query string does both of.
 String tokenInFragment(String fragment) =>
     Uri.splitQueryString(fragment)['token'] ?? '';
+
+/// What a person opens to reach a panel. Always the loopback, whatever the
+/// bridge is bound to: this is the link the host itself hands out.
+Uri panelLink({required int port, required String token}) => Uri(
+  scheme: 'http',
+  host: localhost,
+  port: port,
+  path: '/',
+  fragment: 'token=$token',
+);

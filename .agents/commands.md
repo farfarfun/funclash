@@ -91,6 +91,21 @@ The build is bannered `SAFE MODE`, the tray shows the
 `status_4` bug icon with a menu of only show and exit and no traffic title, and the settings keep their values, so
 nothing has to be flipped back before a normal run. See the safe mode section of `architecture.md` for the owners that consult the flag.
 
+### Driving The Remote Panel
+
+Nothing installs a panel build yet, so the host serves the page out of the data
+directory and a developer puts it there:
+
+```bash
+flutter build web --release
+rm -rf ~/.local/share/FunClash/panel && cp -r build/web ~/.local/share/FunClash/panel
+```
+
+Then turn on Remote panel in Settings → General and open the link that section
+copies. The panel has to come from the host's own origin — `PanelServer`
+refuses any other `Origin` — so serving `build/web` from a second HTTP server
+will not do. Safe mode hosts no bridge at all, and neither does Android.
+
 ## Code Generation
 
 Run code generation after modifying models, providers, or database schema:

@@ -39,7 +39,10 @@ final class PanelHost {
 
   Uri? get address => _server?.address;
 
-  Future<void> load({required PanelConfigSource config}) async {
+  Future<void> load({
+    required PanelConfigSource config,
+    String? pageRoot,
+  }) async {
     if (_closed) {
       return;
     }
@@ -54,7 +57,7 @@ final class PanelHost {
     if (_closed) {
       return;
     }
-    final server = _server ??= PanelServer(config: config);
+    final server = _server ??= PanelServer(config: config, pageRoot: pageRoot);
     _arrivals ??= server.sessions.listen(_attach);
     await _converge(_settings);
   }
@@ -112,7 +115,11 @@ final class PanelHost {
   }
 }
 
-final panelHost = system.isDesktop && !safeModeBuild
+/// A panel is a browser tab beside the desktop it controls, and safe mode is
+/// the build that comes up without opening anything.
+final panelSupported = system.isDesktop && !safeModeBuild;
+
+final panelHost = panelSupported
     ? PanelHost(
         handlers: [
           PanelCoreBridge(core: coreService),

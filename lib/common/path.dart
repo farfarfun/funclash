@@ -69,6 +69,13 @@ class AppPath {
     return join(mHomeDirPath, 'database.sqlite');
   }
 
+  /// Where a `flutter build web` output goes for the host to serve it; the
+  /// panel has to come from the host's own origin to pass its origin check.
+  Future<String> get panelDirPath async {
+    final mHomeDirPath = await homeDirPath;
+    return join(mHomeDirPath, 'panel');
+  }
+
   Future<String> get tempFilePath async {
     final mTempDir = await tempDir.future;
     return join(mTempDir, 'temp$uniqueId');

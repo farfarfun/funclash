@@ -7586,6 +7586,66 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Remote panel`
+  String get remotePanel {
+    return Intl.message(
+      'Remote panel',
+      name: 'remotePanel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open this desktop from a browser, on this machine or on your network`
+  String get remotePanelDesc {
+    return Intl.message(
+      'Open this desktop from a browser, on this machine or on your network',
+      name: 'remotePanelDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reachable from the network`
+  String get remotePanelLan {
+    return Intl.message(
+      'Reachable from the network',
+      name: 'remotePanelLan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off, only this machine can reach the panel. On, anything that can reach this port can too, and the link is all it needs`
+  String get remotePanelLanDesc {
+    return Intl.message(
+      'Off, only this machine can reach the panel. On, anything that can reach this port can too, and the link is all it needs',
+      name: 'remotePanelLanDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Replace link`
+  String get remotePanelNewLink {
+    return Intl.message(
+      'Replace link',
+      name: 'remotePanelNewLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The old link stops working and every open panel is signed out`
+  String get remotePanelNewLinkTip {
+    return Intl.message(
+      'The old link stops working and every open panel is signed out',
+      name: 'remotePanelNewLinkTip',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

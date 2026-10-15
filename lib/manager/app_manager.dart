@@ -71,7 +71,17 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     }
     final panel = panelHost;
     if (panel != null) {
-      unawaited(panel.load(config: () => ref.read(configProvider).toJson()));
+      unawaited(_openPanelBridge(panel));
+    }
+  }
+
+  Future<void> _openPanelBridge(PanelHost panel) async {
+    await panel.load(
+      config: () => ref.read(configProvider).toJson(),
+      pageRoot: await appPath.panelDirPath,
+    );
+    if (mounted) {
+      ref.read(panelSettingProvider.notifier).syncFromHost();
     }
   }
 

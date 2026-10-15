@@ -6,15 +6,19 @@ import 'package:funclash/common/print.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/remote/panel_session.dart';
 import 'package:funclash/remote/panel_settings.dart';
+import 'package:path/path.dart' as p;
 
 typedef PanelConfigSource = Map<String, Object?> Function();
 
 const maxPendingPanelHandshakes = 8;
 
 final class PanelServer {
-  PanelServer({required PanelConfigSource config}) : _config = config;
+  PanelServer({required PanelConfigSource config, String? pageRoot})
+    : _config = config,
+      _pageRoot = pageRoot;
 
   final PanelConfigSource _config;
+  final String? _pageRoot;
   final _sessions = StreamController<PanelSession>.broadcast();
   final _live = <PanelSession>{};
 
@@ -73,17 +77,25 @@ final class PanelServer {
   }
 
   Future<void> _handle(HttpRequest request) async {
-    final refusal = _refuse(request);
+    // The page too: a name resolving here could rebind its own DNS past this.
+    final host = request.headers.value(HttpHeaders.hostHeader);
+    if (host == null || !_isLiteralHost(host)) {
+      await _refuse(request, HttpStatus.forbidden);
+      return;
+    }
+    if (request.uri.path != panelBridgePath) {
+      await _servePage(request);
+      return;
+    }
+    final refusal = _refuseBridge(request, host);
     if (refusal != null) {
-      request.response.statusCode = refusal;
-      await request.response.close();
+      await _refuse(request, refusal);
       return;
     }
     _pending++;
     try {
-      final socket = await WebSocketTransformer.upgrade(request);
       final session = await acceptPanel(
-        _WebSocketPanelSocket(socket),
+        _WebSocketPanelSocket(await WebSocketTransformer.upgrade(request)),
         token: _settings.token,
         config: _config(),
       );
@@ -107,21 +119,12 @@ final class PanelServer {
     }
   }
 
-  int? _refuse(HttpRequest request) {
-    if (request.uri.path != panelBridgePath) {
-      return HttpStatus.notFound;
-    }
+  int? _refuseBridge(HttpRequest request, String host) {
     if (!WebSocketTransformer.isUpgradeRequest(request)) {
       return HttpStatus.badRequest;
     }
     if (_pending >= maxPendingPanelHandshakes) {
       return HttpStatus.serviceUnavailable;
-    }
-    final host = request.headers.value(HttpHeaders.hostHeader);
-    // A page on any name that resolves here would otherwise pass the origin
-    // check below by rebinding its own DNS to the loopback address.
-    if (host == null || !_isLiteralHost(host)) {
-      return HttpStatus.forbidden;
     }
     // WebSocket upgrades are not subject to CORS, so a page anywhere could
     // open this socket and ride the browser to a host it cannot name.
@@ -131,7 +134,53 @@ final class PanelServer {
     }
     return null;
   }
+
+  Future<void> _servePage(HttpRequest request) async {
+    final root = _pageRoot;
+    final file = root == null || request.method != 'GET'
+        ? null
+        : panelPageFile(root, request.uri.path);
+    if (file == null || !file.existsSync()) {
+      await _refuse(request, HttpStatus.notFound);
+      return;
+    }
+    request.response.headers.contentType = panelPageType(file.path);
+    await request.response.addStream(file.openRead());
+    await request.response.close();
+  }
+
+  Future<void> _refuse(HttpRequest request, int status) async {
+    request.response.statusCode = status;
+    await request.response.close();
+  }
 }
+
+/// Null for a path that would leave [root], which a `..` in a request does.
+File? panelPageFile(String root, String path) {
+  final base = p.normalize(p.absolute(root));
+  final resolved = p.normalize(
+    p.join(base, path == '/' ? 'index.html' : path.replaceFirst('/', '')),
+  );
+  if (resolved != base && !p.isWithin(base, resolved)) {
+    return null;
+  }
+  return File(resolved);
+}
+
+ContentType panelPageType(String path) => switch (p.extension(path)) {
+  '.html' => ContentType.html,
+  '.js' || '.mjs' => ContentType('application', 'javascript', charset: 'utf-8'),
+  '.json' => ContentType.json,
+  '.css' => ContentType('text', 'css', charset: 'utf-8'),
+  '.wasm' => ContentType('application', 'wasm'),
+  '.png' => ContentType('image', 'png'),
+  '.svg' => ContentType('image', 'svg+xml'),
+  '.ico' => ContentType('image', 'x-icon'),
+  '.ttf' => ContentType('font', 'ttf'),
+  '.otf' => ContentType('font', 'otf'),
+  '.woff2' => ContentType('font', 'woff2'),
+  _ => ContentType.binary,
+};
 
 bool _isLiteralHost(String host) {
   final hostname = Uri.tryParse('http://$host')?.host ?? '';

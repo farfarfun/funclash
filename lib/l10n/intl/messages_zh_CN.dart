@@ -1035,6 +1035,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "remote": MessageLookupByLibrary.simpleMessage("远程"),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("远程目标"),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage("远程 DNS 解析"),
+    "remotePanel": MessageLookupByLibrary.simpleMessage("远程面板"),
+    "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
+      "在本机或局域网的浏览器里打开此桌面端",
+    ),
+    "remotePanelLan": MessageLookupByLibrary.simpleMessage("允许局域网访问"),
+    "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
+      "关闭时只有本机能访问面板；开启后任何能连到此端口的设备，只要拿到链接就能访问",
+    ),
+    "remotePanelNewLink": MessageLookupByLibrary.simpleMessage("更换链接"),
+    "remotePanelNewLinkTip": MessageLookupByLibrary.simpleMessage(
+      "旧链接立即失效，已打开的面板会全部退出",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("移除"),
     "rename": MessageLookupByLibrary.simpleMessage("重命名"),
     "replace": MessageLookupByLibrary.simpleMessage("替换"),

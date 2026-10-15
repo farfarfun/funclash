@@ -1394,6 +1394,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage(
       "Удалённое разрешение DNS",
     ),
+    "remotePanel": MessageLookupByLibrary.simpleMessage("Удалённая панель"),
+    "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
+      "Откройте этот компьютер из браузера — на нём же или в вашей сети",
+    ),
+    "remotePanelLan": MessageLookupByLibrary.simpleMessage("Доступ из сети"),
+    "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
+      "Выключено — панель доступна только с этого компьютера. Включено — с любого устройства, которое достанет до этого порта, и ссылки для этого достаточно",
+    ),
+    "remotePanelNewLink": MessageLookupByLibrary.simpleMessage(
+      "Заменить ссылку",
+    ),
+    "remotePanelNewLinkTip": MessageLookupByLibrary.simpleMessage(
+      "Старая ссылка перестанет работать, а все открытые панели выйдут из сеанса",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("Убрать"),
     "rename": MessageLookupByLibrary.simpleMessage("Переименовать"),
     "replace": MessageLookupByLibrary.simpleMessage("Заменить"),

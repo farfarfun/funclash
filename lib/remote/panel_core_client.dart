@@ -43,9 +43,8 @@ final class PanelCoreClient extends CoreHandlerInterface {
 
   Future<void> unbind() async {
     _session = null;
-    final frames = _frames;
+    await _frames?.cancel();
     _frames = null;
-    await frames?.cancel();
     _failPending();
   }
 

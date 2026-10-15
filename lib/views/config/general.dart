@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:funclash/common/common.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/l10n/l10n.dart';
 import 'package:funclash/models/models.dart';
 import 'package:funclash/providers/providers.dart';
+import 'package:funclash/remote/panel_address.dart';
+import 'package:funclash/remote/panel_host.dart';
 import 'package:funclash/views/config/on_demand.dart';
 import 'package:funclash/views/config/user_agents.dart';
 import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'general/port_dialog.dart';
@@ -248,8 +253,113 @@ ConfigToggleItem _appSettingToggle({
   );
 }
 
+String? _validatePanelPort(String? value, AppLocalizations appLocalizations) {
+  final port = int.tryParse(value ?? '');
+  return port != null && port >= 1024 && port <= 49151
+      ? null
+      : appLocalizations.portTip(appLocalizations.port);
+}
+
+class PanelLinkItem extends ConsumerWidget {
+  const PanelLinkItem({super.key});
+
+  Future<void> _copy(BuildContext context, String link) async {
+    await Clipboard.setData(ClipboardData(text: link));
+    if (context.mounted) {
+      context.showNotifier(
+        context.appLocalizations.copySuccess,
+        level: MessageLevel.success,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final settings = ref.watch(panelSettingProvider);
+    final link = panelLink(
+      port: settings.port,
+      token: settings.token,
+    ).toString();
+    return ListItem(
+      title: Text(context.appLocalizations.copyLink),
+      subtitle: Text(link, maxLines: 1, overflow: TextOverflow.ellipsis),
+      onTap: () {
+        unawaited(_copy(context, link));
+      },
+    );
+  }
+}
+
+class PanelNewLinkItem extends ConsumerWidget {
+  const PanelNewLinkItem({super.key});
+
+  Future<void> _replace(WidgetRef ref) async {
+    final appLocalizations = currentAppLocalizations;
+    final confirmed = await dialogs.showMessage(
+      title: appLocalizations.remotePanelNewLink,
+      message: TextSpan(text: appLocalizations.remotePanelNewLinkTip),
+    );
+    if (confirmed != true) {
+      return;
+    }
+    await ref.read(panelSettingProvider.notifier).replaceToken();
+  }
+
+  @override
+  Widget build(BuildContext context, ref) {
+    return ListItem(
+      title: Text(context.appLocalizations.remotePanelNewLink),
+      onTap: () {
+        unawaited(_replace(ref));
+      },
+    );
+  }
+}
+
 class GeneralView extends ConsumerWidget {
   const GeneralView({super.key});
+
+  List<Widget> _panelItems({required bool panelEnabled}) {
+    return [
+      ConfigToggleItem(
+        title: (l) => l.enabled,
+        selector: panelSettingProvider.select((state) => state.enabled),
+        onChanged: (ref, value) => unawaited(
+          ref
+              .read(panelSettingProvider.notifier)
+              .update((state) => state.copyWith(enabled: value)),
+        ),
+      ),
+      if (panelEnabled) ...[
+        ConfigToggleItem(
+          title: (l) => l.remotePanelLan,
+          selector: panelSettingProvider.select((state) => state.allowLan),
+          onChanged: (ref, value) => unawaited(
+            ref
+                .read(panelSettingProvider.notifier)
+                .update((state) => state.copyWith(allowLan: value)),
+          ),
+        ),
+        ConfigTextItem(
+          title: (l) => l.port,
+          maxLength: TextInputLimits.port,
+          keyboardType: TextInputType.number,
+          validator: _validatePanelPort,
+          selector: panelSettingProvider.select((state) => '${state.port}'),
+          onChanged: (ref, value) => unawaited(
+            ref
+                .read(panelSettingProvider.notifier)
+                .update(
+                  (state) =>
+                      state.copyWith(port: int.tryParse(value) ?? state.port),
+                ),
+          ),
+        ),
+        const PanelLinkItem(),
+        const PanelNewLinkItem(),
+      ],
+    ];
+  }
 
   List<Widget> _startupItems(AppLocalizations appLocalizations) {
     return [
@@ -433,6 +543,9 @@ class GeneralView extends ConsumerWidget {
         (state) => state.externalController == ExternalControllerStatus.open,
       ),
     );
+    final panelEnabled = ref.watch(
+      panelSettingProvider.select((state) => state.enabled),
+    );
     return BaseScaffold(
       title: appLocalizations.general,
       body: ListView(
@@ -483,6 +596,15 @@ class GeneralView extends ConsumerWidget {
               if (system.isAndroid) appLocalizations.crashlyticsTip,
             ].join('\n'),
           ),
+          if (panelSupported)
+            generateSectionV3(
+              title: appLocalizations.remotePanel,
+              items: _panelItems(panelEnabled: panelEnabled),
+              footer: [
+                appLocalizations.remotePanelDesc,
+                if (panelEnabled) appLocalizations.remotePanelLanDesc,
+              ].join('\n'),
+            ),
         ],
       ),
     );

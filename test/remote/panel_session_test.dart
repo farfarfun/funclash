@@ -49,7 +49,7 @@ Future<PanelSession?> _accept(
 
 Future<PanelSession> _connected(_FakeSocket socket) async {
   socket.receive(
-    PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+    const PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
   );
   final session = await _accept(socket);
   return session!;
@@ -71,7 +71,10 @@ void main() {
     test('hangs up on a bad token and says why', () async {
       final socket = _FakeSocket();
       socket.receive(
-        PanelHello(protocol: panelProtocolVersion, token: 'wrong').toJson(),
+        const PanelHello(
+          protocol: panelProtocolVersion,
+          token: 'wrong',
+        ).toJson(),
       );
 
       expect(await _accept(socket), isNull);
@@ -85,7 +88,10 @@ void main() {
     test('hangs up on a protocol it does not speak', () async {
       final socket = _FakeSocket();
       socket.receive(
-        PanelHello(protocol: panelProtocolVersion + 1, token: _token).toJson(),
+        const PanelHello(
+          protocol: panelProtocolVersion + 1,
+          token: _token,
+        ).toJson(),
       );
 
       expect(await _accept(socket), isNull);
@@ -141,7 +147,10 @@ void main() {
       final socket = _FakeSocket();
       socket.receive({'c': 'core', 'p': 1});
       socket.receive(
-        PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+        const PanelHello(
+          protocol: panelProtocolVersion,
+          token: _token,
+        ).toJson(),
       );
 
       expect(await _accept(socket), isNull);
@@ -193,7 +202,10 @@ void main() {
 
       final frames = session.frames.toList();
       socket.receive(
-        PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+        const PanelHello(
+          protocol: panelProtocolVersion,
+          token: _token,
+        ).toJson(),
       );
       await pumpEventQueue();
       await session.close();

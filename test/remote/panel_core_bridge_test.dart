@@ -41,7 +41,7 @@ final class _FakeSocket implements PanelSocket {
 Future<_FakeSocket> _attached(PanelCoreBridge bridge) async {
   final socket = _FakeSocket();
   socket.receive(
-    PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+    const PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
   );
   final session = await acceptPanel(socket, token: _token, config: const {});
   addTearDown(session!.close);

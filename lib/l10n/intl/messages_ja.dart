@@ -1144,6 +1144,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "remote": MessageLookupByLibrary.simpleMessage("リモート"),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("リモート宛先"),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage("リモート DNS 解決"),
+    "remotePanel": MessageLookupByLibrary.simpleMessage("リモートパネル"),
+    "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
+      "この端末またはネットワーク上のブラウザからデスクトップを開きます",
+    ),
+    "remotePanelLan": MessageLookupByLibrary.simpleMessage("ネットワークから接続を許可"),
+    "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
+      "オフならこの端末のみ、オンならこのポートに到達できる機器がリンクだけで接続できます",
+    ),
+    "remotePanelNewLink": MessageLookupByLibrary.simpleMessage("リンクを再発行"),
+    "remotePanelNewLinkTip": MessageLookupByLibrary.simpleMessage(
+      "古いリンクは無効になり、開いているパネルはすべてサインアウトされます",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("削除"),
     "rename": MessageLookupByLibrary.simpleMessage("名前を変更"),
     "replace": MessageLookupByLibrary.simpleMessage("置換"),

@@ -905,5 +905,11 @@
   "required": "Required",
   "ageSecretKey": "Age secret key",
   "ageEncryptedProfile": "Encrypted profile",
-  "ageSecretKeyRequiredTip": "This profile is encrypted with age and needs an age secret key to decrypt"
+  "ageSecretKeyRequiredTip": "This profile is encrypted with age and needs an age secret key to decrypt",
+  "remotePanel": "Remote panel",
+  "remotePanelDesc": "Open this desktop from a browser, on this machine or on your network",
+  "remotePanelLan": "Reachable from the network",
+  "remotePanelLanDesc": "Off, only this machine can reach the panel. On, anything that can reach this port can too, and the link is all it needs",
+  "remotePanelNewLink": "Replace link",
+  "remotePanelNewLinkTip": "The old link stops working and every open panel is signed out"
 }

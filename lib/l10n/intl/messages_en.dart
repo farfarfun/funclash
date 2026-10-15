@@ -1337,6 +1337,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage(
       "Remote DNS resolution",
     ),
+    "remotePanel": MessageLookupByLibrary.simpleMessage("Remote panel"),
+    "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
+      "Open this desktop from a browser, on this machine or on your network",
+    ),
+    "remotePanelLan": MessageLookupByLibrary.simpleMessage(
+      "Reachable from the network",
+    ),
+    "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
+      "Off, only this machine can reach the panel. On, anything that can reach this port can too, and the link is all it needs",
+    ),
+    "remotePanelNewLink": MessageLookupByLibrary.simpleMessage("Replace link"),
+    "remotePanelNewLinkTip": MessageLookupByLibrary.simpleMessage(
+      "The old link stops working and every open panel is signed out",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("Remove"),
     "rename": MessageLookupByLibrary.simpleMessage("Rename"),
     "replace": MessageLookupByLibrary.simpleMessage("Replace"),

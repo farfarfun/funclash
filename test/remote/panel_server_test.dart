@@ -7,6 +7,7 @@ import 'package:funclash/common/constant.dart';
 import 'package:funclash/remote/panel_protocol.dart';
 import 'package:funclash/remote/panel_server_native.dart';
 import 'package:funclash/remote/panel_settings.dart';
+import 'package:path/path.dart' as p;
 
 const _token = 'EJ4nVwqkqUJb4v0Wn0kcBp2ZptMXAOO8gN1MbcG2Mcc';
 const _config = {'currentProfileId': 'abc'};
@@ -14,11 +15,41 @@ const _config = {'currentProfileId': 'abc'};
 /// Port zero so the operating system picks one no other test is holding.
 const _usable = PanelSettings(enabled: true, token: _token, port: 0);
 
-Future<PanelServer> _started({bool allowLan = false}) async {
-  final server = PanelServer(config: () => _config);
+Future<PanelServer> _started({bool allowLan = false, String? pageRoot}) async {
+  final server = PanelServer(config: () => _config, pageRoot: pageRoot);
   addTearDown(server.dispose);
   await server.start(_usable.copyWith(allowLan: allowLan));
   return server;
+}
+
+/// A panel build as far as the host is concerned: a tree of files to hand back.
+String _pageTree() {
+  final root = Directory.systemTemp.createTempSync('panel_page');
+  addTearDown(() => root.deleteSync(recursive: true));
+  File(p.join(root.path, 'index.html')).writeAsStringSync('<html>panel</html>');
+  File(p.join(root.path, 'main.dart.js')).writeAsStringSync('console.log(1)');
+  Directory(p.join(root.path, 'assets')).createSync();
+  File(p.join(root.path, 'assets', 'f.json')).writeAsStringSync('{"a":1}');
+  File(p.join(root.parent.path, 'outside.txt')).writeAsStringSync('secret');
+  addTearDown(() => File(p.join(root.parent.path, 'outside.txt')).deleteSync());
+  return root.path;
+}
+
+Future<({int status, String? type, String body})> _get(
+  PanelServer server,
+  String path,
+) async {
+  final client = HttpClient();
+  addTearDown(client.close);
+  final request = await client.getUrl(
+    Uri.parse('http://$localhost:${server.address!.port}$path'),
+  );
+  final response = await request.close();
+  return (
+    status: response.statusCode,
+    type: response.headers.contentType?.mimeType,
+    body: await response.transform(utf8.decoder).join(),
+  );
 }
 
 String _bridgeUrl(PanelServer server) =>
@@ -26,17 +57,20 @@ String _bridgeUrl(PanelServer server) =>
 
 /// Reads the replies in order, which a bare `socket.first` cannot do twice.
 final class _PanelClient {
-  _PanelClient._(this._socket, this._incoming);
+  _PanelClient._(WebSocket socket)
+    : _socket = socket,
+      _incoming = StreamIterator(socket.cast<String>());
 
   static Future<_PanelClient> connect(
     PanelServer server, {
     String? origin,
   }) async {
-    final socket = await WebSocket.connect(
-      _bridgeUrl(server),
-      headers: origin == null ? null : {'origin': origin},
+    return _PanelClient._(
+      await WebSocket.connect(
+        _bridgeUrl(server),
+        headers: origin == null ? null : {'origin': origin},
+      ),
     );
-    return _PanelClient._(socket, StreamIterator(socket.cast<String>()));
   }
 
   final WebSocket _socket;
@@ -281,6 +315,63 @@ void main() {
       await server.dispose();
 
       expect(await sessions, isEmpty);
+    });
+
+    test('serves the panel build it was pointed at', () async {
+      final server = await _started(pageRoot: _pageTree());
+
+      final index = await _get(server, '/');
+      expect(index.status, HttpStatus.ok);
+      expect(index.body, '<html>panel</html>');
+      expect(index.type, 'text/html');
+
+      final script = await _get(server, '/main.dart.js');
+      expect(script.body, 'console.log(1)');
+      expect(script.type, 'application/javascript');
+
+      final asset = await _get(server, '/assets/f.json');
+      expect(asset.body, '{"a":1}');
+      expect(asset.type, 'application/json');
+    });
+
+    test('answers nothing for a file the build does not have', () async {
+      final server = await _started(pageRoot: _pageTree());
+
+      expect((await _get(server, '/nothing.html')).status, HttpStatus.notFound);
+    });
+
+    test('hands back nothing above the build it serves', () async {
+      final server = await _started(pageRoot: _pageTree());
+
+      for (final path in [
+        '/../outside.txt',
+        '/assets/../../outside.txt',
+        '/%2e%2e/outside.txt',
+      ]) {
+        final answer = await _get(server, path);
+        expect(answer.status, HttpStatus.notFound, reason: path);
+        expect(answer.body, isNot(contains('secret')), reason: path);
+      }
+    });
+
+    test('serves no page at all when it was pointed at nothing', () async {
+      final server = await _started();
+
+      expect((await _get(server, '/')).status, HttpStatus.notFound);
+    });
+
+    test('answers only GET for a page', () async {
+      final server = await _started(pageRoot: _pageTree());
+      final client = HttpClient();
+      addTearDown(client.close);
+
+      final request = await client.postUrl(
+        Uri.parse('http://$localhost:${server.address!.port}/'),
+      );
+      final response = await request.close();
+      await response.drain<void>();
+
+      expect(response.statusCode, HttpStatus.notFound);
     });
 
     test('stopping one that never started is not an error', () async {

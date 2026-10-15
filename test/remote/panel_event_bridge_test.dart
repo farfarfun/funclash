@@ -40,7 +40,7 @@ final class _FakeSocket implements PanelSocket {
 
 Future<PanelSession> _session(_FakeSocket socket) async {
   socket.receive(
-    PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
+    const PanelHello(protocol: panelProtocolVersion, token: _token).toJson(),
   );
   final session = await acceptPanel(socket, token: _token, config: const {});
   addTearDown(session!.close);

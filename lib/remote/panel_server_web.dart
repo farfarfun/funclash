@@ -7,7 +7,7 @@ typedef PanelConfigSource = Map<String, Object?> Function();
 
 // A panel is the client of a bridge, never the host of one.
 final class PanelServer {
-  PanelServer({required PanelConfigSource config});
+  PanelServer({required PanelConfigSource config, String? pageRoot});
 
   final _sessions = StreamController<PanelSession>.broadcast();
 

@@ -1329,13 +1329,36 @@ the link is not awaited there because the panel's providers read `coreService`
 while the page is still loading, and every call before the link lands reports
 the dead link they already handle.
 
+The bridge is opened from the Remote panel section of `GeneralView`, which sits
+beside Inbound because it is the same kind of decision: a local port, exposed or
+not. `panelSettingProvider` reads through to `panelHost` rather than holding a
+copy of the settings, the host being what both the stored settings and the
+listening socket answer to, and `AppStateManager` calls `syncFromHost` once
+`load` has finished so the section shows the token that was stored rather than
+the default it built with. `panelSupported` is the one place the
+`system.isDesktop && !safeModeBuild` condition is written, read by both the
+singleton and the section that would otherwise offer a switch for a bridge that
+cannot exist. The link the section copies is always the loopback one, whatever
+the bridge is bound to: it is the host handing out its own address, and a
+`PanelSettings` whose port the UI accepts is narrower than one `fromJson` will
+read back, because stored settings have to tolerate what is already there.
+
+The host serves the page as well as the bridge, because the origin check left
+it no choice: a panel loaded from anywhere else is refused, so the two have to
+share an origin. Everything that is not `/bridge` is a `GET` out of
+`appPath.panelDirPath`, and `panelPageFile` answers null for a path that would
+leave it, which is what a `..` in a request is for. The `Host` check moved
+ahead of the split so it covers the page too — a name that resolves here could
+otherwise rebind its own DNS past it — while the `Origin` check stays on the
+bridge, a navigation sending none. A host pointed at nothing, which is every
+host until something installs a build there, answers the 404 it always did.
+Putting a `flutter build web` output in that directory is what remains, and
+that is a build-system change: the desktop artifact would have to carry the web
+one.
+
 What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
 channels have no handler, so `executor_web.dart` still throws when a query asks
-and `file_web.dart` still refuses. And the host does not serve the panel page:
-`/bridge` is the only path `PanelServer` answers, so the `flutter build web`
-output has to get beside it — which is a build-system change, not a Dart one.
-Nothing opens the bridge either; that wants a settings surface, and with it the
-ARB keys for one.
+and `file_web.dart` still refuses.
 
 ### High-Frequency Buffers
 
