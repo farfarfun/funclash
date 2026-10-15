@@ -82,9 +82,9 @@ fi
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 [[ "$branch" != "HEAD" ]] || die "detached HEAD; check out a branch first"
-if [[ "$branch" != "main" ]]; then
-  echo "note: releasing from '$branch', not main. CI triggers on the tag, so"
-  echo "      this publishes '$branch' while main stays behind."
+if [[ "$branch" != "master" ]]; then
+  echo "note: releasing from '$branch', not master. CI triggers on the tag, so"
+  echo "      this publishes '$branch' while master stays behind."
 fi
 
 current="$(pubspec_version)"

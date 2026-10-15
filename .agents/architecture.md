@@ -1549,6 +1549,13 @@ injects its version only from its own CI, so the fork alone reports the placehol
 protocol user agents; `GoBuilder` passes the value as `-X github.com/metacubex/mihomo/constant.Version=...` for every
 build, local and CI alike. Bump it whenever the submodule moves onto a new upstream release.
 
+That submodule is `farfarfun/funclash-core` on its `funclash` branch, and it is not a GitHub fork of mihomo: the fork
+relationship was dropped when the project was renamed, so the repository carries no upstream remote and GitHub offers
+no compare-across-forks view of it. Its entire divergence from mihomo is two commits, neither of them written here,
+carried as 21 dedicated `patch*.go` files plus one-line insertions in the upstream files that call them — the shape
+that keeps a rebase onto a new mihomo release tractable. Start such a rebase by adding
+`https://github.com/MetaCubeX/mihomo.git` as a remote by hand.
+
 Architecture detection is automatic. The `--description` flag passed to `flutter_distributor` adds arch suffixes to artifact names, such as `FunClash-1.0.0-macos-arm64.dmg`.
 
 ### Distribution Channels
