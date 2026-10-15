@@ -47,7 +47,10 @@ abstract mixin class CoreEventListener {
 }
 
 class CoreEventManager {
-  final _controller = StreamController<CoreEvent>();
+  // Broadcast so an observer can watch the raw events beside the typed fan-out
+  // below. Nothing is buffered for a late subscriber either way: the
+  // constructor is what listens.
+  final _controller = StreamController<CoreEvent>.broadcast();
 
   CoreEventManager._() {
     _controller.stream.listen((event) {
@@ -108,6 +111,8 @@ class CoreEventManager {
   bool get hasListeners {
     return _listeners.isNotEmpty;
   }
+
+  Stream<CoreEvent> get events => _controller.stream;
 
   void sendEvent(CoreEvent event) {
     _controller.add(event);

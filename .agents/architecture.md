@@ -1289,11 +1289,20 @@ shouting. `start`, `restart` and `stop` answer `coalesced` rather than
 forwarding: the host owns its own Core process, and a panel asking says nothing
 the host was not going to decide for itself.
 
-What the bridge does not carry yet is the rest. Core events reach the host
-through `CoreEventManager.addListener` and no `Stream<CoreEvent>` — its
-controller is single-subscription and listened to in its own constructor — so
-pushing events to a panel is a change to that owner, and a panel reads rather
-than watches until then. The `db`, `config` and `fs` channels have no handler,
+`PanelEventBridge` is what makes a panel watch rather than only read.
+`CoreEventManager` grew one member for it, `events`, and its controller became
+a broadcast: the typed `addListener` fan-out stays exactly as it was, and
+nothing is buffered for a late subscriber either way because the constructor is
+what listens. The bridge takes one subscription per session and drops it when
+that session's frames end, so a panel leaving stops its own push and no other.
+`PanelEvent` is the only payload on an answering channel that nobody asked for,
+which is why it carries no id and cannot be read as a `PanelReply`; the data
+stays raw across the hop, and the panel hands it to the `coreEventsFromData`
+the desktop RPC already uses — one event or a batch, the same as that side
+accepts.
+
+What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
+channels have no handler,
 so `executor_web.dart` still throws when a query asks and `file_web.dart` still
 refuses. And nothing dials: `PanelCoreClient.bind` wants a `PanelSession` that
 only a browser-side `PanelSocket` can produce, which is `dart:js_interop`

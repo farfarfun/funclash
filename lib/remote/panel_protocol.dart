@@ -117,6 +117,24 @@ final class PanelReply {
   }
 }
 
+/// The one payload on an answering channel that nobody asked for, so it
+/// carries no id. The data stays raw here: what an event means belongs to the
+/// channel, not to the envelope.
+final class PanelEvent {
+  final Object? data;
+
+  const PanelEvent(this.data);
+
+  Map<String, Object?> toJson() => {'event': data};
+
+  static PanelEvent? fromJson(Object? json) {
+    if (json is! Map || !json.containsKey('event')) {
+      return null;
+    }
+    return PanelEvent(json['event']);
+  }
+}
+
 enum PanelRejectReason {
   badToken,
   protocolMismatch,

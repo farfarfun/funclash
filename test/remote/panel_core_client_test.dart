@@ -3,7 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:funclash/core/desktop/model.dart';
+import 'package:funclash/core/event.dart';
 import 'package:funclash/core/method.dart';
+import 'package:funclash/enum/enum.dart';
+import 'package:funclash/models/models.dart';
 import 'package:funclash/remote/panel_core_client.dart';
 import 'package:funclash/remote/panel_protocol.dart';
 import 'package:funclash/remote/panel_session.dart';
@@ -143,6 +146,65 @@ void main() {
 
       expect(await first, 'traffic');
       expect(await second, 'proxies');
+    });
+
+    test("feeds a pushed event into the panel's own event manager", () async {
+      final (client, socket) = await _linked();
+      final seen = <CoreEvent>[];
+      final watching = coreEventManager.events.listen(seen.add);
+      addTearDown(watching.cancel);
+
+      socket.receive(
+        PanelFrame(
+          PanelChannel.core,
+          const PanelEvent({'type': 'loaded', 'data': 'p'}).toJson(),
+        ).toJson(),
+      );
+      await pumpEventQueue();
+
+      expect(seen.single.type, CoreEventType.loaded);
+      expect(seen.single.data, 'p');
+      expect(client.pendingCount, 0);
+    });
+
+    test('takes a batch of events as readily as one', () async {
+      final (_, socket) = await _linked();
+      final seen = <CoreEvent>[];
+      final watching = coreEventManager.events.listen(seen.add);
+      addTearDown(watching.cancel);
+
+      socket.receive(
+        PanelFrame(
+          PanelChannel.core,
+          const PanelEvent([
+            {'type': 'loaded', 'data': 'a'},
+            {'type': 'loaded', 'data': 'b'},
+          ]).toJson(),
+        ).toJson(),
+      );
+      await pumpEventQueue();
+
+      expect(seen.map((event) => event.data), ['a', 'b']);
+    });
+
+    test('an event never answers a call that is waiting', () async {
+      final (client, socket) = await _linked();
+
+      final pending = client.invokeMethod<Object>(
+        method: CoreMethod.getTraffic,
+      );
+      await pumpEventQueue();
+      socket.receive(
+        PanelFrame(
+          PanelChannel.core,
+          const PanelEvent({'type': 'loaded', 'data': 'p'}).toJson(),
+        ).toJson(),
+      );
+      await pumpEventQueue();
+
+      expect(client.pendingCount, 1);
+      socket.reply(PanelReply(id: socket.calls.single.id, result: 'late'));
+      expect(await pending, 'late');
     });
 
     test('drops an answer to a call it is no longer waiting on', () async {

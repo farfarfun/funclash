@@ -7,6 +7,7 @@ import 'package:funclash/common/system.dart';
 import 'package:funclash/core/service.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/remote/panel_core_bridge.dart';
+import 'package:funclash/remote/panel_event_bridge.dart';
 import 'package:funclash/remote/panel_server.dart';
 import 'package:funclash/remote/panel_session.dart';
 import 'package:funclash/remote/panel_settings.dart';
@@ -112,5 +113,10 @@ final class PanelHost {
 }
 
 final panelHost = system.isDesktop && !safeModeBuild
-    ? PanelHost(handlers: [PanelCoreBridge(core: coreService)])
+    ? PanelHost(
+        handlers: [
+          PanelCoreBridge(core: coreService),
+          PanelEventBridge(),
+        ],
+      )
     : null;

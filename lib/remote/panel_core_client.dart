@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:funclash/core/desktop/model.dart';
+import 'package:funclash/core/event.dart';
 import 'package:funclash/core/interface.dart';
 import 'package:funclash/core/method.dart';
 import 'package:funclash/remote/panel_protocol.dart';
@@ -86,6 +87,13 @@ final class PanelCoreClient extends CoreHandlerInterface {
   }
 
   void _receive(PanelFrame frame) {
+    final pushed = PanelEvent.fromJson(frame.payload);
+    if (pushed != null) {
+      for (final event in coreEventsFromData(pushed.data)) {
+        coreEventManager.sendEvent(event);
+      }
+      return;
+    }
     final reply = PanelReply.fromJson(frame.payload);
     if (reply == null) {
       return;

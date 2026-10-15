@@ -93,6 +93,40 @@ void main() {
     });
   });
 
+  group('PanelEvent', () {
+    test('survives a round trip, one event or a batch', () {
+      for (final data in <Object?>[
+        {'type': 'loaded', 'data': 'p'},
+        [
+          {'type': 'loaded', 'data': 'a'},
+        ],
+        null,
+      ]) {
+        final event = PanelEvent(data);
+        expect(PanelEvent.fromJson(_roundTrip(event))?.data, data);
+      }
+    });
+
+    test('reads nothing out of a payload that names no event', () {
+      for (final json in <Object?>[
+        null,
+        'text',
+        <String, Object?>{},
+        {'id': 'c1', 'result': 1},
+      ]) {
+        expect(PanelEvent.fromJson(json), isNull, reason: '$json');
+      }
+    });
+
+    test('an event and a reply never read as each other', () {
+      final event = _roundTrip(const PanelEvent({'type': 'loaded'}));
+      final reply = _roundTrip(const PanelReply(id: 'c1', result: 1));
+
+      expect(PanelReply.fromJson(event), isNull);
+      expect(PanelEvent.fromJson(reply), isNull);
+    });
+  });
+
   group('PanelReply', () {
     test('survives a round trip carrying a result', () {
       const reply = PanelReply(id: 'c1', result: [1, 2]);
