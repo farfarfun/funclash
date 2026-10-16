@@ -5,13 +5,19 @@
     android:viewportWidth="240"
     android:viewportHeight="240"
     tools:ignore="VectorRaster">
-  <path
-      android:pathData="M48.1,80.89L168.44,11.41A23.16,23.16 0,0 1,191.6,51.53L71.26,121.01A23.16,23.16 0,0 1,48.1,80.89Z"
-      android:fillColor="#6666FB"/>
-  <path
-      android:pathData="M78.98,134.37L139.16,99.63A23.16,23.16 0,0 1,162.32,139.75L102.14,174.49A23.16,23.16 0,0 1,78.98,134.37Z"
-      android:fillColor="#336AB6"/>
-  <path
-      android:pathData="M98.28,207.92A23.16,23.16 0,1 1,144.6,207.92A23.16,23.16 0,1 1,98.28,207.92Z"
-      android:fillColor="#5CA8E9"/>
+  <group
+      android:scaleX="1.167"
+      android:scaleY="1.167"
+      android:translateX="-22.4"
+      android:translateY="-20">
+    <path
+        android:pathData="M116,40 L182,40 A22,22 0 0 1 182,84 L116,84 A22,22 0 0 1 116,40 Z"
+        android:fillColor="#6666FB"/>
+    <path
+        android:pathData="M116,108 L158,108 A22,22 0 0 1 158,152 L116,152 A22,22 0 0 1 116,108 Z"
+        android:fillColor="#5CA8E9"/>
+    <path
+        android:pathData="M40,58 A22,22 0 0 1 84,58 L84,182 A22,22 0 0 1 40,182 Z"
+        android:fillColor="#336AB6"/>
+  </group>
 </vector>
