@@ -12,7 +12,7 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 [![Downloads](https://img.shields.io/github/downloads/farfarfun/funclash/total?style=flat-square&logo=github)](https://github.com/farfarfun/funclash/releases)
 [![License](https://img.shields.io/github/license/farfarfun/funclash?style=flat-square)](LICENSE)
 
-[Website](https://farfarfun.github.io/funclash) · [Download](#download) · [Changelog](CHANGELOG.md) · [Build from source](#build-from-source)
+[Website](https://farfarfun.github.io/packages/funclash/) · [Download](#download) · [Changelog](CHANGELOG.md) · [Build from source](#build-from-source)
 
 </div>
 
@@ -40,7 +40,7 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 ## Download
 
 Get the latest build from [GitHub Releases](https://github.com/farfarfun/funclash/releases/latest), or open the
-[website](https://farfarfun.github.io/funclash#download), which picks the right file for your device.
+[website](https://farfarfun.github.io/packages/funclash/#download), which picks the right file for your device.
 
 | Platform | Packages | Notes |
 | --- | --- | --- |

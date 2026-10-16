@@ -299,32 +299,23 @@ while `v<pubspec version>` is still tagged it refuses to collect anything and th
 
 ### Website
 
-`docs/site/` is the GitHub Pages site: a static page that renders `CHANGELOG.md` and the download links in the
-browser, and works as is for local previews. `tool/build_site.sh [dir]` assembles it with the preview images, the app icon,
-`CHANGELOG.md` read at the latest release tag, and a `release.json` of asset names, sizes and digests fetched through
-`gh`. Without `gh` access the page falls back to the newest version in `CHANGELOG.md` and lists the files without sizes.
-It then runs `tool/render_site.mjs` (Node), which writes the English page and a `zh/` copy for search engines: page
-text, the first changelog releases, canonical and `hreflang` links, JSON-LD and `sitemap.xml`, all from the strings,
-changelog parser and release markup in `docs/site/assets/shared.js`, plus the GitHub star count from `release.json` so the
-nav does not grow when the page loads. `SITE_URL` overrides the published URL these point at.
-On the built site each URL keeps its language: the language button links to the other page and carries the section in
-view, the chosen platform and the changelog search. Only the English root sends readers who chose or prefer Chinese on
-to `zh/`, unless its URL carries `?lang=en`: the button on `zh/` links there with it, so getting back to English never
-depends on browser storage. A project site cannot serve the `robots.txt` that would announce the sitemap, so submit
-`sitemap.xml` in Google Search Console and Bing Webmaster Tools once.
+The landing page lives in [farfarfun/packages](https://github.com/farfarfun/packages), at
+<https://farfarfun.github.io/packages/funclash/> (Chinese) and `/en/funclash/`. This repository no longer builds a site
+of its own: one organisation-wide generator renders a page per package from `packages.toml`, the APT index it just
+built and each project's releases, so the downloads, versions and changelog here follow a release with nothing to
+deploy from this side. `docs/package-spec.md` over there is the contract; what this repository owes it is:
 
-```bash
-tool/build_site.sh && python3 -m http.server -d build/site
-```
+- **Artifact names.** The download table sorts files by platform and architecture from the name alone, and the cask
+  needs both `FunClash-<version>-macos-{arm64,amd64}.dmg`. A file whose name carries no platform word still shows up,
+  under "other files".
+- **`SHA256SUMS`.** The cask's checksums come from it, and every download row offers its hash from the same file.
+- **`CHANGELOG.md`.** The generated format (`## v<version> (<date>)`, a bold group title, `- **scope** text (hash)`)
+  is what renders the timeline with labels; a file it cannot parse end to end degrades to a list of versions.
+- **`docs/snapshots/preview*.png`.** The page fetches them at build time from `master` — keep the names.
 
-The page's look is deliberate: low-saturation flat colour, no blur, glow, glass or soft shadow, and motion that follows
-the logo's 30° lattice. `docs/site/assets/field.js` draws the hero's capsules on that lattice with the glyph's own
-proportions, and the slanted wipes, the dot-to-bar marks and the theme transition reuse the same angle. Text that sits
-inside the hero has to be listed in `wireField` in `app.js`, or the capsules run behind it.
-
-`.github/workflows/pages.yaml` deploys it after every successful stable tag build and on pushes to `main` that touch the
-site, in the public repository only; its Pages source has to be set to GitHub Actions once. The file names come from the
-release matrix in `build.yaml`, so a renamed artifact needs the same change in `buildsFor` in `docs/site/assets/app.js`.
+Page copy (tagline, the four feature cells, screenshot alts) is `site/pages/funclash.toml` in that repository, in both
+languages. To check what the site makes of a release, run `python3 scripts/sitedata.py packages.toml --check funclash`
+there.
 
 ## Verify
 

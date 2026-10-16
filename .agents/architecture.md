@@ -1744,8 +1744,8 @@ Two asset-naming facts that channel depends on:
   `test/tool/packaging_config_test.dart` pins both that name and the lower-case `package_name` Debian requires. The
   version in the name drops the `+<build>` suffix while the control `Version:` keeps it; apt reads the control, and
   the glob only looks at the architecture. Nothing else is renamed: the other artifacts keep the distributor's
-  `FunClash-<version>-<platform>-<arch>.<ext>` scheme, and `docs/site/assets/app.js` carries the deb's name as the
-  one `asset` override in its build table.
+  `FunClash-<version>-<platform>-<arch>.<ext>` scheme, which is also what the landing page over there sorts into
+  platforms — it reads the platform and architecture out of the name, so both schemes have to stay recognisable.
 - **`SHA256SUMS` carries bare names.** `sha256sum *` rather than `sha256sum ./*`, because the renderer there looks
   assets up by the name the release lists them under.
 

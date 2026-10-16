@@ -12,7 +12,7 @@
 [![Downloads](https://img.shields.io/github/downloads/farfarfun/funclash/total?style=flat-square&logo=github)](https://github.com/farfarfun/funclash/releases)
 [![License](https://img.shields.io/github/license/farfarfun/funclash?style=flat-square)](LICENSE)
 
-[官网](https://farfarfun.github.io/funclash/zh) · [下载](#下载) · [更新日志](CHANGELOG.md) · [从源码构建](#从源码构建)
+[官网](https://farfarfun.github.io/packages/funclash/) · [下载](#下载) · [更新日志](CHANGELOG.md) · [从源码构建](#从源码构建)
 
 </div>
 
@@ -37,7 +37,7 @@
 ## 下载
 
 从 [GitHub Releases](https://github.com/farfarfun/funclash/releases/latest) 获取最新版本，或打开
-[官网](https://farfarfun.github.io/funclash/zh#download)，它会自动为你的设备选好安装包。
+[官网](https://farfarfun.github.io/packages/funclash/#download)，它会自动为你的设备选好安装包。
 
 | 平台 | 安装包 | 说明 |
 | --- | --- | --- |
