@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.1",
+      "tag": "v1.0.1",
+      "date": "2026-10-16",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "bcf1176",
+              "scope": "remote",
+              "text": "Remote panel: open the desktop app from a browser on your network"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.0",
       "tag": "v1.0.0",
       "date": "2026-10-15",
@@ -12,12 +30,12 @@
           "entries": [
             {
               "id": "b90568f",
-              "text": "Rename the binaries, services and sockets to FunClash. An install of the project this one was renamed from does not migrate: the bundle id, the Windows service name, the systemd unit and the data directory all change, so profiles do not carry over. Remove the old privileged Helper by hand before installing \u2014 FlClashHelperService uninstall on Windows, systemctl disable --now flclash-helper on Linux."
+              "text": "Rename the binaries, services and sockets to FunClash"
             },
             {
               "id": "70ab975",
               "scope": "android",
-              "text": "Move the app to com.farfarfun.funclash, which Android treats as a different application: install this one alongside, or uninstall the old one first."
+              "text": "Move the app to com.farfarfun.funclash"
             },
             {
               "id": "47dd568",
@@ -26,7 +44,7 @@
             {
               "id": "2930f61",
               "scope": "changelog",
-              "text": "Restart the changelog at 1.0.0; nothing before it is kept here."
+              "text": "Reset the changelog to a funclash baseline"
             }
           ]
         },
