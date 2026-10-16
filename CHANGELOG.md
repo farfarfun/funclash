@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.2 (2026-10-16)
+
+**Features**
+
+- **ui** A new app icon (a751b61)
+- **remote** Turning on the remote panel now installs it for you (7bfb6af)
+
 ## v1.0.1 (2026-10-16)
 
 **Features**

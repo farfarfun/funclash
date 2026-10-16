@@ -2,6 +2,29 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.2",
+      "tag": "v1.0.2",
+      "date": "2026-10-16",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "a751b61",
+              "scope": "ui",
+              "text": "A new app icon"
+            },
+            {
+              "id": "7bfb6af",
+              "scope": "remote",
+              "text": "Turning on the remote panel now installs it for you"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.1",
       "tag": "v1.0.1",
       "date": "2026-10-16",
