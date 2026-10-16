@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.3 (2026-10-16)
+
+**Features**
+
+- **remote** The remote panel can now read and write the desktop's data (b1100f0)
+
 ## v1.0.2 (2026-10-16)
 
 **Features**
