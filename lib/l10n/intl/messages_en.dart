@@ -1342,6 +1342,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Open this desktop from a browser, on this machine or on your network",
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("Panel folder"),
+    "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
+      "Download failed, tap to retry",
+    ),
+    "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
+      "Downloading the panel",
+    ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage(
       "Reachable from the network",
     ),

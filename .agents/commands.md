@@ -93,9 +93,10 @@ nothing has to be flipped back before a normal run. See the safe mode section of
 
 ### Driving The Remote Panel
 
-A release ships the panel as `FunClash-<version>-panel.zip`, built by the
-`upload` job and unzipped by the user into the folder the Remote panel section
-shows. A developer builds it in place instead:
+Turning on Remote panel downloads `FunClash-<version>-panel.zip` from that
+version's release and unpacks it; nobody is asked to fetch anything. A
+development build has no release to pull from, so it builds the panel in place
+instead:
 
 ```bash
 flutter build web --release

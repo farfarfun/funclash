@@ -82,6 +82,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     );
     if (mounted) {
       ref.read(panelSettingProvider.notifier).syncFromHost();
+      ref.read(panelInstallProvider.notifier).syncFromHost();
     }
   }
 

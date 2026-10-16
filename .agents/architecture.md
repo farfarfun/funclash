@@ -1356,8 +1356,16 @@ ships as its own `FunClash-<version>-panel.zip` from the `upload` job rather
 than inside an installer: the desktop artifacts would otherwise all carry a
 CanvasKit payload for a feature that is off by default, and the archive has to
 be unzipped into a per-user data directory that a system-wide installer does
-not own anyway. `PanelHost.pageRoot` is what the settings section shows so the
-person unzipping it does not have to know where that directory is per platform.
+not own anyway. Nobody is asked to unzip it, though: turning the switch on calls
+`PanelInstall.install`, which fetches that archive for the running version and
+unpacks it into `PanelHost.pageRoot`, reporting a fraction as it goes. The
+version is stamped into the folder last, because `ZipDecoder` reads a truncated
+download as an empty archive rather than throwing — an empty folder carrying a
+version would otherwise read as a working panel, and the switch would say ready
+while the link answered 404. The stamp is also what makes an app upgrade
+re-fetch: a panel built against another protocol version is not this one's.
+`PanelHost.pageRoot` stays on screen for the development path, where there is
+no release to pull from.
 
 What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
 channels have no handler, so `executor_web.dart` still throws when a query asks

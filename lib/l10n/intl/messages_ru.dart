@@ -1399,6 +1399,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Откройте этот компьютер из браузера — на нём же или в вашей сети",
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("Папка панели"),
+    "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось загрузить, нажмите для повтора",
+    ),
+    "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
+      "Загрузка панели",
+    ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("Доступ из сети"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
       "Выключено — панель доступна только с этого компьютера. Включено — с любого устройства, которое достанет до этого порта, и ссылки для этого достаточно",

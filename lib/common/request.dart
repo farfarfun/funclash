@@ -53,6 +53,26 @@ class Request {
         );
   }
 
+  /// Stalls out rather than timing out: megabytes over a slow link are fine.
+  Future<Uint8List> getLargeFile(
+    String url, {
+    void Function(int received, int total)? onProgress,
+    CancelToken? cancelToken,
+  }) async {
+    final target = downloadTarget(url);
+    final response = await _clashDio.getUri<Uint8List>(
+      target.uri,
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: target.headers,
+        receiveTimeout: downloadStallDuration,
+      ),
+      onReceiveProgress: onProgress,
+      cancelToken: cancelToken,
+    );
+    return response.data ?? Uint8List(0);
+  }
+
   Future<Response<Uint8List>> getFileResponseForUrl(String url) async {
     try {
       return await _download<Uint8List>(url, ResponseType.bytes);

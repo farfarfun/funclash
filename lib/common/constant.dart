@@ -76,6 +76,7 @@ const delayTimedOutValue = -1;
 const probeTimeoutDuration = Duration(seconds: 10);
 
 const downloadTimeoutDuration = Duration(seconds: 20);
+const downloadStallDuration = Duration(seconds: 30);
 
 /// A healthy source answers within a second; past this the outbound is down.
 const outboundIpTimeoutDuration = Duration(seconds: 6);

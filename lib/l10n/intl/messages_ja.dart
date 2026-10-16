@@ -1149,6 +1149,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "この端末またはネットワーク上のブラウザからデスクトップを開きます",
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("パネルフォルダー"),
+    "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
+      "ダウンロードに失敗しました。タップで再試行",
+    ),
+    "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
+      "パネルをダウンロード中",
+    ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("ネットワークから接続を許可"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
       "オフならこの端末のみ、オンならこのポートに到達できる機器がリンクだけで接続できます",

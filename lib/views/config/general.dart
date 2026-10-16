@@ -280,6 +280,34 @@ class PanelLinkItem extends ConsumerWidget {
   }
 }
 
+class PanelInstallItem extends ConsumerWidget {
+  const PanelInstallItem({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final status = ref.watch(panelInstallProvider);
+    final appLocalizations = context.appLocalizations;
+    final failed = status.phase == PanelPhase.failed;
+    return ListItem(
+      title: Text(
+        failed
+            ? appLocalizations.remotePanelInstallFailed
+            : appLocalizations.remotePanelInstalling,
+      ),
+      subtitle: Text(
+        failed ? status.failure ?? '' : '${(status.progress * 100).round()}%',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      onTap: failed
+          ? () {
+              unawaited(ref.read(panelInstallProvider.notifier).install());
+            }
+          : null,
+    );
+  }
+}
+
 class PanelFolderItem extends StatelessWidget {
   const PanelFolderItem({required this.root, super.key});
 
@@ -336,16 +364,15 @@ class PanelNewLinkItem extends ConsumerWidget {
 class GeneralView extends ConsumerWidget {
   const GeneralView({super.key});
 
-  List<Widget> _panelItems({required bool panelEnabled}) {
+  List<Widget> _panelItems({
+    required bool panelEnabled,
+    required PanelPhase phase,
+  }) {
     return [
       ConfigToggleItem(
         title: (l) => l.enabled,
         selector: panelSettingProvider.select((state) => state.enabled),
-        onChanged: (ref, value) => unawaited(
-          ref
-              .read(panelSettingProvider.notifier)
-              .update((state) => state.copyWith(enabled: value)),
-        ),
+        onChanged: (ref, value) => unawaited(_togglePanel(ref, value)),
       ),
       if (panelEnabled) ...[
         ConfigToggleItem(
@@ -372,11 +399,25 @@ class GeneralView extends ConsumerWidget {
                 ),
           ),
         ),
-        const PanelLinkItem(),
+        if (phase == PanelPhase.ready)
+          const PanelLinkItem()
+        else
+          const PanelInstallItem(),
         const PanelNewLinkItem(),
         if (panelHost?.pageRoot case final root?) PanelFolderItem(root: root),
       ],
     ];
+  }
+
+  /// Turning it on is all a person should have to do, so the build it needs
+  /// is fetched here rather than asked for.
+  Future<void> _togglePanel(WidgetRef ref, bool enabled) async {
+    await ref
+        .read(panelSettingProvider.notifier)
+        .update((state) => state.copyWith(enabled: enabled));
+    if (enabled) {
+      await ref.read(panelInstallProvider.notifier).install();
+    }
   }
 
   List<Widget> _startupItems(AppLocalizations appLocalizations) {
@@ -617,7 +658,12 @@ class GeneralView extends ConsumerWidget {
           if (panelSupported)
             generateSectionV3(
               title: appLocalizations.remotePanel,
-              items: _panelItems(panelEnabled: panelEnabled),
+              items: _panelItems(
+                panelEnabled: panelEnabled,
+                phase: ref.watch(
+                  panelInstallProvider.select((status) => status.phase),
+                ),
+              ),
               footer: [
                 appLocalizations.remotePanelDesc,
                 if (panelEnabled) appLocalizations.remotePanelLanDesc,

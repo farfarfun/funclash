@@ -912,5 +912,7 @@
   "remotePanelLanDesc": "Off, only this machine can reach the panel. On, anything that can reach this port can too, and the link is all it needs",
   "remotePanelNewLink": "Replace link",
   "remotePanelNewLinkTip": "The old link stops working and every open panel is signed out",
-  "remotePanelFolder": "Panel folder"
+  "remotePanelFolder": "Panel folder",
+  "remotePanelInstalling": "Downloading the panel",
+  "remotePanelInstallFailed": "Download failed, tap to retry"
 }

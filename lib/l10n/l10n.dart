@@ -7656,6 +7656,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Downloading the panel`
+  String get remotePanelInstalling {
+    return Intl.message(
+      'Downloading the panel',
+      name: 'remotePanelInstalling',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download failed, tap to retry`
+  String get remotePanelInstallFailed {
+    return Intl.message(
+      'Download failed, tap to retry',
+      name: 'remotePanelInstallFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
