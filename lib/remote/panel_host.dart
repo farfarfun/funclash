@@ -28,6 +28,7 @@ final class PanelHost {
 
   StreamSubscription<PanelSession>? _arrivals;
   PanelServer? _server;
+  String? _pageRoot;
   PanelSettings _settings = const PanelSettings();
   PanelSettings? _wanted;
   Future<void>? _converging;
@@ -38,6 +39,9 @@ final class PanelHost {
   bool get isRunning => _server?.isRunning ?? false;
 
   Uri? get address => _server?.address;
+
+  /// Where a panel build has to be unzipped for this host to serve it.
+  String? get pageRoot => _pageRoot;
 
   Future<void> load({
     required PanelConfigSource config,
@@ -57,6 +61,7 @@ final class PanelHost {
     if (_closed) {
       return;
     }
+    _pageRoot ??= pageRoot;
     final server = _server ??= PanelServer(config: config, pageRoot: pageRoot);
     _arrivals ??= server.sessions.listen(_attach);
     await _converge(_settings);

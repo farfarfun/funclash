@@ -1341,6 +1341,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
       "Open this desktop from a browser, on this machine or on your network",
     ),
+    "remotePanelFolder": MessageLookupByLibrary.simpleMessage("Panel folder"),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage(
       "Reachable from the network",
     ),

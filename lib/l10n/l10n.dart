@@ -7646,6 +7646,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Panel folder`
+  String get remotePanelFolder {
+    return Intl.message(
+      'Panel folder',
+      name: 'remotePanelFolder',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

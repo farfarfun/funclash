@@ -263,16 +263,6 @@ String? _validatePanelPort(String? value, AppLocalizations appLocalizations) {
 class PanelLinkItem extends ConsumerWidget {
   const PanelLinkItem({super.key});
 
-  Future<void> _copy(BuildContext context, String link) async {
-    await Clipboard.setData(ClipboardData(text: link));
-    if (context.mounted) {
-      context.showNotifier(
-        context.appLocalizations.copySuccess,
-        level: MessageLevel.success,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context, ref) {
     final settings = ref.watch(panelSettingProvider);
@@ -284,8 +274,35 @@ class PanelLinkItem extends ConsumerWidget {
       title: Text(context.appLocalizations.copyLink),
       subtitle: Text(link, maxLines: 1, overflow: TextOverflow.ellipsis),
       onTap: () {
-        unawaited(_copy(context, link));
+        unawaited(_copyToClipboard(context, link));
       },
+    );
+  }
+}
+
+class PanelFolderItem extends StatelessWidget {
+  const PanelFolderItem({required this.root, super.key});
+
+  final String root;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem(
+      title: Text(context.appLocalizations.remotePanelFolder),
+      subtitle: Text(root, maxLines: 1, overflow: TextOverflow.ellipsis),
+      onTap: () {
+        unawaited(_copyToClipboard(context, root));
+      },
+    );
+  }
+}
+
+Future<void> _copyToClipboard(BuildContext context, String value) async {
+  await Clipboard.setData(ClipboardData(text: value));
+  if (context.mounted) {
+    context.showNotifier(
+      context.appLocalizations.copySuccess,
+      level: MessageLevel.success,
     );
   }
 }
@@ -357,6 +374,7 @@ class GeneralView extends ConsumerWidget {
         ),
         const PanelLinkItem(),
         const PanelNewLinkItem(),
+        if (panelHost?.pageRoot case final root?) PanelFolderItem(root: root),
       ],
     ];
   }

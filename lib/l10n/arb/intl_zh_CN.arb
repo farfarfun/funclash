@@ -911,5 +911,6 @@
   "remotePanelLan": "允许局域网访问",
   "remotePanelLanDesc": "关闭时只有本机能访问面板；开启后任何能连到此端口的设备，只要拿到链接就能访问",
   "remotePanelNewLink": "更换链接",
-  "remotePanelNewLinkTip": "旧链接立即失效，已打开的面板会全部退出"
+  "remotePanelNewLinkTip": "旧链接立即失效，已打开的面板会全部退出",
+  "remotePanelFolder": "面板目录"
 }

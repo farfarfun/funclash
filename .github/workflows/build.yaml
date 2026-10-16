@@ -479,6 +479,15 @@ jobs:
         run: |
           yq -i '.hooks.user_defines.setup.build_assets = false | .hooks.user_defines.rust_api.build_assets = false' pubspec.yaml
 
+      # The remote panel has to be served from the desktop's own origin, so it
+      # ships as its own archive rather than inside an installer.
+      - name: Build the remote panel
+        if: ${{ env.IS_STABLE == 'true' }}
+        run: |
+          flutter build web --release
+          version="${GITHUB_REF_NAME#v}"
+          (cd build/web && zip -qr "$GITHUB_WORKSPACE/dist/FunClash-$version-panel.zip" .)
+
       - name: Generate release notes
         shell: bash
         env:

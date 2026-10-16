@@ -1039,6 +1039,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "remotePanelDesc": MessageLookupByLibrary.simpleMessage(
       "在本机或局域网的浏览器里打开此桌面端",
     ),
+    "remotePanelFolder": MessageLookupByLibrary.simpleMessage("面板目录"),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("允许局域网访问"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
       "关闭时只有本机能访问面板；开启后任何能连到此端口的设备，只要拿到链接就能访问",

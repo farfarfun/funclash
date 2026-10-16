@@ -53,6 +53,12 @@
 
 <div dir="ltr">
 
+**Remote panel** (optional): [FunClash-VERSION-panel.zip](https://github.com/farfarfun/funclash/releases/download/vVERSION/FunClash-VERSION-panel.zip)
+opens a desktop FunClash from a browser. Turn on Remote panel in Settings →
+General, unzip this archive into the Panel folder that section shows, and open
+the link beside it. The desktop serves the panel itself, so it has to sit in
+that folder — pointing another web server at the archive will be refused.
+
 **Or from a package manager**, both served by [farfarfun/packages](https://github.com/farfarfun/packages):
 
 ```bash

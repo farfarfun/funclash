@@ -1350,11 +1350,14 @@ share an origin. Everything that is not `/bridge` is a `GET` out of
 leave it, which is what a `..` in a request is for. The `Host` check moved
 ahead of the split so it covers the page too — a name that resolves here could
 otherwise rebind its own DNS past it — while the `Origin` check stays on the
-bridge, a navigation sending none. A host pointed at nothing, which is every
-host until something installs a build there, answers the 404 it always did.
-Putting a `flutter build web` output in that directory is what remains, and
-that is a build-system change: the desktop artifact would have to carry the web
-one.
+bridge, a navigation sending none. A host pointed at nothing answers the 404
+it always did, which is what a host with no panel installed does. The build
+ships as its own `FunClash-<version>-panel.zip` from the `upload` job rather
+than inside an installer: the desktop artifacts would otherwise all carry a
+CanvasKit payload for a feature that is off by default, and the archive has to
+be unzipped into a per-user data directory that a system-wide installer does
+not own anyway. `PanelHost.pageRoot` is what the settings section shows so the
+person unzipping it does not have to know where that directory is per platform.
 
 What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
 channels have no handler, so `executor_web.dart` still throws when a query asks

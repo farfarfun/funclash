@@ -93,8 +93,9 @@ nothing has to be flipped back before a normal run. See the safe mode section of
 
 ### Driving The Remote Panel
 
-Nothing installs a panel build yet, so the host serves the page out of the data
-directory and a developer puts it there:
+A release ships the panel as `FunClash-<version>-panel.zip`, built by the
+`upload` job and unzipped by the user into the folder the Remote panel section
+shows. A developer builds it in place instead:
 
 ```bash
 flutter build web --release

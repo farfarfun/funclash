@@ -911,5 +911,6 @@
   "remotePanelLan": "ネットワークから接続を許可",
   "remotePanelLanDesc": "オフならこの端末のみ、オンならこのポートに到達できる機器がリンクだけで接続できます",
   "remotePanelNewLink": "リンクを再発行",
-  "remotePanelNewLinkTip": "古いリンクは無効になり、開いているパネルはすべてサインアウトされます"
+  "remotePanelNewLinkTip": "古いリンクは無効になり、開いているパネルはすべてサインアウトされます",
+  "remotePanelFolder": "パネルフォルダー"
 }
