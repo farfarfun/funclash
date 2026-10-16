@@ -1,7 +1,18 @@
 import 'package:drift/drift.dart';
+// ignore: experimental_member_use, a panel runs the drift its host shipped.
+import 'package:drift/remote.dart';
+import 'package:funclash/remote/panel_db_channel.dart';
+import 'package:funclash/remote/panel_link_state.dart';
 
-/// Lazy so that holding the database is not itself the failure: the rows a
-/// panel shows belong to the desktop host, and a query is where it finds out.
-QueryExecutor openDatabaseExecutor() => LazyDatabase(
-  () async => throw UnsupportedError('no local database in a browser tab'),
+/// A connection rather than a bare executor, and delayed rather than lazy:
+/// drift reuses the stream queries of a `DatabaseConnection` it is handed, and
+/// that is what carries the host's own writes back to a watching panel.
+QueryExecutor openDatabaseExecutor() => DatabaseConnection.delayed(
+  Future(() async {
+    final session = await linkedPanelSession;
+    return connectToRemoteAndInitialize(panelDatabaseChannel(session));
+  }),
 );
+
+Future<DatabaseConnection> openSharedDatabaseConnection() =>
+    throw UnsupportedError('a panel serves no database');

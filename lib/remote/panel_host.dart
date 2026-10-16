@@ -7,6 +7,7 @@ import 'package:funclash/common/system.dart';
 import 'package:funclash/core/service.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/remote/panel_core_bridge.dart';
+import 'package:funclash/remote/panel_db_bridge.dart';
 import 'package:funclash/remote/panel_event_bridge.dart';
 import 'package:funclash/remote/panel_server.dart';
 import 'package:funclash/remote/panel_session.dart';
@@ -129,6 +130,7 @@ final panelHost = panelSupported
         handlers: [
           PanelCoreBridge(core: coreService),
           PanelEventBridge(),
+          PanelDatabaseBridge(),
         ],
       )
     : null;

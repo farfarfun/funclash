@@ -1367,9 +1367,29 @@ re-fetch: a panel built against another protocol version is not this one's.
 `PanelHost.pageRoot` stays on screen for the development path, where there is
 no release to pull from.
 
-What the bridge does not carry yet is the rest. The `db`, `config` and `fs`
-channels have no handler, so `executor_web.dart` still throws when a query asks
-and `file_web.dart` still refuses.
+The `db` channel is drift's own remote protocol rather than one of ours: it
+already carries transactions, batches and stream queries, and it is only safe
+between identical drift versions — which a panel and its host are, the install
+being stamped with the app version that fetched it. `panelDatabaseChannel`
+adapts a session's db frames to the `StreamChannel` drift wants, and it buffers
+rather than handing over the broadcast stream directly, because drift
+subscribes a tick after it is given a channel and a broadcast stream drops
+whatever arrives first — which is the handshake. It also flattens a `Uint8List`
+into a plain list, that being a type drift may send and `json.encode` refuses.
+
+Serving that database forced `executor_native.dart` to change shape. drift
+will not serve an executor a local database is already using: a `DriftServer`
+over the same executor deadlocks the host's own writes, because each side
+holds it open as a different user. So the host no longer owns an executor at
+all — `DriftIsolate.spawn` holds the only one, and both the host's `Database`
+and `PanelDatabaseBridge` are clients on it. That is what
+`NativeDatabase.createInBackground` was already doing internally; the only
+difference is that the isolate is now ours to hand a second client. Stream
+queries cross that boundary, so a panel watching a table sees the host's own
+writes.
+
+What the bridge does not carry yet is the rest. The `config` and `fs` channels
+have no handler, so `file_web.dart` still refuses.
 
 ### High-Frequency Buffers
 
