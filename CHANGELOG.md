@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.4 (2026-10-17)
+
+**Features**
+
+- **docs** The README now shows the real interface, refreshed on every release (b810c33)
+- **remote** The remote panel can now change settings and open profile files (59b16e4)
+
 ## v1.0.3 (2026-10-16)
 
 **Features**

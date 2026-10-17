@@ -2,6 +2,29 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.4",
+      "tag": "v1.0.4",
+      "date": "2026-10-17",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "b810c33",
+              "scope": "docs",
+              "text": "The README now shows the real interface, refreshed on every release"
+            },
+            {
+              "id": "59b16e4",
+              "scope": "remote",
+              "text": "The remote panel can now change settings and open profile files"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.3",
       "tag": "v1.0.3",
       "date": "2026-10-16",
