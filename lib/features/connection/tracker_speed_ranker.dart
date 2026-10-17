@@ -20,6 +20,13 @@ class _SpeedSample {
   });
 }
 
+typedef _Ranked = ({
+  int bucket,
+  int position,
+  int traffic,
+  TrackerInfo trackerInfo,
+});
+
 /// Derives per-connection speed from successive cumulative snapshots and
 /// orders connections by it without reshuffling the list every poll.
 class TrackerSpeedRanker {
@@ -40,44 +47,52 @@ class TrackerSpeedRanker {
       ..clear()
       ..addAll(samples);
 
-    int bucketOf(TrackerInfo trackerInfo) {
-      final speed = samples[trackerInfo.id]!.rankSpeed;
-      return speed < 1 ? 0 : (log(speed) / ln2).floor() + 1;
-    }
-
-    final ranked =
-        [
-          for (final trackerInfo in trackerInfos)
-            trackerInfo.copyWith(
-              uploadSpeed: samples[trackerInfo.id]!.uploadSpeed,
-              downloadSpeed: samples[trackerInfo.id]!.downloadSpeed,
-            ),
-        ]..sort((a, b) {
-          final bucketA = bucketOf(a);
-          final bucket = bucketOf(b).compareTo(bucketA);
-          if (bucket != 0) {
-            return bucket;
-          }
-          if (bucketA > 0) {
-            final position = (_positions[a.id] ?? trackerInfos.length)
-                .compareTo(_positions[b.id] ?? trackerInfos.length);
-            if (position != 0) {
-              return position;
-            }
-          }
-          final traffic = (b.upload + b.download).compareTo(
-            a.upload + a.download,
-          );
-          if (traffic != 0) {
-            return traffic;
-          }
-          final start = b.start.compareTo(a.start);
-          return start != 0 ? start : a.id.compareTo(b.id);
-        });
+    // Every key is read once here rather than from the comparator, which runs
+    // a few thousand connections' worth of log() and lookups otherwise.
+    final ranked = [
+      for (final trackerInfo in trackerInfos)
+        _rank(trackerInfo, samples[trackerInfo.id]!, trackerInfos.length),
+    ]..sort(_compare);
     _positions = {
-      for (final (index, trackerInfo) in ranked.indexed) trackerInfo.id: index,
+      for (final (index, row) in ranked.indexed) row.trackerInfo.id: index,
     };
-    return ranked;
+    return [for (final row in ranked) row.trackerInfo];
+  }
+
+  _Ranked _rank(
+    TrackerInfo trackerInfo,
+    _SpeedSample sample,
+    int unplacedPosition,
+  ) {
+    final speed = sample.rankSpeed;
+    return (
+      bucket: speed < 1 ? 0 : (log(speed) / ln2).floor() + 1,
+      position: _positions[trackerInfo.id] ?? unplacedPosition,
+      traffic: trackerInfo.upload + trackerInfo.download,
+      trackerInfo: trackerInfo.copyWith(
+        uploadSpeed: sample.uploadSpeed,
+        downloadSpeed: sample.downloadSpeed,
+      ),
+    );
+  }
+
+  static int _compare(_Ranked a, _Ranked b) {
+    final bucket = b.bucket.compareTo(a.bucket);
+    if (bucket != 0) {
+      return bucket;
+    }
+    if (a.bucket > 0) {
+      final position = a.position.compareTo(b.position);
+      if (position != 0) {
+        return position;
+      }
+    }
+    final traffic = b.traffic.compareTo(a.traffic);
+    if (traffic != 0) {
+      return traffic;
+    }
+    final start = b.trackerInfo.start.compareTo(a.trackerInfo.start);
+    return start != 0 ? start : a.trackerInfo.id.compareTo(b.trackerInfo.id);
   }
 
   _SpeedSample _sample(TrackerInfo trackerInfo, DateTime now) {
