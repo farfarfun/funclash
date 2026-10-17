@@ -19,7 +19,7 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/preview-dark.png">
-    <img alt="FunClash dashboard on a MacBook and a phone" src="docs/snapshots/preview.png" width="92%">
+    <img alt="The FunClash dashboard" src="docs/snapshots/preview.png" width="92%">
   </picture>
 </p>
 
@@ -36,6 +36,31 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 - **Platform touches**: a Quick Settings tile, per-app proxy and Android TV support on Android; a tray menu and
   global hotkeys on the desktop.
 - **Open source and ad-free**, licensed under GPL-3.0.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/proxies-dark.png">
+        <img alt="Proxy groups with latency tests" src="docs/snapshots/proxies.png">
+      </picture>
+    </td>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/profiles-dark.png">
+        <img alt="Profiles from subscriptions and files" src="docs/snapshots/profiles.png">
+      </picture>
+    </td>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/tools-dark.png">
+        <img alt="Tools and settings" src="docs/snapshots/tools.png">
+      </picture>
+    </td>
+  </tr>
+</table>
 
 ## Download
 

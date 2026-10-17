@@ -19,7 +19,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/preview-dark.png">
-    <img alt="FunClash 在 MacBook 与手机上的仪表盘" src="docs/snapshots/preview.png" width="92%">
+    <img alt="FunClash 仪表盘" src="docs/snapshots/preview.png" width="92%">
   </picture>
 </p>
 
@@ -33,6 +33,31 @@
 - **备份与恢复**：通过 WebDAV 或本地文件。
 - **平台细节**：Android 上有快捷设置磁贴、分应用代理和 Android TV 支持；桌面端有托盘菜单和全局快捷键。
 - **开源无广告**，以 GPL-3.0 协议发布。
+
+## 截图
+
+<table>
+  <tr>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/proxies-dark.png">
+        <img alt="代理组与延迟测试" src="docs/snapshots/proxies.png">
+      </picture>
+    </td>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/profiles-dark.png">
+        <img alt="订阅与文件配置" src="docs/snapshots/profiles.png">
+      </picture>
+    </td>
+    <td width="33%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/snapshots/tools-dark.png">
+        <img alt="工具与设置" src="docs/snapshots/tools.png">
+      </picture>
+    </td>
+  </tr>
+</table>
 
 ## 下载
 

@@ -280,7 +280,8 @@ tool/release.sh stable --push     # changelog, chore(release) commit, tag, push
 ```
 
 The release commit comes before the tag on purpose: the generated wording is reviewable in the diff before it ships, and
-the tag is what `render release` reads. CI never writes back to the repository; it only runs `verify`. Wording in
+the tag is what `render release` reads. CI never writes the changelog back to the repository; it only runs `verify`.
+Wording in
 `changelog.json` may be edited by hand as long as no derivable entry disappears and every entry still points at a commit
 inside that version's range.
 
@@ -312,6 +313,17 @@ deploy from this side. `docs/package-spec.md` over there is the contract; what t
 - **`CHANGELOG.md`.** The generated format (`## v<version> (<date>)`, a bold group title, `- **scope** text (hash)`)
   is what renders the timeline with labels; a file it cannot parse end to end degrades to a list of versions.
 - **`docs/snapshots/preview*.png`.** The page fetches them at build time from `master` — keep the names.
+
+`docs/snapshots/*.png` are rendered, not taken by hand: `test/snapshots_test.dart` seeds the providers, draws the real
+`HomePage` at 1280x800 in both themes, and writes each page through a repaint boundary. The tests skip unless asked:
+
+```bash
+flutter test test/snapshots_test.dart --dart-define=SNAPSHOTS=true
+```
+
+The `snapshots` job in `build.yaml` runs that after a stable release uploads, and commits the result back to `master` —
+the one place CI writes to the repository. Adding a page means adding it to `_pages`, and `preview` is the dashboard
+because that is the name the landing page fetches.
 
 Page copy (tagline, the four feature cells, screenshot alts) is `site/pages/funclash.toml` in that repository, in both
 languages. To check what the site makes of a release, run `python3 scripts/sitedata.py packages.toml --check funclash`

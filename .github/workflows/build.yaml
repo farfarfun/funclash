@@ -519,3 +519,49 @@ jobs:
         with:
           files: ./dist/*
           body_path: './release.md'
+
+  snapshots:
+    name: Interface snapshots
+    # The README and the landing page both show these, so a release replaces
+    # them with what the shipped code renders.
+    if: ${{ !contains(github.ref, '-') }}
+    needs: [ upload ]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Skip native build hooks
+        run: |
+          yq -i '.hooks.user_defines.setup.build_assets = false | .hooks.user_defines.rust_api.build_assets = false' pubspec.yaml
+
+      - name: Render the snapshots
+        run: flutter test test/snapshots_test.dart --dart-define=SNAPSHOTS=true
+
+      - name: Commit
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if git diff --quiet -- docs/snapshots; then
+            echo 'The snapshots already match this release.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/snapshots
+          git commit -m "chore(docs): refresh the interface snapshots for $TAG [skip ci]"
+          git push origin HEAD:master
