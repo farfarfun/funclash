@@ -13,12 +13,20 @@ const _token = 'EJ4nVwqkqUJb4v0Wn0kcBp2ZptMXAOO8gN1MbcG2Mcc';
 final class _FakeSocket implements PanelSocket {
   final _incoming = StreamController<String>();
   final sent = <Object?>[];
+  final _waiting = <String, Completer<PanelReply>>{};
 
   @override
   Stream<String> get messages => _incoming.stream;
 
   @override
-  void send(String message) => sent.add(json.decode(message));
+  void send(String message) {
+    final decoded = json.decode(message);
+    sent.add(decoded);
+    final reply = _replyOf(decoded);
+    if (reply != null) {
+      _waiting.remove(reply.id)?.complete(reply);
+    }
+  }
 
   @override
   Future<void> close() async {
@@ -29,12 +37,19 @@ final class _FakeSocket implements PanelSocket {
 
   void receive(Object? message) => _incoming.add(json.encode(message));
 
-  Iterable<PanelReply> get replies => sent
-      .map(PanelFrame.fromJson)
-      .nonNulls
-      .where((frame) => frame.channel == PanelChannel.fs)
-      .map((frame) => PanelReply.fromJson(frame.payload))
-      .nonNulls;
+  /// Real file I/O answers after however many turns the machine needs.
+  Future<PanelReply> replyTo(String id) =>
+      (_waiting[id] ??= Completer<PanelReply>()).future;
+
+  Iterable<PanelReply> get replies => sent.map(_replyOf).nonNulls;
+}
+
+PanelReply? _replyOf(Object? message) {
+  final frame = PanelFrame.fromJson(message);
+  if (frame == null || frame.channel != PanelChannel.fs) {
+    return null;
+  }
+  return PanelReply.fromJson(frame.payload);
 }
 
 String _root() {
@@ -62,16 +77,16 @@ Future<PanelReply> _ask(
   _FakeSocket socket,
   String method,
   Map<String, Object?> arguments,
-) async {
+) {
   final id = '${socket.sent.length}';
+  final reply = socket.replyTo(id);
   socket.receive(
     PanelFrame(
       PanelChannel.fs,
       PanelCall(id: id, method: method, arguments: arguments).toJson(),
     ).toJson(),
   );
-  await pumpEventQueue();
-  return socket.replies.firstWhere((reply) => reply.id == id);
+  return reply;
 }
 
 void main() {
