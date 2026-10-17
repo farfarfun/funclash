@@ -333,16 +333,16 @@ class ProxiesAction extends _$ProxiesAction {
     final selectedMap = ref.read(
       currentProfileProvider.select((state) => state?.selectedMap ?? {}),
     );
+    final resolver = SelectedProxyResolver(
+      groups: groups,
+      selectedMap: selectedMap,
+    );
     final seen = <String>{};
     final targets = <_DelayTestTarget>[];
     for (final batch in batches) {
       final fallbackTestUrl = ref.read(realTestUrlProvider(batch.testUrl));
       for (final proxy in batch.proxies) {
-        final state = computeRealSelectedProxyState(
-          proxy.name,
-          groups: groups,
-          selectedMap: selectedMap,
-        );
+        final state = resolver.stateOf(proxy.name);
         if (state.proxyName.isEmpty) {
           continue;
         }

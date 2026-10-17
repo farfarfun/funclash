@@ -99,18 +99,18 @@ Map<String, Map<String, int>> trayDelays(Ref ref) {
   final defaultTestUrl = ref.watch(
     appSettingProvider.select((state) => state.testUrl),
   );
+  final resolver = SelectedProxyResolver(
+    groups: allGroups,
+    selectedMap: selectedMap,
+  );
   final delays = <String, Map<String, int>>{};
   for (final group in groups) {
     final testUrl = group.testUrl.takeFirstValid([defaultTestUrl]);
     final groupDelays = <String, int>{};
     for (final proxy in group.all) {
-      final delay = computeProxyDelayState(
-        proxyName: proxy.name,
-        testUrl: testUrl,
-        groups: allGroups,
-        selectedMap: selectedMap,
-        delayMap: delayMap,
-      ).delay;
+      final delay = resolver
+          .delayStateOf(proxy.name, testUrl: testUrl, delayMap: delayMap)
+          .delay;
       if (delay != 0) {
         groupDelays[proxy.name] = delay;
       }

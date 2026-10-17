@@ -134,6 +134,80 @@ void main() {
     });
   });
 
+  group('SelectedProxyResolver', () {
+    final groups = [
+      const Group(
+        name: 'group-a',
+        type: GroupType.Selector,
+        testUrl: 'http://test-a.com',
+        all: [Proxy(name: 'group-b', type: 'ss')],
+      ),
+      const Group(
+        name: 'group-b',
+        type: GroupType.URLTest,
+        testUrl: 'http://test-b.com',
+        all: [Proxy(name: 'proxy-leaf', type: 'ss')],
+      ),
+    ];
+    const selectedMap = {'group-a': 'group-b', 'group-b': 'proxy-leaf'};
+
+    test('resolves a chain as the one-shot function does', () {
+      final resolver = SelectedProxyResolver(
+        groups: groups,
+        selectedMap: selectedMap,
+      );
+
+      for (final name in ['group-a', 'group-b', 'proxy-leaf', 'absent', '']) {
+        expect(
+          resolver.stateOf(name),
+          computeRealSelectedProxyState(
+            name,
+            groups: groups,
+            selectedMap: selectedMap,
+          ),
+          reason: name,
+        );
+      }
+    });
+
+    test('a repeated name answers from the cache', () {
+      final resolver = SelectedProxyResolver(
+        groups: groups,
+        selectedMap: selectedMap,
+      );
+
+      expect(resolver.stateOf('group-a'), same(resolver.stateOf('group-a')));
+    });
+
+    test('groupOf finds a group by name and nothing else', () {
+      final resolver = SelectedProxyResolver(
+        groups: groups,
+        selectedMap: selectedMap,
+      );
+
+      expect(resolver.groupOf('group-b')?.testUrl, 'http://test-b.com');
+      expect(resolver.groupOf('proxy-leaf'), isNull);
+    });
+
+    test('delayStateOf reads the delay of the resolved leaf', () {
+      final resolver = SelectedProxyResolver(
+        groups: groups,
+        selectedMap: selectedMap,
+      );
+
+      expect(
+        resolver.delayStateOf(
+          'group-a',
+          testUrl: 'http://fallback.com',
+          delayMap: const {
+            'http://test-b.com': {'proxy-leaf': 140},
+          },
+        ),
+        const DelayState(delay: 140, group: true),
+      );
+    });
+  });
+
   group('computeProxyDelayState', () {
     test('returns delay from delayMap for resolved proxy', () {
       final groups = [
