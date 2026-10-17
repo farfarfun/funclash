@@ -49,6 +49,10 @@ const _dashboardWidgets = [
   DashboardWidget.dnsQueries,
 ];
 
+/// The cards show a relative time, so a fixed date would render differently on
+/// every run and leave a diff behind that says nothing.
+DateTime _ago(Duration age) => DateTime.now().subtract(age);
+
 final _profile =
     Profile.normal(
       label: 'Home nodes',
@@ -57,7 +61,7 @@ final _profile =
       currentGroupName: 'Proxy',
       selectedMap: const {'Proxy': 'Tokyo 01', 'Streaming': 'Los Angeles 02'},
       unfoldSet: const {'Proxy'},
-      lastUpdateDate: DateTime(2026, 10, 17, 9, 12),
+      lastUpdateDate: _ago(const Duration(hours: 3)),
       subscriptionInfo: const SubscriptionInfo(
         upload: 21474836480,
         download: 182536110080,
@@ -72,7 +76,7 @@ final _profiles = [
     label: 'Backup nodes',
     url: 'https://example.net/backup.yaml',
   ).copyWith(
-    lastUpdateDate: DateTime(2026, 10, 16, 21, 40),
+    lastUpdateDate: _ago(const Duration(hours: 15)),
     subscriptionInfo: const SubscriptionInfo(
       upload: 5368709120,
       download: 41231686144,
@@ -83,12 +87,14 @@ final _profiles = [
   Profile.normal(
     label: 'Streaming',
     url: 'https://example.org/stream.yaml',
-  ).copyWith(lastUpdateDate: DateTime(2026, 10, 17, 7, 5)),
-  Profile.custom(label: 'Lab rules'),
+  ).copyWith(lastUpdateDate: _ago(const Duration(hours: 5))),
+  Profile.custom(
+    label: 'Lab rules',
+  ).copyWith(lastUpdateDate: _ago(const Duration(minutes: 20))),
   Profile.normal(
     label: 'Office',
     url: 'https://example.com/office.yaml',
-  ).copyWith(lastUpdateDate: DateTime(2026, 10, 15, 18, 22)),
+  ).copyWith(lastUpdateDate: _ago(const Duration(days: 1))),
 ];
 
 const _regions = [
@@ -139,36 +145,6 @@ final _traffics = [
       up: 180000 + ((index * 37) % 11) * 42000,
       down: 1400000 + ((index * 53) % 13) * 320000,
     ),
-];
-
-TrackerInfo _request(String host, String chain, String rule, int minute) {
-  return TrackerInfo(
-    id: '$host-$minute',
-    start: DateTime(2026, 10, 17, 10, minute),
-    metadata: Metadata(
-      network: 'tcp',
-      host: host,
-      destinationIP: '104.18.32.47',
-      destinationPort: '443',
-      process: 'firefox',
-    ),
-    chains: [chain, 'Proxy'],
-    rule: rule,
-    rulePayload: host,
-  );
-}
-
-final _requests = [
-  _request('github.com', 'Tokyo 01', 'DomainSuffix', 31),
-  _request('registry.npmjs.org', 'Tokyo 01', 'DomainSuffix', 32),
-  _request('www.google.com', 'Tokyo 02', 'DomainKeyword', 33),
-  _request('api.openai.com', 'Los Angeles 02', 'DomainSuffix', 34),
-  _request('cdn.jsdelivr.net', 'Singapore 01', 'DomainSuffix', 35),
-  _request('pub.dev', 'Tokyo 01', 'DomainSuffix', 36),
-  _request('objects.githubusercontent.com', 'Tokyo 02', 'DomainSuffix', 37),
-  _request('www.youtube.com', 'Los Angeles 02', 'DomainKeyword', 38),
-  _request('translate.googleapis.com', 'Tokyo 01', 'DomainSuffix', 39),
-  _request('storage.googleapis.com', 'Singapore 02', 'DomainSuffix', 40),
 ];
 
 /// The test binding ships Ahem, which draws every glyph as a box. The real
@@ -232,10 +208,6 @@ ProviderContainer _seeded(PageLabel page) {
   final traffics = container.read(trafficsProvider.notifier);
   for (final traffic in _traffics) {
     traffics.addTraffic(traffic);
-  }
-  final requests = container.read(requestsProvider.notifier);
-  for (final request in _requests) {
-    requests.addRequest(request);
   }
   container.read(requestCountProvider.notifier).value = 1842;
   container.read(dnsQueryCountProvider.notifier).value = 5376;
