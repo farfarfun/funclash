@@ -217,7 +217,7 @@ void main() {
       final ref = container.read(Provider<Ref>((ref) => ref));
 
       writeConfig(
-        ref,
+        ref.read,
         const Config(
           themeProps: ThemeProps(),
           patchClashConfig: PatchClashConfig(

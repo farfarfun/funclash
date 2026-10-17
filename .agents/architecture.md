@@ -1388,8 +1388,30 @@ difference is that the isolate is now ours to hand a second client. Stream
 queries cross that boundary, so a panel watching a table sees the host's own
 writes.
 
-What the bridge does not carry yet is the rest. The `config` and `fs` channels
-have no handler, so `file_web.dart` still refuses.
+The `config` channel is where the loop had to be cut. A panel writing a
+setting makes the host's config change, which pushes to every panel, which
+would write it back — forever. `PanelConfigClient` keeps the last `Config` it
+was handed and drops a push equal to it, which freezed's own `==` decides, so
+the echo stops at the panel that caused it while every other panel still gets
+the change. The host needs no such guard: what comes back from a panel it
+simply applies, and the push that follows is the one the panels drop.
+`panelConfigBridge` is named apart from the handler list because the provider
+layer stands on both sides of it — `AppStateManager` feeds it `configProvider`
+and applies what its `writes` stream reports. That is also why `writeConfig`
+takes a `ProviderReader` rather than a `Ref`: the manager holds a `WidgetRef`,
+and the function only ever reads.
+
+`PanelFileBridge` carries the `fs` channel over `PanelCall`, and it is the one
+handler that refuses by path rather than by method: every call names a path,
+and a named path is untrusted, so anything that does not normalise to within
+`appPath.homeDirPath` is a `panel_path_refused` — the destination of a copy or
+rename included, which is a second path the panel chose. Two of the file
+functions stay refused on a panel: `movePathSync` and `listPathEntriesSync`
+are synchronous, which leaves nowhere to wait for an answer, and both are
+driven by the config pipeline that builds a Core configuration — work a panel
+does not do. `pathImage` became `PanelImage`, an `ImageProvider` that reads
+its bytes over the same bridge and keys on the path, so two widgets showing
+one profile icon still share a cache entry.
 
 ### High-Frequency Buffers
 

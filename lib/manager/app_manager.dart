@@ -5,7 +5,9 @@ import 'package:funclash/common/system_dns.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/models/models.dart';
 import 'package:funclash/providers/providers.dart';
+import 'package:funclash/remote/panel_config_bridge.dart';
 import 'package:funclash/remote/panel_host.dart';
+import 'package:funclash/remote/panel_link_state.dart';
 import 'package:funclash/state.dart';
 import 'package:funclash/widgets/animated_visibility.dart';
 import 'package:funclash/widgets/icon.dart';
@@ -25,6 +27,8 @@ class AppStateManager extends ConsumerStatefulWidget {
 
 class _AppStateManagerState extends ConsumerState<AppStateManager>
     with WidgetsBindingObserver {
+  StreamSubscription<Config>? _panelConfigWrites;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +77,35 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     if (panel != null) {
       unawaited(_openPanelBridge(panel));
     }
+    final configBridge = panelConfigBridge;
+    if (configBridge != null) {
+      ref.listenManual(configProvider, (prev, next) {
+        if (prev != next) {
+          configBridge.push(next);
+        }
+      }, fireImmediately: true);
+      _panelConfigWrites = configBridge.writes.listen(
+        (config) => writeConfig(ref.read, config),
+      );
+    }
+    if (system.isWeb) {
+      unawaited(_followHostConfig());
+    }
+  }
+
+  /// A panel's config is the host's, and the echo of its own write is dropped.
+  Future<void> _followHostConfig() async {
+    final session = await linkedPanelSession;
+    if (!mounted) {
+      return;
+    }
+    final client = PanelConfigClient();
+    client.bind(session, apply: (config) => writeConfig(ref.read, config));
+    ref.listenManual(configProvider, (prev, next) {
+      if (prev != next) {
+        client.push(session, next);
+      }
+    });
   }
 
   Future<void> _openPanelBridge(PanelHost panel) async {
@@ -88,6 +121,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
 
   @override
   void dispose() {
+    unawaited(_panelConfigWrites?.cancel());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

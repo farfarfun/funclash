@@ -123,20 +123,19 @@ Config _config(Ref ref) {
   );
 }
 
-void writeConfig(Ref ref, Config config) {
-  ref.read(appSettingProvider.notifier).value = config.appSettingProps;
-  ref.read(windowSettingProvider.notifier).value = config.windowProps;
-  ref.read(vpnSettingProvider.notifier).value = config.vpnProps;
-  ref.read(networkSettingProvider.notifier).value = config.networkProps;
-  ref.read(themeSettingProvider.notifier).value = config.themeProps;
-  ref.read(currentProfileIdProvider.notifier).value = config.currentProfileId;
-  ref.read(davSettingProvider.notifier).value = config.davProps;
-  ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
-  ref.read(proxiesStyleSettingProvider.notifier).value =
-      config.proxiesStyleProps;
-  ref.read(patchClashConfigProvider.notifier).value = config.patchClashConfig
+void writeConfig(ProviderReader read, Config config) {
+  read(appSettingProvider.notifier).value = config.appSettingProps;
+  read(windowSettingProvider.notifier).value = config.windowProps;
+  read(vpnSettingProvider.notifier).value = config.vpnProps;
+  read(networkSettingProvider.notifier).value = config.networkProps;
+  read(themeSettingProvider.notifier).value = config.themeProps;
+  read(currentProfileIdProvider.notifier).value = config.currentProfileId;
+  read(davSettingProvider.notifier).value = config.davProps;
+  read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
+  read(proxiesStyleSettingProvider.notifier).value = config.proxiesStyleProps;
+  read(patchClashConfigProvider.notifier).value = config.patchClashConfig
       .ensureControllerSecret();
-  ref.read(excludeSSIDsProvider.notifier).value = config.excludeSSIDs;
+  read(excludeSSIDsProvider.notifier).value = config.excludeSSIDs;
 }
 
 List<Override> buildConfigOverrides(Config config) {

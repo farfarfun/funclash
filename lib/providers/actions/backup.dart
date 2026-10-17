@@ -129,7 +129,7 @@ class BackupAction extends _$BackupAction {
         ? config.vpnProps.accessControlProps
         : ref.read(vpnSettingProvider).accessControlProps;
     writeConfig(
-      ref,
+      ref.read,
       config.copyWith(
         davProps: config.davProps ?? ref.read(davSettingProvider),
         vpnProps: config.vpnProps.copyWith(

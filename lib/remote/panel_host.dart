@@ -6,9 +6,11 @@ import 'package:funclash/common/print.dart';
 import 'package:funclash/common/system.dart';
 import 'package:funclash/core/service.dart';
 import 'package:funclash/enum/enum.dart';
+import 'package:funclash/remote/panel_config_bridge.dart';
 import 'package:funclash/remote/panel_core_bridge.dart';
 import 'package:funclash/remote/panel_db_bridge.dart';
 import 'package:funclash/remote/panel_event_bridge.dart';
+import 'package:funclash/remote/panel_file_bridge.dart';
 import 'package:funclash/remote/panel_server.dart';
 import 'package:funclash/remote/panel_session.dart';
 import 'package:funclash/remote/panel_settings.dart';
@@ -125,12 +127,18 @@ final class PanelHost {
 /// the build that comes up without opening anything.
 final panelSupported = system.isDesktop && !safeModeBuild;
 
+/// Named apart from the handler list because the provider layer both feeds it
+/// and takes writes from it.
+final panelConfigBridge = panelSupported ? PanelConfigBridge() : null;
+
 final panelHost = panelSupported
     ? PanelHost(
         handlers: [
           PanelCoreBridge(core: coreService),
           PanelEventBridge(),
           PanelDatabaseBridge(),
+          PanelFileBridge(),
+          panelConfigBridge!,
         ],
       )
     : null;
