@@ -16,12 +16,12 @@
             android:strokeColor="#68127B"
             android:strokeWidth="22"
             android:strokeLineCap="round" />
-        <group android:scaleX="0.9813333" android:scaleY="0.9813333"
+        <group android:scaleX="0.23" android:scaleY="0.23"
             android:translateX="662.24" android:translateY="218.24">
-            <path android:pathData="M 59 166 L 80 166 L 80 74 L 160 74 L 160 166 L 181 166"
+            <path android:pathData="M 215 390 C 180 360 125 375 110 420 C 95 465 95 555 110 600 C 125 645 180 660 215 630 M 285 375 V 645 H 390 M 455 645 L 510 375 L 565 645 M 470 565 H 550 M 735 395 C 705 365 635 365 625 425 C 615 485 735 485 735 555 C 735 630 665 665 620 625 M 805 375 V 645 M 805 510 H 915 M 915 375 V 645"
                 android:fillColor="#00000000"
                 android:strokeColor="#68127B"
-                android:strokeWidth="34"
+                android:strokeWidth="48"
                 android:strokeLineCap="round"
                 android:strokeLineJoin="round" />
         </group>
