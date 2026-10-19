@@ -82,8 +82,7 @@ void main() {
       'viewportHeight',
     );
 
-    // Bounds of the current logo, the capsule caps included.
-    const logoBounds = ui.Rect.fromLTRB(40, 36, 204, 204);
+    const logoBounds = ui.Rect.fromLTRB(320, 228, 959, 1028);
     final transformedBounds = ui.Rect.fromLTRB(
       (logoBounds.left * scaleX + translateX) / viewportWidth * 108,
       (logoBounds.top * scaleY + translateY) / viewportHeight * 108,

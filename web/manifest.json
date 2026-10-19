@@ -4,7 +4,7 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#6666FB",
+  "theme_color": "#551069",
   "description": "A remote control panel for a running FunClash desktop client.",
   "prefer_related_applications": false,
   "icons": [

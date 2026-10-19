@@ -3,19 +3,22 @@
     android:height="108dp"
     android:viewportWidth="240"
     android:viewportHeight="240">
-    <group
-        android:scaleX="0.683"
-        android:scaleY="0.683"
-        android:translateX="36.7"
-        android:translateY="38">
-        <path
-            android:fillColor="#6666FB"
-            android:pathData="M116,40 L182,40 A22,22 0 0 1 182,84 L116,84 A22,22 0 0 1 116,40 Z" />
-        <path
-            android:fillColor="#5CA8E9"
-            android:pathData="M116,108 L158,108 A22,22 0 0 1 158,152 L116,152 A22,22 0 0 1 116,108 Z" />
-        <path
-            android:fillColor="#336AB6"
-            android:pathData="M40,58 A22,22 0 0 1 84,58 L84,182 A22,22 0 0 1 40,182 Z" />
+    <group android:scaleX="0.18" android:scaleY="0.18"
+        android:translateX="5" android:translateY="6">
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M 350 486 C 354 339 460 228 597 228 H 894 C 937 228 959 250 959 291 C 959 381 890 444 791 452 C 727 458 659 454 594 455 C 482 456 393 533 337 663 Z" />
+        <path android:fillColor="#F5B5FA"
+            android:pathData="M 337 655 C 384 578 478 539 596 532 H 808 C 884 532 932 573 932 637 C 932 713 878 756 802 762 L 604 765 V 865 C 604 962 548 1028 447 1028 H 420 C 355 1028 317 995 320 935 Z" />
+        <path android:fillColor="#D946EF"
+            android:pathData="M 320 935 C 357 840 463 768 604 765 V 865 C 604 962 548 1028 447 1028 H 420 C 355 1028 317 995 320 935 Z" />
+        <group android:scaleX="1.152" android:scaleY="1.152"
+            android:translateX="596.76" android:translateY="506.76">
+            <path android:pathData="M 59 166 L 80 166 L 80 74 L 160 74 L 160 166 L 181 166"
+                android:fillColor="#00000000"
+                android:strokeColor="#68127B"
+                android:strokeWidth="34"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+        </group>
     </group>
 </vector>
