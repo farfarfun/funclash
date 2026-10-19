@@ -2,6 +2,39 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.6",
+      "tag": "v1.0.6",
+      "date": "2026-10-19",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "6efa130",
+              "scope": "panel",
+              "text": "Fix the remote panel opening as a blank page"
+            }
+          ]
+        },
+        {
+          "type": "perf",
+          "entries": [
+            {
+              "id": "9fc21a5",
+              "scope": "connection",
+              "text": "Smoother connections list on devices with many connections"
+            },
+            {
+              "id": "2db8cbb",
+              "scope": "proxies",
+              "text": "Faster proxy list sorting and delay display on large profiles"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.5",
       "tag": "v1.0.5",
       "date": "2026-10-17",

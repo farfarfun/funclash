@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.6 (2026-10-19)
+
+**Bug Fixes**
+
+- **panel** Fix the remote panel opening as a blank page (6efa130)
+
+**Performance**
+
+- **connection** Smoother connections list on devices with many connections (9fc21a5)
+- **proxies** Faster proxy list sorting and delay display on large profiles (2db8cbb)
+
 ## v1.0.5 (2026-10-17)
 
 Internal improvements only.
