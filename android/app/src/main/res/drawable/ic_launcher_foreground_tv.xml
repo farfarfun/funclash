@@ -11,8 +11,13 @@
             android:pathData="M 337 655 C 384 578 478 539 596 532 H 808 C 884 532 932 573 932 637 C 932 713 878 756 802 762 L 604 765 V 865 C 604 962 548 1028 447 1028 H 420 C 355 1028 317 995 320 935 Z" />
         <path android:fillColor="#D946EF"
             android:pathData="M 320 935 C 357 840 463 768 604 765 V 865 C 604 962 548 1028 447 1028 H 420 C 355 1028 317 995 320 935 Z" />
-        <group android:scaleX="1.152" android:scaleY="1.152"
-            android:translateX="596.76" android:translateY="506.76">
+        <path android:pathData="M 622 654 C 637 615 673 613 699 652 M 776 652 C 791 614 827 613 852 650"
+            android:fillColor="#00000000"
+            android:strokeColor="#68127B"
+            android:strokeWidth="22"
+            android:strokeLineCap="round" />
+        <group android:scaleX="0.9813333" android:scaleY="0.9813333"
+            android:translateX="662.24" android:translateY="218.24">
             <path android:pathData="M 59 166 L 80 166 L 80 74 L 160 74 L 160 166 L 181 166"
                 android:fillColor="#00000000"
                 android:strokeColor="#68127B"
