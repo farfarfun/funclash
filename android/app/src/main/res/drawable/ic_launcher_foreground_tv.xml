@@ -4,7 +4,7 @@
     android:viewportWidth="240"
     android:viewportHeight="240">
     <group android:scaleX="0.18" android:scaleY="0.18"
-        android:translateX="5" android:translateY="6">
+        android:translateX="4.89" android:translateY="6.96">
         <path android:fillColor="#FFFFFF"
             android:pathData="M 350 486 C 354 339 460 228 597 228 H 894 C 937 228 959 250 959 291 C 959 381 890 444 791 452 C 727 458 659 454 594 455 C 482 456 393 533 337 663 Z" />
         <path android:fillColor="#F5B5FA"

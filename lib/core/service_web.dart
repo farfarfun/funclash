@@ -9,6 +9,11 @@ import 'package:funclash/remote/panel_session.dart';
 /// A panel's Core is the host's, over the bridge beside its own page.
 final CoreHandlerInterface? coreService = _linkedPanelClient();
 
+Future<void> connectPanel() async {
+  final _ = coreService;
+  await linkedPanelSession;
+}
+
 CoreHandlerInterface? _linkedPanelClient() {
   final client = PanelCoreClient();
   PanelLinker(

@@ -113,3 +113,5 @@ class CoreService extends CoreHandlerInterface {
 }
 
 final coreService = system.isDesktop ? CoreService() : null;
+
+Future<void> connectPanel() async {}

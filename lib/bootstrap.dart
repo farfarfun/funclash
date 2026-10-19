@@ -8,6 +8,7 @@ import 'package:funclash/common/launch.dart';
 import 'package:funclash/common/migration.dart';
 import 'package:funclash/common/tray.dart';
 import 'package:funclash/common/window.dart';
+import 'package:funclash/core/service.dart';
 import 'package:funclash/database/database.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/l10n/l10n.dart';
@@ -35,6 +36,9 @@ class Bootstrap {
   BootDecision _bootDecision = const BootDecision();
 
   Future<ProviderContainer> init(int version) async {
+    if (system.isWeb) {
+      await connectPanel();
+    }
     globalState.appEnv = const String.fromEnvironment(
       'APP_ENV',
       defaultValue: 'pre',
