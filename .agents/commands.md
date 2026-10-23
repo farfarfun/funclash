@@ -279,6 +279,10 @@ tool/release.sh pre --push        # bump, tag vX.Y.Z-pre.N, push
 tool/release.sh stable --push     # changelog, chore(release) commit, tag, push
 ```
 
+Release preparation commits use `chore(release):` for both stable and prerelease versions. Their branch push skips
+the check jobs; the following version-tag push runs the full checks and builds. Do not use `[skip ci]`, which can
+also suppress the tag workflow.
+
 The release commit comes before the tag on purpose: the generated wording is reviewable in the diff before it ships, and
 the tag is what `render release` reads. CI never writes the changelog back to the repository; it only runs `verify`.
 Wording in
@@ -331,7 +335,7 @@ there.
 
 ## Verify
 
-In the public repository every branch push runs the `dart` job; in the private
+In the public repository every branch push except a `chore(release):` preparation commit runs the `dart` job; in the private
 `origin` every check job runs only when started by hand (`workflow_dispatch`).
 The `dart` job performs these root-package checks in order:
 

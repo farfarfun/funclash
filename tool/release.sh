@@ -189,7 +189,7 @@ if [[ "$mode" == "stable" ]]; then
   dart run tool/changelog.dart verify
 elif ! git diff --quiet -- pubspec.yaml; then
   git add pubspec.yaml
-  git commit -m "chore: bump version to $(sed -n 's/^version: //p' pubspec.yaml)"
+  git commit -m "chore(release): bump version to $(sed -n 's/^version: //p' pubspec.yaml)"
   committed=1
 else
   committed=1
