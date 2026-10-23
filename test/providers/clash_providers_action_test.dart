@@ -507,10 +507,12 @@ void main() {
       action().delProvider(saved);
       await pumpEventQueue();
 
-      await download();
+      compileGate!.complete();
+      await updating;
 
-      expect(await testDatabase.clashProvidersDao.query().get(), isEmpty);
       expect(File(await saved.path).existsSync(), isFalse);
+      expect(File(await saved.compiledPath).existsSync(), isFalse);
+      expect(await testDatabase.clashProvidersDao.query().get(), isEmpty);
       expect(setup.forced, [true]);
     });
 
