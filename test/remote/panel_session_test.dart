@@ -166,9 +166,7 @@ void main() {
       final core = session.frames
           .where((frame) => frame.channel == PanelChannel.core)
           .toList();
-      final db = session.frames
-          .where((frame) => frame.channel == PanelChannel.db)
-          .toList();
+      final db = session.databaseFrames.toList();
 
       socket.receive(const PanelFrame(PanelChannel.core, {'id': 1}).toJson());
       socket.receive(const PanelFrame(PanelChannel.db, [2]).toJson());
@@ -232,9 +230,11 @@ void main() {
       final session = await _connected(socket);
 
       final frames = session.frames.toList();
+      final databaseFrames = session.databaseFrames.toList();
       await socket.close();
 
       expect(await frames, isEmpty);
+      expect(await databaseFrames, isEmpty);
     });
 
     test('closing twice is not an error', () async {

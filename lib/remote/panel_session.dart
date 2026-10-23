@@ -21,6 +21,7 @@ final class PanelSession {
 
   // Broadcast because every channel handler listens for its own frames.
   final _frames = StreamController<PanelFrame>.broadcast();
+  final _databaseFrames = StreamController<PanelFrame>();
 
   PanelSession._(this._socket, this._subscription) {
     _subscription
@@ -31,6 +32,8 @@ final class PanelSession {
 
   Stream<PanelFrame> get frames => _frames.stream;
 
+  Stream<PanelFrame> get databaseFrames => _databaseFrames.stream;
+
   void send(PanelFrame frame) => _socket.send(json.encode(frame.toJson()));
 
   void _receive(String message) {
@@ -38,12 +41,18 @@ final class PanelSession {
     if (frame == null) {
       return;
     }
+    if (frame.channel == PanelChannel.db) {
+      _databaseFrames.add(frame);
+    }
     _frames.add(frame);
   }
 
   void _closeFrames() {
     if (!_frames.isClosed) {
       _frames.close();
+    }
+    if (!_databaseFrames.isClosed) {
+      unawaited(_databaseFrames.close());
     }
   }
 

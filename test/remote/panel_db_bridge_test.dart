@@ -10,6 +10,7 @@ import 'package:funclash/database/database.dart';
 import 'package:funclash/models/models.dart';
 import 'package:funclash/remote/panel_db_bridge.dart';
 import 'package:funclash/remote/panel_db_channel.dart';
+import 'package:funclash/remote/panel_protocol.dart';
 import 'package:funclash/remote/panel_session.dart';
 
 QueryExecutor _memory() => NativeDatabase.memory();
@@ -79,10 +80,16 @@ Future<(Database, Database)> _linkedPair(_Pipe pipe) async {
   addTearDown(isolate.shutdownAll);
   final hostDatabase = Database(await isolate.connect());
   addTearDown(hostDatabase.close);
+  final greeting = panel.frames.firstWhere(
+    (frame) => frame.channel == PanelChannel.db,
+  );
   PanelDatabaseBridge(connect: isolate.connect).attach(host);
+  await greeting.timeout(const Duration(seconds: 5));
 
   final panelDatabase = Database(
-    await connectToRemoteAndInitialize(panelDatabaseChannel(panel)),
+    await connectToRemoteAndInitialize(
+      panelDatabaseChannel(panel),
+    ).timeout(const Duration(seconds: 5)),
   );
   addTearDown(panelDatabase.close);
   return (hostDatabase, panelDatabase);

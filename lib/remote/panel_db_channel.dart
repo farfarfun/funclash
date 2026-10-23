@@ -8,12 +8,10 @@ import 'package:stream_channel/stream_channel.dart';
 /// Buffered because drift subscribes late; JSON-safe because it sends bytes.
 StreamChannel<Object?> panelDatabaseChannel(PanelSession session) {
   final controller = StreamChannelController<Object?>();
-  final frames = session.frames
-      .where((frame) => frame.channel == PanelChannel.db)
-      .listen(
-        (frame) => controller.foreign.sink.add(frame.payload),
-        onDone: () => unawaited(controller.foreign.sink.close()),
-      );
+  final frames = session.databaseFrames.listen(
+    (frame) => controller.foreign.sink.add(frame.payload),
+    onDone: () => unawaited(controller.foreign.sink.close()),
+  );
   controller.foreign.stream.listen(
     (message) => session.send(PanelFrame(PanelChannel.db, _encodable(message))),
     onDone: () => unawaited(frames.cancel()),
