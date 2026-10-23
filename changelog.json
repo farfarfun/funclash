@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.7",
+      "tag": "v1.0.7",
+      "date": "2026-10-23",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "fcecac3",
+              "scope": "panel",
+              "text": "Fix the remote panel opening to a blank screen"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.6",
       "tag": "v1.0.6",
       "date": "2026-10-19",

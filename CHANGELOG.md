@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.7 (2026-10-23)
+
+**Bug Fixes**
+
+- **panel** Fix the remote panel opening to a blank screen (fcecac3)
+
 ## v1.0.6 (2026-10-19)
 
 **Bug Fixes**
