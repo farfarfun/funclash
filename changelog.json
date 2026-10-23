@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.8",
+      "tag": "v1.0.8",
+      "date": "2026-10-23",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "24025f4",
+              "scope": "panel,icons",
+              "text": "Fix remote panel profile loading, remove its PRE banner, and enlarge and unify app icons. The web panel now requires current Chrome or Edge."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.7",
       "tag": "v1.0.7",
       "date": "2026-10-23",

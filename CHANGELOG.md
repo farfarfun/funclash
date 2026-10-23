@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.8 (2026-10-23)
+
+**Bug Fixes**
+
+- **panel,icons** Fix remote panel profile loading, remove its PRE banner, and enlarge and unify app icons. The web panel now requires current Chrome or Edge. (24025f4)
+
 ## v1.0.7 (2026-10-23)
 
 **Bug Fixes**
