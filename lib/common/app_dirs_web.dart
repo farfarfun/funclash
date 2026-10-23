@@ -1,11 +1,19 @@
-/// Naming a path is arithmetic a tab can still do; reaching one is what
-/// `file_web.dart` refuses, which is where the reach actually happens.
-const _virtualRoot = '/funclash';
+import 'package:funclash/remote/panel_file_client.dart';
 
-Future<String> resolveSupportDir() async => _virtualRoot;
+final _supportDir = _resolveSupportDir();
 
-Future<String> resolveTemporaryDir() async => _virtualRoot;
+Future<String> _resolveSupportDir() async {
+  final root = await panelFiles.call<String>('resolveSupportDir', const {});
+  if (root == null || root.isEmpty) {
+    throw StateError('the panel host supplied no data directory');
+  }
+  return root;
+}
 
-Future<String> resolveCacheDir() async => _virtualRoot;
+Future<String> resolveSupportDir() => _supportDir;
+
+Future<String> resolveTemporaryDir() => _supportDir;
+
+Future<String> resolveCacheDir() => _supportDir;
 
 Future<String?> resolveDownloadsDir() async => null;

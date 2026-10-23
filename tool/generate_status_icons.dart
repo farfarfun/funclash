@@ -63,6 +63,7 @@ Future<void> main() async {
     }
     final appIcon = await renderer.wrapRaster(File(appIconSource));
     await _writeIco(renderer, appIcon, File(appIconOutput));
+    await File(appIconOutput).copy('assets/images/icon.ico');
   } finally {
     if (tempDir.existsSync()) {
       await tempDir.delete(recursive: true);

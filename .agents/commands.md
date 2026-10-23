@@ -99,7 +99,7 @@ development build has no release to pull from, so it builds the panel in place
 instead:
 
 ```bash
-flutter build web --release
+flutter build web --release --wasm
 rm -rf ~/.local/share/FunClash/panel && cp -r build/web ~/.local/share/FunClash/panel
 ```
 
@@ -107,6 +107,10 @@ Then turn on Remote panel in Settings → General and open the link that section
 copies. The panel has to come from the host's own origin — `PanelServer`
 refuses any other `Origin` — so serving `build/web` from a second HTTP server
 will not do. Safe mode hosts no bridge at all, and neither does Android.
+
+The panel requires WebAssembly to preserve the database's 64-bit profile IDs.
+Use current Chrome or Edge; the JavaScript fallback shows an initialization
+error before connecting, because it would round IDs and address the wrong files.
 
 ## Code Generation
 
@@ -146,8 +150,9 @@ dart run tool/generate_status_icons.dart
 
 It writes the tray PNGs with Flutter `2.0x/`–`4.0x/` resolution variants to `assets/images/tray/unix/`,
 multi-size tray `.ico` files to `assets/images/tray/windows/`, and `windows/runner/resources/app_icon.ico`
-from `assets/images/icon.png`. macOS draws its menu bar icon as a template, so it skips the ringed color
-icons, whose logo shrinks to a small glyph once only alpha shows: `status_1` renders the bare logo from
+from `assets/images/icon.png`, also copying it to `assets/images/icon.ico`. Keep the macOS app icons,
+Web icons and Android launcher images in sync with that PNG, preserving adaptive and maskable safe zones.
+macOS draws its menu bar icon as a template: `status_1` renders the silhouette from
 `tool/assets_source/images/icon/glyph.svg` and `status_4` reuses `status_4.svg`, both recolored to black into
 `assets/images/tray/macos/`; the sources keep their colors. `glyph.svg` is also the geometry of the Android notification drawables
 `android/service/src/main/res/drawable/ic.xml` and `ic_service.xml`; change them together. `pubspec.yaml` declares the three tray directories with `platforms:` so each

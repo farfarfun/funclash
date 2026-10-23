@@ -1,40 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="108" height="108" viewBox="54 54 132 132" xmlns="http://www.w3.org/2000/svg">
-    <title>status_3</title>
-    <defs>
-        <filter id="glow-shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.12"/>
-        </filter>
-        <path id="shape-top"
-              d="M116,40 L182,40 A22,22 0 0 1 182,84 L116,84 A22,22 0 0 1 116,40 Z"/>
-        <path id="shape-mid"
-              d="M116,108 L158,108 A22,22 0 0 1 158,152 L116,152 A22,22 0 0 1 116,108 Z"/>
-        <path id="shape-bot"
-              d="M40,58 A22,22 0 0 1 84,58 L84,182 A22,22 0 0 1 40,182 Z"/>
-        <mask id="cutout-mask">
-            <rect x="0" y="0" width="240" height="240" fill="white"/>
-            <g transform="translate(15.77, 15.77) scale(0.86856, 0.86856)">
-                <g transform="translate(60.93, 63.81) scale(0.4843, 0.4843)">
-                    <use href="#shape-top" fill="black" stroke="black" stroke-width="25"/>
-                    <use href="#shape-mid" fill="black" stroke="black" stroke-width="25"/>
-                    <use href="#shape-bot" fill="black" stroke="black" stroke-width="25"/>
-                </g>
-            </g>
-        </mask>
-        <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#22D3EE"/>
-            <stop offset="100%" stop-color="#7C5CFF"/>
-        </linearGradient>
-    </defs>
-    <circle cx="120" cy="120" r="64" fill="none" stroke="#FFB02E" stroke-width="4" opacity="0.55"/>
-    <circle cx="120" cy="120" r="54" fill="none" stroke="url(#ring-grad)" stroke-width="12" mask="url(#cutout-mask)"
-            opacity="1"/>
-    <circle cx="120" cy="120" r="42" fill="none" stroke="#FFD25F" stroke-width="3" opacity="0.78"/>
-    <g transform="translate(15.77, 15.77) scale(0.86856, 0.86856)" filter="url(#glow-shadow)">
-        <g transform="translate(60.93, 63.81) scale(0.4843, 0.4843)">
-            <use href="#shape-top" fill="#7367FF"/>
-            <use href="#shape-mid" fill="#12C8FF"/>
-            <use href="#shape-bot" fill="#1685D8"/>
-        </g>
-    </g>
+<svg width="240" height="240" viewBox="200 188 880 880" xmlns="http://www.w3.org/2000/svg">
+  <title>status_3</title>
+  <path fill="#A92CD8" d="M 350 486 C 354 339 460 228 597 228 H 894 C 937 228 959 250 959 291 C 959 381 890 444 791 452 C 727 458 659 454 594 455 C 482 456 393 533 337 663 Z"/>
+  <path fill="#A92CD8" fill-rule="evenodd" d="M 337 655 C 384 578 478 539 596 532 H 808 C 884 532 932 573 932 637 C 932 713 878 756 802 762 L 604 765 V 865 C 604 962 548 1028 447 1028 H 420 C 355 1028 317 995 320 935 Z M 611 650 C 628 604 674 603 708 645 C 713 651 712 658 706 662 C 700 666 694 664 690 659 C 667 630 645 631 633 659 C 630 665 623 669 617 666 C 611 663 608 657 611 650 Z M 765 650 C 782 604 828 603 862 645 C 867 651 866 658 860 662 C 854 666 848 664 844 659 C 821 630 799 631 787 659 C 784 665 777 669 771 666 C 765 663 762 657 765 650 Z"/>
+  <circle cx="900" cy="920" r="90" fill="#FFB02E"/>
 </svg>

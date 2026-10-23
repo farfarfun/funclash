@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:funclash/common/print.dart';
 import 'package:funclash/core/interface.dart';
 import 'package:funclash/enum/enum.dart';
@@ -10,6 +11,12 @@ import 'package:funclash/remote/panel_session.dart';
 final CoreHandlerInterface? coreService = _linkedPanelClient();
 
 Future<void> connectPanel() async {
+  if (!kIsWasm) {
+    throw UnsupportedError(
+      'The remote panel requires WebAssembly to preserve 64-bit profile IDs. '
+      'Open it in an up-to-date Chrome or Edge browser.',
+    );
+  }
   final _ = coreService;
   await linkedPanelSession;
 }

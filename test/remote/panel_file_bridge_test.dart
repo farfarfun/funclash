@@ -91,6 +91,16 @@ Future<PanelReply> _ask(
 
 void main() {
   group('PanelFileBridge', () {
+    test('reports the host data directory without a client path', () async {
+      final root = _root();
+      final socket = await _served(root);
+
+      final reply = await _ask(socket, 'resolveSupportDir', {});
+
+      expect(reply.result, root);
+      expect(reply.error, isNull);
+    });
+
     test('reads a file the host has', () async {
       final root = _root();
       File(p.join(root, 'a.txt')).writeAsStringSync('hello');

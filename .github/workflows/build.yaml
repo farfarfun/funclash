@@ -79,7 +79,7 @@ jobs:
 
       # Only a build proves the web half of every platform seam has no `dart:io`.
       - name: Build web
-        run: flutter build web --release
+        run: flutter build web --release --wasm
 
   plugins:
     name: Plugins
@@ -488,7 +488,7 @@ jobs:
       - name: Build the remote panel
         if: ${{ env.IS_STABLE == 'true' }}
         run: |
-          flutter build web --release
+          flutter build web --release --wasm
           version="${GITHUB_REF_NAME#v}"
           (cd build/web && zip -qr "$GITHUB_WORKSPACE/dist/FunClash-$version-panel.zip" .)
 

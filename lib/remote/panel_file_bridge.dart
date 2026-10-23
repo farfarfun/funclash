@@ -31,6 +31,9 @@ final class PanelFileBridge implements PanelChannelHandler {
   }
 
   Future<PanelReply> _answer(PanelCall call) async {
+    if (call.method == 'resolveSupportDir') {
+      return PanelReply(id: call.id, result: await _root);
+    }
     final arguments = call.arguments;
     final path = arguments is Map ? arguments['path'] : null;
     if (path is! String) {

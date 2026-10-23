@@ -862,10 +862,10 @@ test redirects at a temporary directory. Only the lookup of the four platform
 directories sits behind a seam, `lib/common/app_dirs.dart`, which is also where
 `package:path_provider` is confined — it has no web implementation and its API
 hands back a `dart:io` `Directory`, so importing it would break the web build
-whether or not the call ran. `app_dirs_web.dart` answers a constant root rather
-than throwing, because a path a tab computes but never opens is harmless, and
-the reach that does fail should be reported by `file_web.dart`, where it
-happens. `appDirPath` was dropped in the move: it read the executable path
+whether or not the call ran. `app_dirs_web.dart` asks the authenticated host's
+file bridge for its data directory, so filesystem calls and Core calls name the
+same files. Browser staging and cache paths also stay inside that directory,
+which is the boundary the file bridge permits. `appDirPath` was dropped in the move: it read the executable path
 eagerly in the constructor, which is the one thing in that class a browser
 cannot answer, and nothing had ever read it.
 
@@ -1156,9 +1156,12 @@ before it runs is the same on both sides.
 SDK on the machine that wrote it: `index.html` on the `flutter_bootstrap.js`
 loader, a manifest naming the panel what it is, and icons rendered from
 `assets/images/icon.png` — the maskable pair on white, because the logo's top
-bar is the brand colour and a brand-coloured plate swallows it. Flutter 3.47
-has no HTML renderer left to avoid, so the default CanvasKit is already the
-renderer the superellipse corners need. `flutter build web --release` runs in
+bar is the brand colour and a brand-coloured plate swallows it. The panel uses
+WebAssembly so JSON, Drift rows and profile paths preserve 64-bit Snowflake IDs;
+JavaScript rounds them before they reach the host. `connectPanel` rejects the
+JavaScript fallback before opening the bridge. Flutter's loader currently enables
+the Wasm renderer on Chromium, so use current Chrome or Edge.
+`flutter build web --release --wasm` runs in
 the `Dart` job of `.github/workflows/build.yaml` after the tests and on the
 same gate, because the web target compiles a different half of every seam and
 only a build reports on that half. `plugins/rust_api/hook/build.dart` had to
@@ -1402,7 +1405,8 @@ takes a `ProviderReader` rather than a `Ref`: the manager holds a `WidgetRef`,
 and the function only ever reads.
 
 `PanelFileBridge` carries the `fs` channel over `PanelCall`, and it is the one
-handler that refuses by path rather than by method: every call names a path,
+handler that refuses by path rather than by method: `resolveSupportDir` returns
+the host's data directory; file operations name a path,
 and a named path is untrusted, so anything that does not normalise to within
 `appPath.homeDirPath` is a `panel_path_refused` — the destination of a copy or
 rename included, which is a second path the panel chose. Two of the file

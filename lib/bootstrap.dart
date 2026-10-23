@@ -39,10 +39,9 @@ class Bootstrap {
     if (system.isWeb) {
       await connectPanel();
     }
-    globalState.appEnv = const String.fromEnvironment(
-      'APP_ENV',
-      defaultValue: 'pre',
-    );
+    globalState.appEnv = system.isWeb
+        ? 'stable'
+        : const String.fromEnvironment('APP_ENV', defaultValue: 'pre');
     windowPort = window;
     trayPort = appTray;
     navigationPort = navigation;
