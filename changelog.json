@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.10",
+      "tag": "v1.0.10",
+      "date": "2026-10-24",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "5aaf95a",
+              "scope": "linux",
+              "text": "Run FunClash on headless Linux with bundled Web assets and panel/LAN access enabled on first installation"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.9",
       "tag": "v1.0.9",
       "date": "2026-10-24",

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.10 (2026-10-24)
+
+**Features**
+
+- **linux** Run FunClash on headless Linux with bundled Web assets and panel/LAN access enabled on first installation (5aaf95a)
+
 ## v1.0.9 (2026-10-24)
 
 **Bug Fixes**
