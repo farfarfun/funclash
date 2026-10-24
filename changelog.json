@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.12",
+      "tag": "v1.0.12",
+      "date": "2026-10-24",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "perf",
+          "entries": [
+            {
+              "id": "cd2df0b",
+              "scope": "panel",
+              "text": "Reduce Web panel and desktop downloads while preserving offline panel access and native geographic databases"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.11",
       "tag": "v1.0.11",
       "date": "2026-10-24",

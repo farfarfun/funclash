@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.12 (2026-10-24)
+
+**Performance**
+
+- **panel** Reduce Web panel and desktop downloads while preserving offline panel access and native geographic databases (cd2df0b)
+
 ## v1.0.11 (2026-10-24)
 
 **Bug Fixes**
