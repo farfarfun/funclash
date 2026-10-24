@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:funclash/common/common.dart';
+import 'package:funclash/common/desktop_startup.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/models/config.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +33,7 @@ class Window implements WindowPort {
 
   @override
   Future<void> init(int version, WindowProps props) async {
-    if (!safeModeBuild) {
+    if (!safeModeBuild && !desktopStartup.headless) {
       if (system.isWindows) {
         for (final scheme in protocolSchemes) {
           protocol.register(scheme);

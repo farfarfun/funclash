@@ -1041,9 +1041,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("面板目录"),
     "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
-      "下载失败，点此重试",
+      "安装失败，点击重试",
     ),
-    "remotePanelInstalling": MessageLookupByLibrary.simpleMessage("正在下载面板"),
+    "remotePanelInstalling": MessageLookupByLibrary.simpleMessage("正在安装面板"),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("允许局域网访问"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(
       "关闭时只有本机能访问面板；开启后任何能连到此端口的设备，只要拿到链接就能访问",

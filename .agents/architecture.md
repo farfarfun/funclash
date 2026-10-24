@@ -1263,8 +1263,9 @@ anything. `AppStateManager` loads it with `configProvider` as the source read
 for each panel that connects, and `SystemAction.cleanupExitResources` closes it
 beside the system DNS and the system proxy.
 
-On startup, an enabled panel checks its installed version and downloads the
-matching release assets when the desktop version changes. Static responses use
+Fresh panel settings enable the panel and LAN access; saved settings are preserved.
+On startup, an enabled panel checks its installed version and installs the
+matching bundled assets when the desktop version changes. Static responses use
 `Cache-Control: no-cache` so a reload checks the host's current files. Web icon
 URLs carry the app icon's hash prefix to invalidate browsers' favicon caches.
 
@@ -1372,21 +1373,21 @@ leave it, which is what a `..` in a request is for. The `Host` check moved
 ahead of the split so it covers the page too — a name that resolves here could
 otherwise rebind its own DNS past it — while the `Origin` check stays on the
 bridge, a navigation sending none. A host pointed at nothing answers the 404
-it always did, which is what a host with no panel installed does. The build
-ships as its own `FunClash-<version>-panel.zip` from the `upload` job rather
-than inside an installer: the desktop artifacts would otherwise all carry a
-CanvasKit payload for a feature that is off by default, and the archive has to
-be unzipped into a per-user data directory that a system-wide installer does
-not own anyway. Nobody is asked to unzip it, though: turning the switch on calls
-`PanelInstall.install`, which fetches that archive for the running version and
-unpacks it into `PanelHost.pageRoot`, reporting a fraction as it goes. The
-version is stamped into the folder last, because `ZipDecoder` reads a truncated
-download as an empty archive rather than throwing — an empty folder carrying a
-version would otherwise read as a working panel, and the switch would say ready
-while the link answered 404. The stamp is also what makes an app upgrade
-re-fetch: a panel built against another protocol version is not this one's.
-`PanelHost.pageRoot` stays on screen for the development path, where there is
-no release to pull from.
+it always did, which is what a host with no panel installed does. Desktop packaging carries `assets/panel/panel.zip`, produced once by
+`tool/build_panel.dart` and reused by the release matrix. The same archive is
+published separately. Web and Android assets exclude it. `PanelInstall.install`
+loads the bundled archive first; direct development builds without it fall back
+to the matching release download. Extraction runs in an isolate, checks an
+archive version stamp when present, validates paths and the entry point, and
+writes the installed version stamp last.
+
+The Linux runner dispatches to `funclash-headless` before GTK when no display
+is available or headless CLI options are present. Xvfb and a private D-Bus session
+host the existing app. `DesktopStartup` carries parsed options into bootstrap;
+the normal data lock still owns exclusivity. Headless bootstrap requires explicit
+first-run consent, avoids desktop-only integrations and reports startup errors
+to the terminal. `--panel-url` reads saved settings without starting the Core;
+CLI writes require the data lock. Desktop lifecycle ownership remains unchanged.
 
 The `db` channel is drift's own remote protocol rather than one of ours: it
 already carries transactions, batches and stream queries, and it is only safe

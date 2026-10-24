@@ -7657,20 +7657,20 @@ class AppLocalizations {
     );
   }
 
-  /// `Downloading the panel`
+  /// `Installing the panel`
   String get remotePanelInstalling {
     return Intl.message(
-      'Downloading the panel',
+      'Installing the panel',
       name: 'remotePanelInstalling',
       desc: '',
       args: [],
     );
   }
 
-  /// `Download failed, tap to retry`
+  /// `Installation failed, tap to retry`
   String get remotePanelInstallFailed {
     return Intl.message(
-      'Download failed, tap to retry',
+      'Installation failed, tap to retry',
       name: 'remotePanelInstallFailed',
       desc: '',
       args: [],

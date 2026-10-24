@@ -93,15 +93,19 @@ nothing has to be flipped back before a normal run. See the safe mode section of
 
 ### Driving The Remote Panel
 
-Turning on Remote panel downloads `FunClash-<version>-panel.zip` from that
-version's release and unpacks it; nobody is asked to fetch anything. A
-development build has no release to pull from, so it builds the panel in place
-instead:
+Desktop packaging bundles the matching Web panel and fresh settings enable both
+panel and LAN access. Existing choices persist. Development builds can stage
+that same archive before building the desktop:
 
 ```bash
-flutter build web --release --wasm
-rm -rf ~/.local/share/FunClash/panel && cp -r build/web ~/.local/share/FunClash/panel
+dart run tool/build_panel.dart
 ```
+
+`tool/setup.dart` builds this archive automatically for desktop targets, or
+accepts `--panel-archive assets/panel/panel.zip` to reuse a version-checked build.
+Linux without a display uses `funclash-headless`/Xvfb; see README for CLI and
+systemd usage. Host smoke runs must still use `SAFE_MODE=true` and a temporary
+`--data-dir`, and must only terminate their own processes.
 
 Then turn on Remote panel in Settings → General and open the link that section
 copies. The panel has to come from the host's own origin — `PanelServer`

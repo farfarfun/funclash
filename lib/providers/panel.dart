@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:funclash/common/common.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/remote/panel_host.dart';
@@ -46,8 +48,6 @@ class PanelSetting extends _$PanelSetting {
   }
 }
 
-/// The panel build is fetched rather than bundled: an installer carrying it
-/// would hand every user a CanvasKit payload for a feature that is off.
 @Riverpod(keepAlive: true)
 class PanelInstall extends _$PanelInstall {
   @override
@@ -78,8 +78,18 @@ class PanelInstall extends _$PanelInstall {
       await installPanel(
         root: root,
         version: _version,
-        fetch: (url, {onProgress}) =>
-            request.getLargeFile(url, onProgress: onProgress),
+        fetch: (url, {onProgress}) async {
+          ByteData? bundle;
+          try {
+            bundle = await rootBundle.load('assets/panel/panel.zip');
+          } on FlutterError {
+            return request.getLargeFile(url, onProgress: onProgress);
+          }
+          return bundle.buffer.asUint8List(
+            bundle.offsetInBytes,
+            bundle.lengthInBytes,
+          );
+        },
         onProgress: (fraction) =>
             state = PanelStatus(PanelPhase.installing, progress: fraction),
       );

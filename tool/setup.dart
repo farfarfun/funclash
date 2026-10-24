@@ -5,6 +5,8 @@ import 'package:args/args.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
+import 'build_panel.dart';
+
 const _allTargets = <String, String>{
   'android': 'apk',
   'linux': 'deb,appimage,rpm',
@@ -66,6 +68,14 @@ Future<void> main(List<String> args) async {
     );
     exit(1);
   }
+  if (platform != 'android') {
+    final panelArchive = results['panel-archive'] as String?;
+    if (panelArchive == null) {
+      await buildPanelBundle();
+    } else {
+      stagePanelBundle(panelArchive);
+    }
+  }
   final arch = _detectArch();
   final targets = createPackageTargets(platform, results['targets']);
   final androidArch = results['arch'] as String?;
@@ -101,6 +111,10 @@ ArgParser createSetupArgParser() {
       valueHelp: 'arm,arm64,amd64',
       allowed: ['arm', 'arm64', 'amd64'],
       help: 'Target architecture (Android only)',
+    )
+    ..addOption(
+      'panel-archive',
+      help: 'Reuse a matching Web panel archive instead of building it',
     )
     ..addFlag(
       'verbose',

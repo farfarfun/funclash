@@ -44,9 +44,10 @@ FunClash 自带网页面板，可通过浏览器控制正在运行的 Windows、
 ### 如何开启
 
 1. 安装最新版桌面客户端，进入 **设置 → 常规 → 远程面板**。
-2. 开启远程面板，等待应用自动下载对应版本的网页资源，无需单独部署。
+2. 首次安装默认开启远程面板和局域网访问，网页资源随桌面安装包提供，无需联网下载或单独部署。
+   已有配置会保留，手动关闭后不会在下次启动时重新打开。
 3. 点击 **复制链接**，在支持 WebAssembly 的新版 Chrome 或 Edge 中打开完整链接。
-4. 从其他设备访问时，开启 **允许局域网访问**，把链接中的 `127.0.0.1` 换成桌面主机的局域网 IP，
+4. 从其他设备访问时，确认 **允许局域网访问** 已开启，把链接中的 `127.0.0.1` 换成桌面主机的局域网 IP，
    保留端口和 `#token=…` 部分，并确保主机防火墙允许访问该端口。
 
 链接包含访问凭据，请仅分享给可以控制该主机的人。点击 **更换链接** 会使旧链接立即失效，并断开已连接的面板。
@@ -71,9 +72,72 @@ FunClash 自带网页面板，可通过浏览器控制正在运行的 Windows、
 
 ### 升级与重新连接
 
-升级桌面客户端后重启应用，已开启的面板会自动检查并下载对应版本的网页资源，完成后刷新网页即可。
-下载失败时，可在远程面板设置中点击重试；更新也会替换旧页面资源和 Logo。
+升级桌面客户端后重启应用，已开启的面板会自动安装包内对应版本的网页资源，完成后刷新网页即可。
+安装失败时，可在远程面板设置中点击重试；更新也会替换旧页面资源和 Logo。
 刷新已打开的标签页时，会在当前浏览器会话内保留连接令牌；新会话请使用复制的完整链接进入。
+
+### 无桌面的 Linux 服务器
+
+安装同一个 Linux 桌面包即可，不需要额外部署网页服务。没有 `DISPLAY`/`WAYLAND_DISPLAY` 时，
+FunClash 自动通过 Xvfb 虚拟显示运行桌面程序；有桌面时也可用 `--headless` 强制使用该模式。
+这仍会运行 Flutter 和内核，并非独立的轻量网页服务。
+
+DEB/RPM 会声明虚拟显示等依赖；DEB 请使用 `sudo apt install ./funclash_*.deb` 安装以解析依赖。
+AppImage 不会自动安装系统依赖，Ubuntu/Debian 可先安装：
+
+```bash
+sudo apt install xvfb xauth dbus util-linux libgtk-3-0 libgl1-mesa-dri libsecret-1-0 libayatana-appindicator3-1
+```
+
+以下用 `FunClash` 代指安装后的可执行文件，AppImage 用户替换为自己的文件路径：
+
+```bash
+FunClash --show-disclaimer
+# 阅读并同意后首次启动；以后无需重复传入同意参数
+FunClash --headless --accept-disclaimer
+# 另一个终端查看完整面板链接
+FunClash --panel-url
+```
+
+默认端口为 `47891`。在另一台电脑上把输出链接中的 `127.0.0.1` 换成服务器 IP，保留
+`#token=…`，使用新版 Chrome/Edge 打开，并按需放行服务器防火墙的 TCP 47891。
+面板和局域网默认开启仅针对首次配置；升级保留原来的开关状态。终端可修改已保存的设置：
+
+```bash
+# 先停止正在运行的 FunClash，再修改设置并退出
+FunClash --panel --allow-lan --panel-port 47891 --panel-url
+FunClash --no-allow-lan --panel-url
+FunClash --no-panel --panel-url
+```
+
+`--data-dir /绝对路径` 可指定独立数据目录，启动和查询链接时须使用同一用户、同一路径。
+无界面模式不注册桌面自启动、托盘、快捷键或桌面系统代理；通过面板配置代理端口或 TUN。
+如需 TUN，建议使用支持 systemd 的 DEB/RPM 安装，先在终端按启动日志提示执行 `sudo "/安装目录/FunClashHelperService" install`，
+再从面板开启，避免不可见的权限确认窗口。
+
+需要开机运行时，可创建 `/etc/systemd/system/funclash.service`，将下面的用户名和绝对路径替换为实际值。
+先以同一用户、同一数据目录完成上述首次启动确认：
+
+```ini
+[Unit]
+Description=FunClash Web panel host
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=your-user
+ExecStart=/absolute/path/FunClash --headless --data-dir /home/your-user/.local/share/funclash-server
+Restart=on-failure
+KillMode=mixed
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
+```
+
+然后执行 `sudo systemctl daemon-reload` 和 `sudo systemctl enable --now funclash`。
+用 `journalctl -u funclash` 查看启动日志，用 `sudo systemctl stop funclash` 停止。
+安装包不会自动启用这个服务。
 
 ## 截图
 

@@ -17,12 +17,13 @@ void main() {
       expect(settings.bindAddress, localhost);
     });
 
-    test('a fresh one carries a token and is still off', () {
+    test('a fresh installation enables authenticated LAN access', () {
       final settings = PanelSettings.fresh();
 
       expect(settings.token, isNotEmpty);
-      expect(settings.enabled, isFalse);
-      expect(settings.isUsable, isFalse);
+      expect(settings.enabled, isTrue);
+      expect(settings.allowLan, isTrue);
+      expect(settings.isUsable, isTrue);
       expect(settings.port, panelPort);
     });
 
@@ -106,7 +107,7 @@ void main() {
 
       expect(same, settings);
       expect(same.hashCode, settings.hashCode);
-      expect(settings.copyWith(allowLan: true), isNot(settings));
+      expect(settings.copyWith(allowLan: false), isNot(settings));
       expect(settings.copyWith(token: 'other'), isNot(settings));
     });
   });

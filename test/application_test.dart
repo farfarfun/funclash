@@ -1,4 +1,5 @@
 import 'package:funclash/application.dart';
+import 'package:funclash/common/desktop_startup.dart';
 import 'package:funclash/manager/hotkey_manager.dart';
 import 'package:funclash/manager/manager.dart';
 import 'package:material_ui/material_ui.dart';
@@ -56,6 +57,19 @@ Widget _stack({required bool isDesktop}) {
 }
 
 void main() {
+  test(
+    'headless keeps shutdown ownership without desktop session managers',
+    () {
+      desktopStartup = const DesktopStartup(headless: true);
+      addTearDown(() => desktopStartup = const DesktopStartup());
+      final chain = _chainFrom(_stack(isDesktop: true));
+      expect(chain, contains(WindowManager));
+      expect(chain, isNot(contains(TrayManager)));
+      expect(chain, isNot(contains(HotKeyManager)));
+      expect(chain, isNot(contains(ProxyManager)));
+      expect(chain, contains(CoreManager));
+    },
+  );
   test('the desktop manager stack nests in ownership order', () {
     expect(_chainFrom(_stack(isDesktop: true)), [
       AppEnvManager,

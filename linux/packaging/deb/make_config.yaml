@@ -19,6 +19,12 @@ icon: ./assets/images/icon.png
 dependencies:
   - libayatana-appindicator3-1
   - libsecret-1-0
+  - libgtk-3-0
+  - libgl1-mesa-dri
+  - xvfb
+  - xauth
+  - dbus
+  - util-linux
 
 # The Helper unit is written on demand by the app, not at install time, so only
 # its teardown belongs here; the binary is already gone when postrm runs.

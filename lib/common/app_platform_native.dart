@@ -22,5 +22,5 @@ abstract final class AppPlatform {
 
   static Stream<void>? watchTerminateSignal() => ProcessSignal.sigterm.watch();
 
-  static Never exitProcess() => exit(0);
+  static Never exitProcess([int code = 0]) => exit(code);
 }

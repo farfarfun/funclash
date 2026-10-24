@@ -5,6 +5,8 @@ import 'package:funclash/common/boot_guard.dart';
 import 'package:funclash/common/boot_record.dart';
 import 'package:funclash/common/common.dart';
 import 'package:funclash/common/launch.dart';
+import 'package:funclash/common/desktop_startup.dart';
+import 'package:funclash/remote/panel_settings.dart';
 import 'package:funclash/common/migration.dart';
 import 'package:funclash/common/tray.dart';
 import 'package:funclash/common/window.dart';
@@ -107,6 +109,51 @@ class Bootstrap {
     var config = system.isWeb
         ? Config.realFromJson(await linkedPanelConfig)
         : await migration.run();
+    await AppLocalizations.load(
+      getLocaleForString(config.appSettingProps.locale) ??
+          WidgetsBinding.instance.platformDispatcher.locale,
+    );
+    if (desktopStartup.showDisclaimer) {
+      final l = currentAppLocalizations;
+      commonPrint.log(
+        [
+          l.disclaimerSoftwareContent,
+          l.disclaimerNoServiceStatement,
+          l.disclaimerUsageContent,
+          l.disclaimerResponsibilityContent,
+          l.disclaimerThirdPartyContent,
+          l.disclaimerWarrantyContent,
+          l.disclaimerLiabilityContent,
+          l.disclaimerLicenseContent,
+          l.disclaimerChangesContent,
+          l.disclaimerAcceptContent,
+        ].join('\n\n'),
+      );
+      system.forceExit();
+    }
+    if (desktopStartup.headless &&
+        config.appSettingProps.acceptedDisclaimerVersion < disclaimerVersion) {
+      if (!desktopStartup.acceptDisclaimer) {
+        throw StateError(
+          'Read the terms with --show-disclaimer, then start with --accept-disclaimer to accept them.',
+        );
+      }
+      config = config.copyWith.appSettingProps(
+        acceptedDisclaimerVersion: disclaimerVersion,
+      );
+      await preferences.saveConfig(config);
+    }
+    if (desktopStartup.changesPanel) {
+      final settings =
+          await preferences.getPanelSettings() ?? PanelSettings.fresh();
+      await preferences.savePanelSettings(
+        settings.copyWith(
+          enabled: desktopStartup.panelEnabled,
+          allowLan: desktopStartup.allowLan,
+          port: desktopStartup.panelPort,
+        ),
+      );
+    }
     _bootDecision = system.isWeb
         ? const BootDecision()
         : await bootGuard.evaluate(
@@ -147,10 +194,7 @@ class Bootstrap {
         );
     final profiles = await database.profilesDao.query().get();
     container.read(profilesProvider.notifier).reorder(profiles);
-    await AppLocalizations.load(
-      getLocaleForString(config.appSettingProps.locale) ??
-          WidgetsBinding.instance.platformDispatcher.locale,
-    );
+
     await window?.init(version, config.windowProps);
     if (system.isAndroid) {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -162,8 +206,15 @@ class Bootstrap {
     if (globalState.isAttach == true) {
       return;
     }
-    await _initApp();
-    globalState.isAttach = true;
+    try {
+      await _initApp();
+      globalState.isAttach = true;
+    } catch (error) {
+      if (!desktopStartup.headless) rethrow;
+      commonPrint.log('Headless initialization failed: $error');
+      await _container.read(systemActionProvider.notifier).handleExit();
+      system.forceExit(1);
+    }
   }
 
   ProviderContainer get _container => globalState.container;
@@ -175,13 +226,16 @@ class Bootstrap {
       _container.read(initProvider.notifier).value = true;
       return;
     }
-    unawaited(_container.read(systemActionProvider.notifier).updateTray());
+    if (!desktopStartup.headless) {
+      unawaited(_container.read(systemActionProvider.notifier).updateTray());
+    }
     unawaited(
       _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
     );
     unawaited(_container.read(commonActionProvider.notifier).autoCheckUpdate());
     unawaited(syncAutoLaunch(_container.read(appSettingProvider).autoLaunch));
-    if (!_container.read(appSettingProvider).silentLaunch) {
+    if (desktopStartup.headless ||
+        !_container.read(appSettingProvider).silentLaunch) {
       unawaited(window?.show());
     } else {
       unawaited(window?.hide());
@@ -190,13 +244,30 @@ class Bootstrap {
     if (!await _handlerDisclaimer()) {
       return;
     }
-    await _showCrashRecoveryTip();
+    if (desktopStartup.headless) {
+      if (_bootDecision.isDegraded) {
+        commonPrint.log(
+          'Startup recovery: automatic profile setup was skipped. Select and start a profile from the panel.',
+        );
+      }
+    } else {
+      await _showCrashRecoveryTip();
+    }
     await _showCrashlyticsTip();
     await _container.read(coreActionProvider.notifier).startCore();
     if (!_bootDecision.isDegraded) {
-      await _container.read(setupActionProvider.notifier).initStatus();
+      if (desktopStartup.headless) {
+        await globalState.safeRun(
+          () => _container.read(setupActionProvider.notifier).initStatus(),
+        );
+      } else {
+        await _container.read(setupActionProvider.notifier).initStatus();
+      }
     }
     _container.read(initProvider.notifier).value = true;
+    if (desktopStartup.headless) {
+      commonPrint.log('Headless startup ready');
+    }
     unawaited(_container.read(resourcesActionProvider.notifier).autoUpdate());
     await bootGuard.markRunning();
     unawaited(_container.read(locationPermissionsProvider.notifier).refresh());
@@ -236,6 +307,11 @@ class Bootstrap {
 
   Future<void> _handleFailedPreference() async {
     if (await preferences.isInit) return;
+    if (desktopStartup.headless) {
+      throw StateError(
+        'Could not read preferences. Restore a backup before restarting.',
+      );
+    }
     final res = await dialogs.showMessage(
       title: currentAppLocalizations.tip,
       message: TextSpan(text: currentAppLocalizations.cacheCorrupt),

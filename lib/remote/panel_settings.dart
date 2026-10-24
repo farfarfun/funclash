@@ -18,7 +18,7 @@ class PanelSettings {
     this.token = '',
   });
 
-  PanelSettings.fresh({this.enabled = false, this.allowLan = false})
+  PanelSettings.fresh({this.enabled = true, this.allowLan = true})
     : port = panelPort,
       token = newPanelToken();
 

@@ -6,12 +6,16 @@ import 'package:funclash/manager/tray_manager.dart';
 import 'package:funclash/manager/vpn_manager.dart';
 import 'package:funclash/manager/window_manager.dart';
 import 'package:flutter/widgets.dart';
+import 'package:funclash/common/desktop_startup.dart';
 
 Widget buildPlatformManagers({
   required bool isDesktop,
   required Stream<void>? terminateSignals,
   required Widget child,
 }) {
+  if (isDesktop && desktopStartup.headless) {
+    return WindowManager(terminateSignals: terminateSignals, child: child);
+  }
   return isDesktop
       ? WindowManager(
           terminateSignals: terminateSignals,

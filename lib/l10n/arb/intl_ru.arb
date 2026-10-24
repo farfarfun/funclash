@@ -913,6 +913,6 @@
   "remotePanelNewLink": "Заменить ссылку",
   "remotePanelNewLinkTip": "Старая ссылка перестанет работать, а все открытые панели выйдут из сеанса",
   "remotePanelFolder": "Папка панели",
-  "remotePanelInstalling": "Загрузка панели",
-  "remotePanelInstallFailed": "Не удалось загрузить, нажмите для повтора"
+  "remotePanelInstalling": "Установка панели",
+  "remotePanelInstallFailed": "Ошибка установки, нажмите для повтора"
 }

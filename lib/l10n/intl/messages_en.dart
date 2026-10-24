@@ -1343,10 +1343,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("Panel folder"),
     "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
-      "Download failed, tap to retry",
+      "Installation failed, tap to retry",
     ),
     "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
-      "Downloading the panel",
+      "Installing the panel",
     ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage(
       "Reachable from the network",

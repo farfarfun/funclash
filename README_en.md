@@ -47,9 +47,10 @@ closing the browser leaves the host running. The project website above provides 
 ### Open the panel
 
 1. Install the latest desktop release and open **Settings → General → Remote panel**.
-2. Enable the panel and wait for the matching Web assets to download automatically. No separate deployment is needed.
+2. Fresh installations enable the panel and LAN access by default. Matching Web assets are bundled with the desktop
+   package, so no download or separate deployment is needed. Saved settings, including disabled switches, are preserved.
 3. Use **Copy link** and open the complete link in a current Chrome or Edge browser with WebAssembly support.
-4. To access it from another device, enable **Reachable from the network**, replace `127.0.0.1` in the copied link
+4. To access it from another device, check **Reachable from the network** is enabled, replace `127.0.0.1` in the copied link
    with the host's LAN IP, and keep the port and `#token=…` fragment. The host firewall must allow that port.
 
 The link grants access to the panel. Share it only with people who may control the host; **Replace link** revokes
@@ -77,10 +78,71 @@ component and browser so the difference can be reproduced.
 
 ### Updates and reconnecting
 
-After a desktop upgrade, restart the client. An enabled panel automatically checks and downloads its matching Web
-assets; reload the page after that finishes. If the download fails, retry from the Remote panel settings. This also
+After a desktop upgrade, restart the client. An enabled panel automatically installs its matching bundled Web
+assets; reload the page after that finishes. If installation fails, retry from the Remote panel settings. This also
 updates old page resources and logos. Refreshing an open tab preserves its connection token within that browser
 session; use the complete copied link when opening a new session.
+
+### Linux servers without a desktop
+
+Install the same desktop package. With neither `DISPLAY` nor `WAYLAND_DISPLAY`, FunClash automatically runs the
+app inside an Xvfb virtual display. `--headless` forces this mode even in a desktop session. Flutter and the Core
+still run; this is not a separate lightweight Web server.
+
+DEB/RPM declare the virtual-display dependencies. Install a DEB with `sudo apt install ./funclash_*.deb` so APT
+resolves them. AppImage users must install runtime dependencies themselves; on Ubuntu/Debian:
+
+```bash
+sudo apt install xvfb xauth dbus util-linux libgtk-3-0 libgl1-mesa-dri libsecret-1-0 libayatana-appindicator3-1
+```
+
+Replace `FunClash` below with the installed executable or AppImage path:
+
+```bash
+FunClash --show-disclaimer
+# After reading and accepting the terms; acceptance is saved for subsequent launches
+FunClash --headless --accept-disclaimer
+# In another terminal, print the full panel link
+FunClash --panel-url
+```
+
+The default port is `47891`. Replace `127.0.0.1` in the printed link with the server IP, retain `#token=…`, and
+open it in current Chrome/Edge. Allow TCP 47891 through the host firewall as needed. Panel and LAN defaults apply
+only to fresh settings; upgrades preserve your choices. Stop FunClash before changing saved settings from the CLI:
+
+```bash
+FunClash --panel --allow-lan --panel-port 47891 --panel-url
+FunClash --no-allow-lan --panel-url
+FunClash --no-panel --panel-url
+```
+
+Use `--data-dir /absolute/path` for a separate data directory; startup and link commands must use the same user
+and path. Headless mode omits desktop autostart, tray, hotkeys and desktop system proxy integration. Configure proxy
+ports or TUN through the panel. For TUN, use a DEB/RPM installation with systemd and follow the startup log's instruction to run
+`sudo "/installation/path/FunClashHelperService" install` in a terminal, avoiding an invisible authorization dialog.
+
+For startup at boot, create `/etc/systemd/system/funclash.service`, replacing the user and paths below. First complete
+consent using that same user and data directory:
+
+```ini
+[Unit]
+Description=FunClash Web panel host
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=your-user
+ExecStart=/absolute/path/FunClash --headless --data-dir /home/your-user/.local/share/funclash-server
+Restart=on-failure
+KillMode=mixed
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Run `sudo systemctl daemon-reload` and `sudo systemctl enable --now funclash`. Read logs with
+`journalctl -u funclash`; stop it with `sudo systemctl stop funclash`. Packages do not enable this service automatically.
 
 ## Screenshots
 

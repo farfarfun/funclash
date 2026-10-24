@@ -72,7 +72,7 @@ class System {
   Stream<void>? watchTerminateSignals() =>
       isDesktop && !isWindows ? AppPlatform.watchTerminateSignal() : null;
 
-  Never forceExit() => AppPlatform.exitProcess();
+  Never forceExit([int code = 0]) => AppPlatform.exitProcess(code);
 }
 
 final system = System();

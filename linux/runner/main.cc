@@ -1,10 +1,14 @@
 #include "my_application.h"
 
+#include "headless.h"
+
 #ifdef GDK_WINDOWING_X11
 #include <X11/Xlib.h>
 #endif
 
 int main(int argc, char** argv) {
+  const int status = launch_headless(argc, argv);
+  if (status >= 0) return status;
 #ifdef GDK_WINDOWING_X11
   // libX11 enables its own locking only from 1.8 on; on older releases the
   // tray indicator reaching X11 from another thread aborts the process.

@@ -913,6 +913,6 @@
   "remotePanelNewLink": "更换链接",
   "remotePanelNewLinkTip": "旧链接立即失效，已打开的面板会全部退出",
   "remotePanelFolder": "面板目录",
-  "remotePanelInstalling": "正在下载面板",
-  "remotePanelInstallFailed": "下载失败，点此重试"
+  "remotePanelInstalling": "正在安装面板",
+  "remotePanelInstallFailed": "安装失败，点击重试"
 }

@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:funclash/common/constant.dart';
 import 'package:path/path.dart' as p;
 
@@ -36,7 +36,19 @@ Future<void> installPanel({
     onProgress: (received, total) =>
         onProgress?.call(total <= 0 ? 0 : received / total),
   );
+  await compute(_unpackPanel, (root, version, bytes));
+}
+
+void _unpackPanel((String, String, Uint8List) input) {
+  final (root, version, bytes) = input;
   final archive = ZipDecoder().decodeBytes(bytes);
+  final stamp = archive.findFile(panelVersionStamp);
+  if (stamp != null &&
+      String.fromCharCodes(stamp.readBytes() ?? []).trim() != version) {
+    throw const FormatException(
+      'the bundled panel version does not match the application',
+    );
+  }
   // A truncated download decodes to an empty archive rather than throwing.
   if (!archive.files.any((entry) => entry.isFile && entry.name == entryPoint)) {
     throw const FormatException('the panel archive carries no $entryPoint');

@@ -590,6 +590,14 @@ class SetupAction extends _$SetupAction {
       return true;
     }
 
+    if (desktopStartup.headless && !await SystemShell.checkIsAdmin()) {
+      commonPrint.log(
+        SystemShell.hasHelperService
+            ? 'Install the helper from a terminal: sudo "${appPath.helperPath}" install'
+            : 'Headless TUN requires a pre-authorized Core. Use a DEB/RPM installation with its Helper service.',
+      );
+      throw StateError(currentAppLocalizations.tunAuthorizationFailed);
+    }
     final authorizationNotifier = ref.read(
       authorizedTunEnableProvider.notifier,
     );

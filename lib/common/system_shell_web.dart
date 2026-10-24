@@ -7,6 +7,8 @@ Never _noHostShell(String what) =>
 abstract final class SystemShell {
   static bool get hasHelperService => false;
 
+  static Future<bool> checkIsAdmin() async => false;
+
   /// The desktop granted its own Core access long before a panel connected.
   static Future<void> grantHomeDirAccess(String homeDirPath) async {}
 

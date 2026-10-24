@@ -21,6 +21,6 @@ abstract final class AppPlatform {
 
   static Stream<void>? watchTerminateSignal() => null;
 
-  static Never exitProcess() =>
+  static Never exitProcess([int code = 0]) =>
       throw UnsupportedError('a browser tab cannot exit itself');
 }

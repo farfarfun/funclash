@@ -45,6 +45,23 @@ void main() {
   });
 
   group('installPanel', () {
+    test('a mismatched bundle leaves the existing panel intact', () async {
+      final root = _root();
+      Directory(root).createSync(recursive: true);
+      File(p.join(root, 'index.html')).writeAsStringSync('previous');
+      await expectLater(
+        installPanel(
+          root: root,
+          version: '1.0.10',
+          fetch: _serving(
+            _zip({'index.html': 'wrong', panelVersionStamp: '1.0.9'}),
+          ),
+        ),
+        throwsFormatException,
+      );
+      expect(File(p.join(root, 'index.html')).readAsStringSync(), 'previous');
+    });
+
     test('unpacks the build and stamps the version it is', () async {
       final root = _root();
       final asked = <String>[];

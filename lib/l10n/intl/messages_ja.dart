@@ -1150,10 +1150,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("パネルフォルダー"),
     "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
-      "ダウンロードに失敗しました。タップで再試行",
+      "インストールに失敗しました。タップして再試行",
     ),
     "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
-      "パネルをダウンロード中",
+      "パネルをインストール中",
     ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("ネットワークから接続を許可"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(

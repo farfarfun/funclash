@@ -913,6 +913,6 @@
   "remotePanelNewLink": "リンクを再発行",
   "remotePanelNewLinkTip": "古いリンクは無効になり、開いているパネルはすべてサインアウトされます",
   "remotePanelFolder": "パネルフォルダー",
-  "remotePanelInstalling": "パネルをダウンロード中",
-  "remotePanelInstallFailed": "ダウンロードに失敗しました。タップで再試行"
+  "remotePanelInstalling": "パネルをインストール中",
+  "remotePanelInstallFailed": "インストールに失敗しました。タップして再試行"
 }

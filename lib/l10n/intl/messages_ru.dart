@@ -1400,10 +1400,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remotePanelFolder": MessageLookupByLibrary.simpleMessage("Папка панели"),
     "remotePanelInstallFailed": MessageLookupByLibrary.simpleMessage(
-      "Не удалось загрузить, нажмите для повтора",
+      "Ошибка установки, нажмите для повтора",
     ),
     "remotePanelInstalling": MessageLookupByLibrary.simpleMessage(
-      "Загрузка панели",
+      "Установка панели",
     ),
     "remotePanelLan": MessageLookupByLibrary.simpleMessage("Доступ из сети"),
     "remotePanelLanDesc": MessageLookupByLibrary.simpleMessage(

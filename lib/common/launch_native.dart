@@ -5,6 +5,7 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 
 import 'app_platform.dart';
 import 'constant.dart';
+import 'desktop_startup.dart';
 import 'system.dart';
 
 class AutoLaunch {
@@ -47,7 +48,10 @@ class AutoLaunch {
   }
 }
 
-final _autoLaunch = system.isDesktop && !safeModeBuild ? AutoLaunch() : null;
+final _autoLaunch =
+    system.isDesktop && !safeModeBuild && !desktopStartup.headless
+    ? AutoLaunch()
+    : null;
 
 Future<void> syncAutoLaunch(bool isAutoLaunch) async =>
     _autoLaunch?.updateStatus(isAutoLaunch);

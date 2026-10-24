@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:funclash/common/common.dart';
+import 'package:funclash/common/desktop_startup.dart';
+import 'package:funclash/remote/panel_address.dart';
 import 'package:funclash/common/system_dns.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/models/models.dart';
@@ -150,6 +152,13 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       ref.read(panelInstallProvider.notifier).syncFromHost();
       if (panel.settings.enabled) {
         await ref.read(panelInstallProvider.notifier).install();
+      }
+      if (desktopStartup.headless) {
+        commonPrint.log(
+          panel.isRunning
+              ? 'Remote panel: ${panelLink(port: panel.settings.port, token: panel.settings.token)} (LAN: ${panel.settings.allowLan}; use the host IP from another device)'
+              : 'Remote panel is not listening. Check its port or restart with --panel.',
+        );
       }
     }
   }

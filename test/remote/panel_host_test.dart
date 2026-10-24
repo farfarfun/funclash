@@ -16,7 +16,7 @@ const _config = {'currentProfileId': 'abc'};
 const _usable = PanelSettings(enabled: true, token: _token, port: 0);
 
 final class _Store {
-  PanelSettings? settings;
+  PanelSettings? settings = _usable;
 
   Future<PanelSettings?> read() async => settings;
 
@@ -58,24 +58,33 @@ Future<void> _greet(PanelHost host) async {
 
 void main() {
   group('PanelHost', () {
-    test('stores a token the first time, with the bridge still off', () async {
-      final store = _Store();
-      final host = _host(store);
+    test('stores enabled LAN defaults on first use', () async {
+      final store = _Store()..settings = null;
+      late PanelHost host;
+      host = PanelHost(
+        readSettings: store.read,
+        writeSettings: (settings) async {
+          await store.write(settings);
+          await host.shutdown();
+        },
+      );
+      addTearDown(host.shutdown);
 
       await host.load(config: () => _config);
 
       expect(store.settings?.token, isNotEmpty);
-      expect(store.settings?.enabled, isFalse);
+      expect(store.settings?.enabled, isTrue);
+      expect(store.settings?.allowLan, isTrue);
       expect(host.settings, store.settings);
-      expect(host.isRunning, isFalse);
-      expect(host.address, isNull);
     });
 
     test('keeps the token it stored across a load', () async {
       final store = _Store();
 
-      await _host(store).load(config: () => _config);
+      final initial = _host(store);
+      await initial.load(config: () => _config);
       final first = store.settings;
+      await initial.shutdown();
       await _host(store).load(config: () => _config);
 
       expect(store.settings, first);
@@ -184,7 +193,7 @@ void main() {
       await host.load(config: () => _config);
 
       expect(host.isRunning, isFalse);
-      expect(store.settings?.enabled, isFalse);
+      expect(store.settings?.enabled, isTrue);
     });
 
     test('hands every session that arrives to every handler', () async {

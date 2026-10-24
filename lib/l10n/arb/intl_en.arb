@@ -913,6 +913,6 @@
   "remotePanelNewLink": "Replace link",
   "remotePanelNewLinkTip": "The old link stops working and every open panel is signed out",
   "remotePanelFolder": "Panel folder",
-  "remotePanelInstalling": "Downloading the panel",
-  "remotePanelInstallFailed": "Download failed, tap to retry"
+  "remotePanelInstalling": "Installing the panel",
+  "remotePanelInstallFailed": "Installation failed, tap to retry"
 }
