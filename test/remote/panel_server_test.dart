@@ -35,7 +35,7 @@ String _pageTree() {
   return root.path;
 }
 
-Future<({int status, String? type, String body})> _get(
+Future<({int status, String? type, String? cacheControl, String body})> _get(
   PanelServer server,
   String path,
 ) async {
@@ -48,6 +48,7 @@ Future<({int status, String? type, String body})> _get(
   return (
     status: response.statusCode,
     type: response.headers.contentType?.mimeType,
+    cacheControl: response.headers.value(HttpHeaders.cacheControlHeader),
     body: await response.transform(utf8.decoder).join(),
   );
 }
@@ -324,10 +325,12 @@ void main() {
       expect(index.status, HttpStatus.ok);
       expect(index.body, '<html>panel</html>');
       expect(index.type, 'text/html');
+      expect(index.cacheControl, 'no-cache');
 
       final script = await _get(server, '/main.dart.js');
       expect(script.body, 'console.log(1)');
       expect(script.type, 'application/javascript');
+      expect(script.cacheControl, 'no-cache');
 
       final asset = await _get(server, '/assets/f.json');
       expect(asset.body, '{"a":1}');

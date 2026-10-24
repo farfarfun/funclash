@@ -16,18 +16,33 @@ const refusedPanelCoreMethods = {
 };
 
 final class PanelCoreBridge implements PanelChannelHandler {
-  PanelCoreBridge({CoreHandlerInterface? core, Duration? timeout})
-    : _core = core,
-      _timeout = timeout;
+  PanelCoreBridge({
+    CoreHandlerInterface? core,
+    Duration? timeout,
+    this.hostAction,
+  }) : _core = core,
+       _timeout = timeout;
 
   final CoreHandlerInterface? _core;
   final Duration? _timeout;
+  Future<Object?> Function(String method, Object? arguments)? hostAction;
+  final _panels = <PanelSession>{};
+
+  void pushStartTime(int? startedAt) {
+    for (final session in _panels) {
+      session.send(PanelFrame(PanelChannel.core, {'startedAt': startedAt}));
+    }
+  }
 
   @override
   void attach(PanelSession session) {
+    _panels.add(session);
     session.frames
         .where((frame) => frame.channel == PanelChannel.core)
-        .listen((frame) => unawaited(_serve(session, frame)));
+        .listen(
+          (frame) => unawaited(_serve(session, frame)),
+          onDone: () => _panels.remove(session),
+        );
   }
 
   Future<void> _serve(PanelSession session, PanelFrame frame) async {
@@ -40,6 +55,24 @@ final class PanelCoreBridge implements PanelChannelHandler {
   }
 
   Future<PanelReply> _answer(PanelCall call) async {
+    if (call.method.startsWith('panel.')) {
+      try {
+        final action = hostAction;
+        if (action == null) {
+          throw StateError('the panel host is not ready');
+        }
+        return PanelReply(
+          id: call.id,
+          result: await action(call.method, call.arguments),
+        );
+      } catch (failure) {
+        return PanelReply.failed(
+          call.id,
+          code: 'panel_action_failed',
+          message: compactError(failure),
+        );
+      }
+    }
     final core = _core;
     if (core == null) {
       return PanelReply.failed(

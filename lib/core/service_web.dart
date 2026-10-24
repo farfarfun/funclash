@@ -22,7 +22,7 @@ Future<void> connectPanel() async {
 }
 
 CoreHandlerInterface? _linkedPanelClient() {
-  final client = PanelCoreClient();
+  final client = panelCoreClient;
   PanelLinker(
     client,
   ).link().then(_report).onError<Object>(_reportFailure).ignore();
@@ -31,8 +31,8 @@ CoreHandlerInterface? _linkedPanelClient() {
 
 void _report(PanelLinkResult result) {
   commonPrint.log('panel link: $result');
-  if (result case PanelLinked(:final session)) {
-    reportPanelLinked(session);
+  if (result case PanelLinked(:final session, :final config)) {
+    reportPanelLinked(session, config: config);
   } else {
     reportPanelRefused(StateError('$result'));
   }

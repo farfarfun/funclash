@@ -145,6 +145,7 @@ final class PanelServer {
       return;
     }
     request.response.headers.contentType = panelPageType(file.path);
+    request.response.headers.set(HttpHeaders.cacheControlHeader, 'no-cache');
     await request.response.addStream(file.openRead());
     await request.response.close();
   }

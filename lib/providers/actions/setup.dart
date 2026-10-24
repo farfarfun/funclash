@@ -21,6 +21,7 @@ class SetupAction extends _$SetupAction {
   CoreController get _core => ref.read(coreHandlerProvider);
 
   Timer? _runtimeTimer;
+  StreamSubscription<int?>? _panelStartTimes;
   final _setupScheduler = SerialTaskScheduler();
   final _listenerScheduler = SerialTaskScheduler();
   _RunRequest? _latestRunRequest;
@@ -30,9 +31,12 @@ class SetupAction extends _$SetupAction {
 
   bool get _isRunning => _startTime != null && _startTime!.isBeforeNow;
 
+  DateTime? get startTime => _startTime;
+
   @override
   void build() {
     ref.onDispose(_stopRuntimeTicker);
+    ref.onDispose(() => unawaited(_panelStartTimes?.cancel()));
     ref.listen(appVisibleProvider, (_, _) => _syncRuntimeTicker());
     ref.listen(
       appSettingProvider.select((state) => state.showTrayTitle),
@@ -129,6 +133,19 @@ class SetupAction extends _$SetupAction {
   }
 
   Future<void> initStatus() async {
+    if (system.isWeb) {
+      void followHost(int? startedAt) {
+        _startTime = startedAt == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(startedAt);
+        _updateRunTime();
+        _syncRuntimeTicker();
+      }
+
+      _panelStartTimes ??= panelCoreClient.startTimes.listen(followHost);
+      followHost(await panelCoreClient.getStartTime());
+      return;
+    }
     if (!globalState.needInitStatus) {
       return;
     }
@@ -144,6 +161,9 @@ class SetupAction extends _$SetupAction {
   }
 
   Future<bool> setRunning(bool running, {bool initialize = false}) {
+    if (system.isWeb) {
+      return panelCoreClient.setRunning(running);
+    }
     if (running && !initialize && !ref.read(initProvider)) {
       return Future.value(true);
     }
@@ -231,6 +251,7 @@ class SetupAction extends _$SetupAction {
 
   /// An excluded SSID parks the listener without ending the run.
   void syncSuspend() {
+    if (system.isWeb) return;
     debouncer.call(FunctionTag.suspend, () {
       return _listenerScheduler.run(() async {
         if (!ref.read(isStartProvider) || ref.read(safeModeProvider)) {
@@ -275,6 +296,7 @@ class SetupAction extends _$SetupAction {
 
   @visibleForTesting
   Future<void> updateConfig() async {
+    if (system.isWeb) return;
     await globalState.safeRun(() async {
       final patchConfig = ref.read(patchClashConfigProvider);
       final shouldContinueSetup = await requestAdmin(patchConfig.tun.enable);
@@ -353,6 +375,9 @@ class SetupAction extends _$SetupAction {
     bool force = false,
     Future<void> Function()? preloadInvoke,
   }) async {
+    if (system.isWeb) {
+      return panelCoreClient.applyProfile();
+    }
     final result = await _runSetup(
       force: force,
       silence: silence,

@@ -14,6 +14,7 @@ import 'package:funclash/enum/enum.dart';
 import 'package:funclash/l10n/l10n.dart';
 import 'package:funclash/models/models.dart';
 import 'package:funclash/providers/providers.dart';
+import 'package:funclash/remote/panel_link_state.dart';
 import 'package:funclash/state.dart';
 import 'package:funclash/views/disclaimer.dart';
 import 'package:funclash/views/navigation.dart';
@@ -103,17 +104,21 @@ class Bootstrap {
   ) async {
     await _claimDataDirectory();
     globalState.packageInfo = await PackageInfo.fromPlatform();
-    var config = await migration.run();
-    _bootDecision = await bootGuard.evaluate(
-      profileId: config.currentProfileId,
-      crashlyticsEnabled: config.appSettingProps.crashlytics,
-    );
+    var config = system.isWeb
+        ? Config.realFromJson(await linkedPanelConfig)
+        : await migration.run();
+    _bootDecision = system.isWeb
+        ? const BootDecision()
+        : await bootGuard.evaluate(
+            profileId: config.currentProfileId,
+            crashlyticsEnabled: config.appSettingProps.crashlytics,
+          );
     if (_bootDecision.recovery == BootRecovery.clearProfile) {
       config = config.copyWith(currentProfileId: null);
       await preferences.saveConfig(config);
     }
     final patchClashConfig = config.patchClashConfig.ensureControllerSecret();
-    if (patchClashConfig != config.patchClashConfig) {
+    if (!system.isWeb && patchClashConfig != config.patchClashConfig) {
       config = config.copyWith(patchClashConfig: patchClashConfig);
       await preferences.saveConfig(config);
     }
@@ -164,6 +169,12 @@ class Bootstrap {
   ProviderContainer get _container => globalState.container;
 
   Future<void> _initApp() async {
+    if (system.isWeb) {
+      await _container.read(coreActionProvider.notifier).startCore();
+      await _container.read(setupActionProvider.notifier).initStatus();
+      _container.read(initProvider.notifier).value = true;
+      return;
+    }
     unawaited(_container.read(systemActionProvider.notifier).updateTray());
     unawaited(
       _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),

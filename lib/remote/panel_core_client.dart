@@ -24,6 +24,20 @@ const _hostOwnsIt = CoreLifecycleResult(
 /// dead link outright where a second timer could only guess at one.
 final class PanelCoreClient extends CoreHandlerInterface {
   final Map<String, Completer<Object?>> _pending = {};
+  final _startTimes = StreamController<int?>.broadcast();
+
+  Stream<int?> get startTimes => _startTimes.stream;
+
+  Future<int?> getStartTime() => _call<int>('panel.getStartTime');
+
+  Future<bool> setRunning(bool running) async =>
+      await _call<bool>('panel.setRunning', running) ?? false;
+
+  Future<bool> applyProfile() async =>
+      await _call<bool>('panel.applyProfile') ?? false;
+
+  Future<bool> restartHostCore() async =>
+      await _call<bool>('panel.restartCore') ?? false;
 
   PanelSession? _session;
   StreamSubscription<PanelFrame>? _frames;
@@ -53,7 +67,9 @@ final class PanelCoreClient extends CoreHandlerInterface {
     required CoreMethod method,
     Object? arguments,
     Duration? timeout,
-  }) async {
+  }) => _call<T>(method.name, arguments);
+
+  Future<T?> _call<T>(String method, [Object? arguments]) async {
     final session = _session;
     if (session == null) {
       throw _disconnected;
@@ -64,7 +80,7 @@ final class PanelCoreClient extends CoreHandlerInterface {
     session.send(
       PanelFrame(
         PanelChannel.core,
-        PanelCall(id: id, method: method.name, arguments: arguments).toJson(),
+        PanelCall(id: id, method: method, arguments: arguments).toJson(),
       ),
     );
     return await completer.future as T?;
@@ -82,10 +98,17 @@ final class PanelCoreClient extends CoreHandlerInterface {
   @override
   Future<CoreLifecycleResult> close() async {
     await unbind();
+    await _startTimes.close();
     return _hostOwnsIt;
   }
 
   void _receive(PanelFrame frame) {
+    if (frame.payload case {'startedAt': final Object? startedAt}) {
+      if (startedAt == null || startedAt is int) {
+        _startTimes.add(startedAt as int?);
+      }
+      return;
+    }
     final pushed = PanelEvent.fromJson(frame.payload);
     if (pushed != null) {
       for (final event in coreEventsFromData(pushed.data)) {
@@ -125,3 +148,5 @@ final class PanelCoreClient extends CoreHandlerInterface {
     }
   }
 }
+
+final panelCoreClient = PanelCoreClient();

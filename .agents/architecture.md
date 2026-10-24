@@ -1263,13 +1263,18 @@ anything. `AppStateManager` loads it with `configProvider` as the source read
 for each panel that connects, and `SystemAction.cleanupExitResources` closes it
 beside the system DNS and the system proxy.
 
+On startup, an enabled panel checks its installed version and downloads the
+matching release assets when the desktop version changes. Static responses use
+`Cache-Control: no-cache` so a reload checks the host's current files. Web icon
+URLs carry the app icon's hash prefix to invalidate browsers' favicon caches.
+
 A channel's host side is a `PanelChannelHandler`, and `PanelHost` hands each
 session that arrives to every one it holds. `PanelCall` and `PanelReply` are
 the envelope for a channel that answers — an id pairing a reply to its call, a
 method in the channel's own vocabulary — and they carry `CoreMethodError`
 rather than a second word for failure.
 
-`PanelCoreBridge` is the `core` channel, and it translates nothing: a panel
+`PanelCoreBridge` is the `core` channel. For native Core calls, a panel
 sends the `CoreMethod` name the host already speaks, the bridge hands it to
 `CoreHandlerInterface.invokeMethod`, and a `CoreMethodException` goes back in
 the Core's own code and message. That is what keeps the envelope the only
@@ -1280,6 +1285,12 @@ calling, so all four are refused with `panel_method_refused` whoever holds the
 token. A frame it cannot read as a call is dropped unanswered, there being no
 id to answer on.
 
+The same channel carries `panel.*` application commands. `AppStateManager`
+delegates start/stop and profile application to the host's `SetupAction`, and
+restart to `CoreAction`, so the host updates system proxy and DNS state through
+its existing managers. It also pushes the host's start timestamp when running
+state changes; the Web runtime ticker only displays that state.
+
 `PanelCoreClient` is the other end, and it is what `service_web.dart` now
 answers with where it used to answer null — a `coreService!` away from taking
 the panel down at startup. It keeps no timer of its own: the host already
@@ -1289,8 +1300,8 @@ what every call gets before a host is linked and what everything in flight gets
 when one goes away. That code is already the one `CoreMethodException`
 classifies as unavailable, so a panel with no host logs at debug rather than
 shouting. `start`, `restart` and `stop` answer `coalesced` rather than
-forwarding: the host owns its own Core process, and a panel asking says nothing
-the host was not going to decide for itself.
+forwarding during client attachment. An explicit restart from the Web UI uses
+`panel.restartCore` and goes through the host's lifecycle owner.
 
 `PanelEventBridge` is what makes a panel watch rather than only read.
 `CoreEventManager` grew one member for it, `events`, and its controller became
@@ -1310,6 +1321,13 @@ accepts.
 than as a bare null — a panel can tell a wrong token from a host that went
 away, which is the difference between telling the user to re-copy the link and
 telling them the desktop is gone.
+
+Web bootstrap initializes `Config` from the handshake snapshot, then attaches
+to the running host and reads its start timestamp. It does not migrate browser
+preferences, auto-start listeners, or apply a profile with Web platform defaults.
+The browser bootstrap keeps the URL token in session storage and restores it
+before Flutter loads, because navigation replaces the fragment. Subscription
+and resource refresh timers belong to the host too.
 
 Where that socket comes from is a seam. `panel_dialer_web.dart` is
 `dart:js_interop` against the browser's own `WebSocket` rather than a package:

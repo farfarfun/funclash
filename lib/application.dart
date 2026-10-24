@@ -138,6 +138,7 @@ class ApplicationState extends ConsumerState<Application> {
   }
 
   void _autoUpdateProfilesTask() {
+    if (system.isWeb) return;
     _autoUpdateProfilesTaskTimer = Timer(const Duration(minutes: 20), () async {
       await ref.read(profilesActionProvider.notifier).autoUpdateProfiles();
       await ref.read(resourcesActionProvider.notifier).autoUpdate();

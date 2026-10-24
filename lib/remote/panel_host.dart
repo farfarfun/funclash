@@ -130,11 +130,14 @@ final panelSupported = system.isDesktop && !safeModeBuild;
 /// Named apart from the handler list because the provider layer both feeds it
 /// and takes writes from it.
 final panelConfigBridge = panelSupported ? PanelConfigBridge() : null;
+final panelCoreBridge = panelSupported
+    ? PanelCoreBridge(core: coreService)
+    : null;
 
 final panelHost = panelSupported
     ? PanelHost(
         handlers: [
-          PanelCoreBridge(core: coreService),
+          panelCoreBridge!,
           PanelEventBridge(),
           PanelDatabaseBridge(),
           PanelFileBridge(),

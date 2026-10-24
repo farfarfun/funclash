@@ -80,6 +80,12 @@ class CoreAction extends _$CoreAction {
   }
 
   Future<bool> restartCore() {
+    if (system.isWeb) {
+      return panelCoreClient.restartHostCore().then((restarted) async {
+        if (restarted) await startCore();
+        return restarted;
+      });
+    }
     _requestedRestartRevision++;
     final activeOperation = _restartOperation;
     if (activeOperation != null) {

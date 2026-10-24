@@ -152,6 +152,8 @@ It writes the tray PNGs with Flutter `2.0x/`–`4.0x/` resolution variants to `a
 multi-size tray `.ico` files to `assets/images/tray/windows/`, and `windows/runner/resources/app_icon.ico`
 from `assets/images/icon.png`, also copying it to `assets/images/icon.ico`. Keep the macOS app icons,
 Web icons and Android launcher images in sync with that PNG, preserving adaptive and maskable safe zones.
+When that PNG changes, update the hash suffix in `web/index.html` and
+`web/manifest.json` too, so browsers discard their cached app icons.
 macOS draws its menu bar icon as a template: `status_1` renders the silhouette from
 `tool/assets_source/images/icon/glyph.svg` and `status_4` reuses `status_4.svg`, both recolored to black into
 `assets/images/tray/macos/`; the sources keep their colors. `glyph.svg` is also the geometry of the Android notification drawables

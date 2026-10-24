@@ -16,6 +16,28 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+Future<Object?> handlePanelHostAction(
+  ProviderReader read,
+  String method,
+  Object? arguments,
+) async {
+  return switch ((method, arguments)) {
+    ('panel.getStartTime', null) => read(
+      setupActionProvider.notifier,
+    ).startTime?.millisecondsSinceEpoch,
+    ('panel.setRunning', final bool running) => await read(
+      setupActionProvider.notifier,
+    ).setRunning(running),
+    ('panel.applyProfile', null) => await read(
+      setupActionProvider.notifier,
+    ).applyProfile(force: true),
+    ('panel.restartCore', null) => await read(
+      coreActionProvider.notifier,
+    ).restartCore(),
+    _ => throw ArgumentError('invalid panel action: $method'),
+  };
+}
+
 class AppStateManager extends ConsumerStatefulWidget {
   final Widget child;
 
@@ -75,6 +97,16 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     }
     final panel = panelHost;
     if (panel != null) {
+      panelCoreBridge!.hostAction = (method, arguments) =>
+          handlePanelHostAction(ref.read, method, arguments);
+      ref.listenManual(isStartProvider, (_, _) {
+        panelCoreBridge!.pushStartTime(
+          ref
+              .read(setupActionProvider.notifier)
+              .startTime
+              ?.millisecondsSinceEpoch,
+        );
+      });
       unawaited(_openPanelBridge(panel));
     }
     final configBridge = panelConfigBridge;
@@ -116,11 +148,15 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     if (mounted) {
       ref.read(panelSettingProvider.notifier).syncFromHost();
       ref.read(panelInstallProvider.notifier).syncFromHost();
+      if (panel.settings.enabled) {
+        await ref.read(panelInstallProvider.notifier).install();
+      }
     }
   }
 
   @override
   void dispose() {
+    panelCoreBridge?.hostAction = null;
     unawaited(_panelConfigWrites?.cancel());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
