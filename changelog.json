@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.11",
+      "tag": "v1.0.11",
+      "date": "2026-10-24",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "fb5806f",
+              "scope": "ci",
+              "text": "Restore release builds for headless Linux and the bundled Web panel"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.10",
       "tag": "v1.0.10",
       "date": "2026-10-24",

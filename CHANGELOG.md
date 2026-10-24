@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.11 (2026-10-24)
+
+**Bug Fixes**
+
+- **ci** Restore release builds for headless Linux and the bundled Web panel (fb5806f)
+
 ## v1.0.10 (2026-10-24)
 
 **Features**
