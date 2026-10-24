@@ -99,7 +99,8 @@ flutter:
   assets:
     - path: assets/panel/
       platforms: [ linux, macos, windows ]
-    - assets/data/
+    - path: assets/data/
+      platforms: [ android, linux, macos, windows ]
     - assets/fonts/
     - assets/images/
     - assets/images/avatar/

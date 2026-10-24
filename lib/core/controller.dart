@@ -76,6 +76,9 @@ class CoreController {
   }
 
   Future<bool> init(int version) async {
+    if (system.isWeb) {
+      return _interface.isInit;
+    }
     await ensureHomeDir();
     await initGeo();
     final homeDirPath = await appPath.homeDirPath;

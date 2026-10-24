@@ -19,11 +19,32 @@ Future<void> buildPanelBundle() async {
     runInShell: Platform.isWindows,
   );
   if (await build.exitCode != 0) throw StateError('The Web panel build failed');
-  final root = Directory('build/web');
-  File(p.join(root.path, '.funclash-panel')).writeAsStringSync(panelVersion);
-  File(panelBundlePath).parent.createSync(recursive: true);
+  await archivePanelBundle(
+    Directory('build/web'),
+    panelBundlePath,
+    version: panelVersion,
+  );
+}
+
+Future<void> archivePanelBundle(
+  Directory root,
+  String outputPath, {
+  required String version,
+}) async {
+  final renderer = Directory(p.join(root.path, 'canvaskit'));
+  if (renderer.existsSync()) {
+    for (final file in renderer.listSync(recursive: true).whereType<File>()) {
+      if (file.path.endsWith('.symbols')) file.deleteSync();
+    }
+  }
+  File(p.join(root.path, '.funclash-panel')).writeAsStringSync(version);
+  File(outputPath).parent.createSync(recursive: true);
   final encoder = ZipFileEncoder();
-  await encoder.zipDirectory(root, filename: panelBundlePath);
+  await encoder.zipDirectory(
+    root,
+    filename: outputPath,
+    level: DeflateLevel.defaultCompression,
+  );
 }
 
 void stagePanelBundle(String archivePath) {

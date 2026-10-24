@@ -1,11 +1,54 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:archive/archive_io.dart';
 import 'package:yaml/yaml.dart';
 
 import '../../tool/setup.dart';
+import '../../tool/build_panel.dart';
 
 void main() {
+  test(
+    'the panel keeps runtime files and omits renderer debug symbols',
+    () async {
+      final directory = Directory.systemTemp.createTempSync('panel-package-');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final root = Directory('${directory.path}/web')..createSync();
+      final files = {
+        'index.html': '<html></html>',
+        'main.dart.wasm': 'application',
+        'main.dart.js': 'fallback',
+        'canvaskit/skwasm.wasm': 'renderer',
+        'canvaskit/skwasm_heavy.wasm': 'renderer fallback',
+        'canvaskit/skwasm.js.symbols': 'debug symbols',
+        'assets/NOTICES': 'licenses',
+      };
+      for (final entry in files.entries) {
+        File('${root.path}/${entry.key}')
+          ..parent.createSync(recursive: true)
+          ..writeAsStringSync(entry.value);
+      }
+      final output = '${directory.path}/panel.zip';
+
+      await archivePanelBundle(root, output, version: '1.0.12');
+
+      final archive = ZipDecoder().decodeBytes(File(output).readAsBytesSync());
+      for (final entry in files.entries) {
+        final file = archive.findFile(entry.key);
+        if (entry.key.endsWith('.symbols')) {
+          expect(file, isNull);
+          expect(File('${root.path}/${entry.key}').existsSync(), isFalse);
+        } else {
+          expect(String.fromCharCodes(file!.readBytes()!), entry.value);
+        }
+      }
+      expect(
+        String.fromCharCodes(archive.findFile('.funclash-panel')!.readBytes()!),
+        '1.0.12',
+      );
+    },
+  );
+
   group('Debian naming', () {
     test('apt accepts the package name', () {
       final config =

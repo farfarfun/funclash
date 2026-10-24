@@ -1381,6 +1381,11 @@ to the matching release download. Extraction runs in an isolate, checks an
 archive version stamp when present, validates paths and the entry point, and
 writes the installed version stamp last.
 
+GeoIP, GeoSite and ASN assets ship only on native platforms; the Web panel uses
+the host Core and only queries its initialization state. Panel packaging removes
+renderer debug symbol files and uses ZIP level 6, preserving runtime renderers,
+fonts and licenses. Desktop packages still carry the full offline panel.
+
 The Linux runner dispatches to `funclash-headless` before GTK when no display
 is available or headless CLI options are present. Xvfb and a private D-Bus session
 host the existing app. `DesktopStartup` carries parsed options into bootstrap;
