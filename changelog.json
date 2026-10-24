@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.9",
+      "tag": "v1.0.9",
+      "date": "2026-10-24",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "80806cc",
+              "scope": "panel",
+              "text": "Fix web panel start/stop, configuration and refresh; update stale panel assets and cached logos after desktop upgrades"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.8",
       "tag": "v1.0.8",
       "date": "2026-10-23",

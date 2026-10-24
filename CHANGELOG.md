@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.9 (2026-10-24)
+
+**Bug Fixes**
+
+- **panel** Fix web panel start/stop, configuration and refresh; update stale panel assets and cached logos after desktop upgrades (80806cc)
+
 ## v1.0.8 (2026-10-23)
 
 **Bug Fixes**
