@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.13 (2026-10-25)
+
+**Performance**
+
+- **packaging** Reduce Windows and Linux DEB downloads with stronger compression while preserving all offline features (6701929)
+
 ## v1.0.12 (2026-10-24)
 
 **Performance**
