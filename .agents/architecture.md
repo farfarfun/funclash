@@ -1681,6 +1681,15 @@ that asks the OS for a permission, a global shortcut or a registration, must con
 `flutter_distributor` from the `chen08209/flutter_distributor` fork pinned to a `v<version>-flclash.<n>` tag (cut a
 new tag there and bump `--git-ref` when the fork changes), and leaves the Core artifacts to the build hook.
 
+Windows ZIP downloads are rebuilt from the same Release directory at Deflate
+level 9 after packaging, since the pinned distributor exposes no compression
+setting. A completed temporary archive replaces the fast-compressed output.
+The Windows installer uses solid LZMA2/ultra64 compression; both formats retain
+the complete offline assets and native binaries.
+Linux DEB builds use XZ level 9 through dpkg's compressor environment variables,
+with at most two compression threads to bound build memory. This changes only
+the download encoding, including on ARM64.
+
 The desktop Go core and the Rust helper are built by a Dart build hook; Android's Core is built by Gradle (see Android
 Core Build). `plugins/setup/hook/build.dart` only constructs
 `CoreBuilder`, a `package:hooks` `Builder` in `plugins/setup/setup_hooks/`, the same shape `rust_api` uses. Flutter

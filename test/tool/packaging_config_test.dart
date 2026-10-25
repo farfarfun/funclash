@@ -9,6 +9,66 @@ import '../../tool/build_panel.dart';
 
 void main() {
   test(
+    'Windows ZIP compression preserves the complete release bundle',
+    () async {
+      final root = Directory.systemTemp.createTempSync('windows-package-');
+      addTearDown(() => root.deleteSync(recursive: true));
+      final output = File('${root.path}/dist/package.zip');
+      output.parent.createSync();
+      final files = {
+        'FunClash.exe': List.generate(65536, (index) => index % 256),
+        'data/flutter_assets/assets/panel/panel.zip': [0, 255, 80, 75, 1, 2],
+        'manifest.json': '{"coreSha256":"test"}'.codeUnits,
+        '.hidden': <int>[],
+      };
+      for (final arch in ['amd64', 'arm64']) {
+        final target = arch == 'amd64' ? 'x64' : arch;
+        final bundle = Directory(
+          '${root.path}/build/windows/$target/runner/Release',
+        );
+        for (final entry in files.entries) {
+          File('${bundle.path}/${entry.key}')
+            ..parent.createSync(recursive: true)
+            ..writeAsBytesSync(entry.value);
+        }
+        Directory('${bundle.path}/empty').createSync();
+        await ZipFileEncoder().zipDirectory(bundle, filename: output.path);
+        final before = output.lengthSync();
+
+        await compressWindowsZip(root, arch);
+
+        final archive = ZipDecoder().decodeBytes(output.readAsBytesSync());
+        expect(output.lengthSync(), lessThan(before));
+        expect(
+          archive.files.where((file) => file.isFile),
+          hasLength(files.length),
+        );
+        for (final entry in files.entries) {
+          expect(archive.findFile(entry.key)!.readBytes(), entry.value);
+        }
+        expect(archive.findFile('empty/')!.isDirectory, isTrue);
+        expect(File('${output.path}.tmp').existsSync(), isFalse);
+      }
+    },
+  );
+
+  test('Windows packaging refuses missing or ambiguous inputs', () async {
+    final root = Directory.systemTemp.createTempSync('windows-package-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final output = File('${root.path}/dist/package.zip');
+    output.parent.createSync();
+    output.writeAsStringSync('original');
+
+    await expectLater(compressWindowsZip(root, 'amd64'), throwsStateError);
+    expect(output.readAsStringSync(), 'original');
+
+    File('${root.path}/dist/old.zip').writeAsStringSync('old');
+    await expectLater(compressWindowsZip(root, 'amd64'), throwsStateError);
+    expect(output.readAsStringSync(), 'original');
+    expect(File('${output.path}.tmp').existsSync(), isFalse);
+  });
+
+  test(
     'the panel keeps runtime files and omits renderer debug symbols',
     () async {
       final directory = Directory.systemTemp.createTempSync('panel-package-');

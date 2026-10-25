@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:args/args.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
@@ -240,6 +241,13 @@ Future<int> _package(
         '--flutter-build-args=${flutterBuildArgs.join(',')}',
       ...descriptionArgs,
     ],
+    environment: {
+      if (platform == 'linux') ...{
+        'DPKG_DEB_COMPRESSOR_TYPE': 'xz',
+        'DPKG_DEB_COMPRESSOR_LEVEL': '9',
+        'DPKG_DEB_THREADS_MAX': '2',
+      },
+    },
     includeParentEnvironment: true,
     runInShell: Platform.isWindows,
   );
@@ -251,8 +259,50 @@ Future<int> _package(
     stderr.write(utf8.decode(data));
   });
   final exitCode = await process.exitCode;
-  if (exitCode != 0 || !targets.split(',').contains('deb')) return exitCode;
+  if (exitCode != 0) return exitCode;
+  if (platform == 'windows' && targets.split(',').contains('zip')) {
+    await compressWindowsZip(Directory(rootDir), arch);
+  }
+  if (!targets.split(',').contains('deb')) return 0;
   return _renameDebianArtifact(rootDir, arch);
+}
+
+Future<void> compressWindowsZip(Directory root, String arch) async {
+  final archives = Directory(p.join(root.path, 'dist'))
+      .listSync()
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.zip'))
+      .toList();
+  if (archives.length != 1) {
+    throw StateError('Expected one Windows ZIP, found ${archives.length}');
+  }
+  final bundle = Directory(
+    p.join(
+      root.path,
+      'build',
+      'windows',
+      arch == 'amd64' ? 'x64' : arch,
+      'runner',
+      'Release',
+    ),
+  );
+  if (!bundle.existsSync()) {
+    throw StateError('Windows release bundle is missing: ${bundle.path}');
+  }
+  final output = archives.single;
+  final temporary = File('${output.path}.tmp');
+  final encoder = ZipFileEncoder();
+  try {
+    encoder.create(temporary.path, level: DeflateLevel.bestCompression);
+    try {
+      await encoder.addDirectory(bundle, includeDirName: false);
+    } finally {
+      await encoder.close();
+    }
+    await temporary.rename(output.path);
+  } finally {
+    if (temporary.existsSync()) await temporary.delete();
+  }
 }
 
 Future<int> _renameDebianArtifact(String rootDir, String arch) async {
