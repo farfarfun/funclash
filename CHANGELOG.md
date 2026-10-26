@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.14 (2026-10-26)
+
+**Features**
+
+- **theme** Refine desktop and web colors with neutral surfaces, clearer status text, and softer chart fills (1af3a90)
+
 ## v1.0.13 (2026-10-25)
 
 **Performance**

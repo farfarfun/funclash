@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.14",
+      "tag": "v1.0.14",
+      "date": "2026-10-26",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "1af3a90",
+              "scope": "theme",
+              "text": "Refine desktop and web colors with neutral surfaces, clearer status text, and softer chart fills"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.13",
       "tag": "v1.0.13",
       "date": "2026-10-25",
