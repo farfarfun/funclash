@@ -94,12 +94,8 @@ class _CoreStatusButtonState extends ConsumerState<CoreStatusButton> {
             ? IconButton.filled(
                 style: ElasticPress.buttonStyle.merge(
                   IconButton.styleFrom(
-                    backgroundColor: context.colorScheme.success,
-                    foregroundColor: switch (Theme.brightnessOf(context)) {
-                      Brightness.light => context.colorScheme.onSurfaceVariant,
-                      Brightness.dark =>
-                        context.colorScheme.onPrimaryFixedVariant,
-                    },
+                    backgroundColor: context.colorScheme.success.opacity12,
+                    foregroundColor: context.colorScheme.success,
                   ),
                 ),
                 onPressed: _handleConnection,
@@ -112,18 +108,13 @@ class _CoreStatusButtonState extends ConsumerState<CoreStatusButton> {
                   FilledButton.styleFrom(
                     backgroundColor: switch (coreStatus) {
                       CoreStatus.connecting => null,
-                      CoreStatus.connected => context.colorScheme.success,
+                      CoreStatus.connected =>
+                        context.colorScheme.success.opacity12,
                       CoreStatus.disconnected => context.colorScheme.error,
                     },
                     foregroundColor: switch (coreStatus) {
                       CoreStatus.connecting => null,
-                      CoreStatus.connected => switch (Theme.brightnessOf(
-                        context,
-                      )) {
-                        Brightness.light =>
-                          context.colorScheme.onSurfaceVariant,
-                        Brightness.dark => null,
-                      },
+                      CoreStatus.connected => context.colorScheme.success,
                       CoreStatus.disconnected => context.colorScheme.onError,
                     },
                   ),

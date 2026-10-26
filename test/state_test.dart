@@ -1,4 +1,5 @@
 import 'package:funclash/common/constant.dart';
+import 'package:funclash/common/color.dart';
 import 'package:funclash/providers/providers.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +40,7 @@ void main() {
         seedColor: lightSeed,
         brightness: Brightness.light,
         dynamicSchemeVariant: variant,
-      ),
+      ).toNeutralSurfaces(),
     );
     expect(
       container.read(genColorSchemeProvider(Brightness.dark)),
@@ -47,7 +48,7 @@ void main() {
         seedColor: darkSeed,
         brightness: Brightness.dark,
         dynamicSchemeVariant: variant,
-      ),
+      ).toNeutralSurfaces(),
     );
   });
 
@@ -93,7 +94,7 @@ void main() {
         dynamicSchemeVariant: container
             .read(themeSettingProvider)
             .schemeVariant,
-      ),
+      ).toNeutralSurfaces(),
     );
   });
 }

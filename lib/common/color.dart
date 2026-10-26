@@ -97,6 +97,30 @@ extension ColorExtension on Color {
 }
 
 extension ColorSchemeExtension on ColorScheme {
+  ColorScheme toNeutralSurfaces() {
+    Color neutral(Color color) {
+      final hct = Hct.fromInt(color.toARGB32());
+      return Color(Hct.from(hct.hue, min(hct.chroma, 2), hct.tone).toInt());
+    }
+
+    return copyWith(
+      surface: neutral(surface),
+      surfaceDim: neutral(surfaceDim),
+      surfaceBright: neutral(surfaceBright),
+      surfaceContainerLowest: neutral(surfaceContainerLowest),
+      surfaceContainerLow: neutral(surfaceContainerLow),
+      surfaceContainer: neutral(surfaceContainer),
+      surfaceContainerHigh: neutral(surfaceContainerHigh),
+      surfaceContainerHighest: neutral(surfaceContainerHighest),
+      onSurface: neutral(onSurface),
+      onSurfaceVariant: neutral(onSurfaceVariant),
+      outline: neutral(outline),
+      outlineVariant: neutral(outlineVariant),
+      inverseSurface: neutral(inverseSurface),
+      onInverseSurface: neutral(onInverseSurface),
+    );
+  }
+
   ColorScheme toPureBlack(bool isPureBlack) {
     if (!isPureBlack || brightness != Brightness.dark) {
       return this;
@@ -123,9 +147,20 @@ extension ColorSchemeExtension on ColorScheme {
 
   Color get modalScrim => scrim.withValues(alpha: 0.32);
 
-  Color get success => Colors.green.harmonizeWith(primary);
+  Color get success => _statusTone(Colors.green);
 
-  Color get warning => Colors.orange.harmonizeWith(primary);
+  Color get warning => _statusTone(Colors.orange);
+
+  Color _statusTone(Color seed) {
+    final hct = Hct.fromInt(seed.harmonizeWith(primary).toARGB32());
+    return Color(
+      Hct.from(
+        hct.hue,
+        min(hct.chroma, 40),
+        brightness == Brightness.dark ? 75 : 38,
+      ).toInt(),
+    );
+  }
 
   Color? delayColor(int? delay) {
     if (delay == null) return null;

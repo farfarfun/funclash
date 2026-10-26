@@ -19,9 +19,9 @@ class WebShell extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            scheme.primaryContainer,
+            scheme.surfaceContainer,
             scheme.surfaceContainerLowest,
-            scheme.secondaryContainer,
+            scheme.surfaceContainerLow,
           ],
         ),
       ),

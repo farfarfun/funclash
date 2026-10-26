@@ -199,7 +199,7 @@ class _LineChartPainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [color.opacity38, color.opacity10],
+        colors: [color.withValues(alpha: 0.20), color.opacity3],
       ).createShader(Offset.zero & size);
     canvas
       ..save()

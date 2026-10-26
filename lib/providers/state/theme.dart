@@ -81,7 +81,7 @@ ColorScheme _cachedColorScheme(
         seedColor: seedColor,
         brightness: brightness,
         dynamicSchemeVariant: variant,
-      ).toPureBlack(pureBlack);
+      ).toNeutralSurfaces().toPureBlack(pureBlack);
   _colorSchemes[key] = colorScheme;
   if (_colorSchemes.length > _maxCachedColorSchemes) {
     _colorSchemes.remove(_colorSchemes.keys.first);
