@@ -234,6 +234,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "该配置已用 age 加密，需要 age 私钥才能解密",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("同意"),
+    "airportUrl": MessageLookupByLibrary.simpleMessage("机场网址"),
+    "airportUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "请输入有效的机场网址",
+    ),
     "allowBypass": MessageLookupByLibrary.simpleMessage("允许应用绕过VPN"),
     "allowLan": MessageLookupByLibrary.simpleMessage("局域网代理"),
     "allowedIps": MessageLookupByLibrary.simpleMessage("允许的 IP"),
@@ -429,7 +433,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "deleteMultipTip": m18,
     "deleteTip": m19,
     "desc": MessageLookupByLibrary.simpleMessage(
-      "基于ClashMeta的多平台代理客户端，简单易用，开源无广告。",
+      "FunClash 是免费开源的 Clash Meta（mihomo）代理客户端，支持 Android、Windows、macOS 与 Linux，提供规则分流、TUN 模式与订阅导入，没有广告。",
     ),
     "destination": MessageLookupByLibrary.simpleMessage("目标地址"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage("目标地理定位"),
@@ -1374,6 +1378,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("活力"),
     "view": MessageLookupByLibrary.simpleMessage("查看"),
     "virtualIpv4": MessageLookupByLibrary.simpleMessage("虚拟 IPv4"),
+    "visitAirport": MessageLookupByLibrary.simpleMessage("访问机场"),
     "vpnConfigChangeDetected": MessageLookupByLibrary.simpleMessage(
       "检测到VPN相关配置改动",
     ),

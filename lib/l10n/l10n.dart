@@ -610,6 +610,36 @@ class AppLocalizations {
     return Intl.message('URL', name: 'url', desc: '', args: []);
   }
 
+  /// `Provider website`
+  String get airportUrl {
+    return Intl.message(
+      'Provider website',
+      name: 'airportUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid provider website URL`
+  String get airportUrlInvalidValidationDesc {
+    return Intl.message(
+      'Enter a valid provider website URL',
+      name: 'airportUrlInvalidValidationDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open provider website`
+  String get visitAirport {
+    return Intl.message(
+      'Open provider website',
+      name: 'visitAirport',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Link`
   String get link {
     return Intl.message('Link', name: 'link', desc: '', args: []);
@@ -930,10 +960,10 @@ class AppLocalizations {
     );
   }
 
-  /// `A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.`
+  /// `FunClash is a free, open-source Clash Meta (mihomo) proxy client for Android, Windows, macOS and Linux, with rule routing, TUN mode and subscription import. No ads.`
   String get desc {
     return Intl.message(
-      'A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.',
+      'FunClash is a free, open-source Clash Meta (mihomo) proxy client for Android, Windows, macOS and Linux, with rule routing, TUN mode and subscription import. No ads.',
       name: 'desc',
       desc: '',
       args: [],

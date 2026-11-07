@@ -50,7 +50,7 @@ class Database extends _$Database {
     : super(executor ?? openDatabaseExecutor());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -103,6 +103,9 @@ class Database extends _$Database {
             customProxies,
             customProxies.emptyOptions,
           );
+        }
+        if (from < 21) {
+          await _addColumnIfMissing(m, profiles, profiles.airportUrl);
         }
       }),
       beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),

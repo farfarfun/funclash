@@ -279,6 +279,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "This profile is encrypted with age and needs an age secret key to decrypt",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Agree"),
+    "airportUrl": MessageLookupByLibrary.simpleMessage("Provider website"),
+    "airportUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "Enter a valid provider website URL",
+    ),
     "allowBypass": MessageLookupByLibrary.simpleMessage(
       "Allow apps to bypass VPN",
     ),
@@ -546,7 +550,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "deleteMultipTip": m18,
     "deleteTip": m19,
     "desc": MessageLookupByLibrary.simpleMessage(
-      "A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.",
+      "FunClash is a free, open-source Clash Meta (mihomo) proxy client for Android, Windows, macOS and Linux, with rule routing, TUN mode and subscription import. No ads.",
     ),
     "destination": MessageLookupByLibrary.simpleMessage("Destination"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage(
@@ -1784,6 +1788,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("Vibrant"),
     "view": MessageLookupByLibrary.simpleMessage("View"),
     "virtualIpv4": MessageLookupByLibrary.simpleMessage("Virtual IPv4"),
+    "visitAirport": MessageLookupByLibrary.simpleMessage(
+      "Open provider website",
+    ),
     "vpnConfigChangeDetected": MessageLookupByLibrary.simpleMessage(
       "VPN-related configuration change detected",
     ),

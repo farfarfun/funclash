@@ -200,6 +200,37 @@ void main() {
   });
 
   testWidgets(
+    'airport URL is optional, validated, and saved with the profile',
+    (tester) async {
+      final action = _RecordingProfilesAction();
+      await pumpEditProfile(
+        tester,
+        profile: downloaded,
+        overrides: [profilesActionProvider.overrideWith(() => action)],
+      );
+      final field = find.widgetWithText(
+        TextFormField,
+        currentAppLocalizations.airportUrl,
+      );
+      expect(field, findsOneWidget);
+
+      await tester.enterText(field, 'ftp://airport.example');
+      await tester.tap(find.byTooltip(currentAppLocalizations.save));
+      await tester.pump();
+      expect(
+        find.text(currentAppLocalizations.airportUrlInvalidValidationDesc),
+        findsOneWidget,
+      );
+      expect(action.put, isEmpty);
+
+      await tester.enterText(field, 'https://airport.example');
+      await tester.tap(find.byTooltip(currentAppLocalizations.save));
+      await tester.pumpAndSettle();
+      expect(action.put.single.airportUrl, 'https://airport.example');
+    },
+  );
+
+  testWidgets(
     'the profile file row shows its size and update time without chips',
     (tester) async {
       await pumpEditProfile(tester, profile: downloaded);

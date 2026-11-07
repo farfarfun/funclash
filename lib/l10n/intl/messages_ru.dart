@@ -288,6 +288,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Профиль зашифрован с помощью age, для расшифровки нужен секретный ключ age",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Согласен"),
+    "airportUrl": MessageLookupByLibrary.simpleMessage("Сайт провайдера"),
+    "airportUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "Введите корректный URL сайта провайдера",
+    ),
     "allowBypass": MessageLookupByLibrary.simpleMessage(
       "Разрешить приложениям обходить VPN",
     ),
@@ -567,7 +571,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "deleteMultipTip": m18,
     "deleteTip": m19,
     "desc": MessageLookupByLibrary.simpleMessage(
-      "Многоплатформенный прокси-клиент на основе ClashMeta: простой и удобный, с открытым исходным кодом и без рекламы.",
+      "FunClash — бесплатный прокси-клиент с открытым исходным кодом на базе Clash Meta (mihomo) для Android, Windows, macOS и Linux. Поддерживает маршрутизацию по правилам, режим TUN и импорт подписок. Без рекламы.",
     ),
     "destination": MessageLookupByLibrary.simpleMessage("Назначение"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage(
@@ -1875,6 +1879,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("Яркая"),
     "view": MessageLookupByLibrary.simpleMessage("Просмотр"),
     "virtualIpv4": MessageLookupByLibrary.simpleMessage("Виртуальный IPv4"),
+    "visitAirport": MessageLookupByLibrary.simpleMessage(
+      "Открыть сайт провайдера",
+    ),
     "vpnConfigChangeDetected": MessageLookupByLibrary.simpleMessage(
       "Обнаружено изменение настроек VPN",
     ),

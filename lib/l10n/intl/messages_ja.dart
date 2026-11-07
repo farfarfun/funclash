@@ -241,6 +241,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "このプロファイルは age で暗号化されており、復号には age 秘密鍵が必要です",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("同意する"),
+    "airportUrl": MessageLookupByLibrary.simpleMessage("サービス提供元のURL"),
+    "airportUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "有効なサービス提供元のURLを入力してください",
+    ),
     "allowBypass": MessageLookupByLibrary.simpleMessage("アプリによるVPNバイパスを許可"),
     "allowLan": MessageLookupByLibrary.simpleMessage("LANプロキシ"),
     "allowedIps": MessageLookupByLibrary.simpleMessage("許可する IP"),
@@ -464,7 +468,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "deleteMultipTip": m18,
     "deleteTip": m19,
     "desc": MessageLookupByLibrary.simpleMessage(
-      "ClashMetaベースのマルチプラットフォーム対応プロキシクライアント。シンプルで使いやすく、オープンソースで広告もありません。",
+      "FunClashは無料でオープンソースのClash Meta（mihomo）プロキシクライアントです。Android、Windows、macOS、Linuxに対応し、ルールによる振り分け、TUNモード、サブスクリプションのインポートを備えています。広告はありません。",
     ),
     "destination": MessageLookupByLibrary.simpleMessage("宛先"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage("宛先GeoIP"),
@@ -1529,6 +1533,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("ビブラント"),
     "view": MessageLookupByLibrary.simpleMessage("表示"),
     "virtualIpv4": MessageLookupByLibrary.simpleMessage("仮想 IPv4"),
+    "visitAirport": MessageLookupByLibrary.simpleMessage("サービス提供元を開く"),
     "vpnConfigChangeDetected": MessageLookupByLibrary.simpleMessage(
       "VPN関連の設定変更を検出しました",
     ),

@@ -24,6 +24,7 @@ void main() {
         label: 'First',
         currentGroupName: 'Selector',
         url: 'https://first.example',
+        airportUrl: 'https://airport.example',
         lastUpdateDate: DateTime(2026, 1, 2),
         autoUpdateDuration: const Duration(hours: 6),
         subscriptionInfo: const SubscriptionInfo(

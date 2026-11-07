@@ -32,6 +32,7 @@ class EditProfileView extends ConsumerStatefulWidget {
 class _EditProfileViewState extends ConsumerState<EditProfileView> {
   late final TextEditingController _labelController;
   late final TextEditingController _urlController;
+  late final TextEditingController _airportUrlController;
   late final TextEditingController _ageSecretKeyController;
   late final TextEditingController _autoUpdateDurationController;
   late bool _autoUpdate;
@@ -46,6 +47,9 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     super.initState();
     _labelController = TextEditingController(text: widget.profile.label);
     _urlController = TextEditingController(text: widget.profile.url);
+    _airportUrlController = TextEditingController(
+      text: widget.profile.airportUrl,
+    );
     _ageSecretKeyController = TextEditingController(
       text: widget.profile.ageSecretKey,
     );
@@ -74,6 +78,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     if (!_formKey.currentState!.validate()) return;
     var profile = widget.profile.copyWith(
       url: _urlController.text,
+      airportUrl: _airportUrlController.text.trim(),
       ageSecretKey: _ageSecretKeyController.text.trim(),
       label: _labelController.text,
       autoUpdate: _autoUpdate,
@@ -224,6 +229,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
   void dispose() {
     _labelController.dispose();
     _urlController.dispose();
+    _airportUrlController.dispose();
     _ageSecretKeyController.dispose();
     _fileInfoNotifier.dispose();
     _autoUpdateDurationController.dispose();
@@ -236,8 +242,10 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     final appLocalizations = context.appLocalizations;
     final items = <Widget>[
       _ProfileNameField(controller: _labelController),
-      if (widget.profile.type == ProfileType.url)
+      if (widget.profile.type == ProfileType.url) ...[
         _ProfileUrlField(controller: _urlController),
+        _AirportUrlField(controller: _airportUrlController),
+      ],
       if (widget.profile.type != ProfileType.custom)
         _AgeSecretKeyField(controller: _ageSecretKeyController),
       if (widget.profile.type == ProfileType.url) ...[
@@ -375,6 +383,37 @@ class _ProfileUrlField extends StatelessWidget {
           }
           if (!value.isUrl) {
             return appLocalizations.profileUrlInvalidValidationDesc;
+          }
+          return null;
+        },
+      ),
+    );
+  }
+}
+
+class _AirportUrlField extends StatelessWidget {
+  const _AirportUrlField({required this.controller});
+
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
+    return ListItem(
+      title: TextFormField(
+        textInputAction: TextInputAction.next,
+        keyboardType: TextInputType.url,
+        controller: controller,
+        inputFormatters: TextInputLimits.limit(TextInputLimits.url),
+        decoration: InputDecoration(
+          labelText: appLocalizations.airportUrl,
+          hintText: appLocalizations.optional,
+        ),
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) return null;
+          final uri = value.trim().webUri;
+          if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
+            return appLocalizations.airportUrlInvalidValidationDesc;
           }
           return null;
         },

@@ -12,6 +12,8 @@ part 'generated/profile.g.dart';
 typedef ValidateConfig =
     Future<String> Function(String path, String ageSecretKey);
 
+typedef CommitProfile = Future<void> Function(Profile profile, String path);
+
 @freezed
 abstract class SubscriptionInfo with _$SubscriptionInfo {
   const factory SubscriptionInfo({
@@ -67,6 +69,7 @@ abstract class Profile with _$Profile {
     @Default('') String label,
     String? currentGroupName,
     @Default('') String url,
+    @Default('') String airportUrl,
     @Default('') String ageSecretKey,
     DateTime? lastUpdateDate,
     required Duration autoUpdateDuration,
@@ -147,19 +150,10 @@ extension ProfileExtension on Profile {
 
   Future<String> get path => appPath.getProfilePath(id.toString());
 
-  Future<Profile?> checkAndUpdateAndCopy({
+  Future<Profile> update({
     required ValidateConfig validate,
+    CommitProfile? commit,
   }) async {
-    if (type != ProfileType.url) {
-      return null;
-    }
-    if (await pathExists(await path)) {
-      return null;
-    }
-    return update(validate: validate);
-  }
-
-  Future<Profile> update({required ValidateConfig validate}) async {
     final response = await request.getFileResponseForUrl(url);
     final disposition = response.headers.value('content-disposition');
     final userinfo = response.headers.value('subscription-userinfo');
@@ -172,21 +166,31 @@ extension ProfileExtension on Profile {
     ).saveFile(
       decompressUnlabeled(response.data ?? Uint8List(0)),
       validate: validate,
+      commit: commit,
     );
   }
 
   Future<Profile> saveFile(
     Uint8List bytes, {
     required ValidateConfig validate,
+    CommitProfile? commit,
   }) async {
     final tempPath = await appPath.tempFilePath;
-    await safeWritePathAsBytes(tempPath, bytes);
-    final message = await validate(tempPath, ageSecretKey);
-    if (message.isNotEmpty) {
-      throw MessageException(message);
+    try {
+      await safeWritePathAsBytes(tempPath, bytes);
+      final message = await validate(tempPath, ageSecretKey);
+      if (message.isNotEmpty) {
+        throw MessageException(message);
+      }
+      final updated = copyWith(lastUpdateDate: DateTime.now());
+      if (commit == null) {
+        await safeCopyPath(tempPath, await path);
+      } else {
+        await commit(updated, tempPath);
+      }
+      return updated;
+    } finally {
+      await safeDeletePath(tempPath);
     }
-    await safeCopyPath(tempPath, await path);
-    await safeDeletePath(tempPath);
-    return copyWith(lastUpdateDate: DateTime.now());
   }
 }

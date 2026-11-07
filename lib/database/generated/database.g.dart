@@ -56,6 +56,17 @@ class $ProfilesTable extends Profiles
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _airportUrlMeta = const VerificationMeta(
+    'airportUrl',
+  );
+  @override
+  late final GeneratedColumn<String> airportUrl = GeneratedColumn<String>(
+    'airport_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _ageSecretKeyMeta = const VerificationMeta(
     'ageSecretKey',
   );
@@ -187,6 +198,7 @@ class $ProfilesTable extends Profiles
     label,
     currentGroupName,
     url,
+    airportUrl,
     ageSecretKey,
     lastUpdateDate,
     extendType,
@@ -239,6 +251,12 @@ class $ProfilesTable extends Profiles
       );
     } else if (isInserting) {
       context.missing(_urlMeta);
+    }
+    if (data.containsKey('airport_url')) {
+      context.handle(
+        _airportUrlMeta,
+        airportUrl.isAcceptableOrUnknown(data['airport_url']!, _airportUrlMeta),
+      );
     }
     if (data.containsKey('age_secret_key')) {
       context.handle(
@@ -329,6 +347,10 @@ class $ProfilesTable extends Profiles
         DriftSqlType.string,
         data['${effectivePrefix}url'],
       )!,
+      airportUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}airport_url'],
+      ),
       ageSecretKey: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}age_secret_key'],
@@ -415,6 +437,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
   final String label;
   final String? currentGroupName;
   final String url;
+  final String? airportUrl;
   final String? ageSecretKey;
   final DateTime? lastUpdateDate;
   final ExtendType extendType;
@@ -433,6 +456,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     required this.label,
     this.currentGroupName,
     required this.url,
+    this.airportUrl,
     this.ageSecretKey,
     this.lastUpdateDate,
     required this.extendType,
@@ -458,6 +482,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       map['current_group_name'] = Variable<String>(currentGroupName);
     }
     map['url'] = Variable<String>(url);
+    if (!nullToAbsent || airportUrl != null) {
+      map['airport_url'] = Variable<String>(airportUrl);
+    }
     if (!nullToAbsent || ageSecretKey != null) {
       map['age_secret_key'] = Variable<String>(ageSecretKey);
     }
@@ -514,6 +541,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           ? const Value.absent()
           : Value(currentGroupName),
       url: Value(url),
+      airportUrl: airportUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(airportUrl),
       ageSecretKey: ageSecretKey == null && nullToAbsent
           ? const Value.absent()
           : Value(ageSecretKey),
@@ -556,6 +586,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       label: serializer.fromJson<String>(json['label']),
       currentGroupName: serializer.fromJson<String?>(json['currentGroupName']),
       url: serializer.fromJson<String>(json['url']),
+      airportUrl: serializer.fromJson<String?>(json['airportUrl']),
       ageSecretKey: serializer.fromJson<String?>(json['ageSecretKey']),
       lastUpdateDate: serializer.fromJson<DateTime?>(json['lastUpdateDate']),
       extendType: $ProfilesTable.$converterextendType.fromJson(
@@ -589,6 +620,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       'label': serializer.toJson<String>(label),
       'currentGroupName': serializer.toJson<String?>(currentGroupName),
       'url': serializer.toJson<String>(url),
+      'airportUrl': serializer.toJson<String?>(airportUrl),
       'ageSecretKey': serializer.toJson<String?>(ageSecretKey),
       'lastUpdateDate': serializer.toJson<DateTime?>(lastUpdateDate),
       'extendType': serializer.toJson<String>(
@@ -616,6 +648,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     String? label,
     Value<String?> currentGroupName = const Value.absent(),
     String? url,
+    Value<String?> airportUrl = const Value.absent(),
     Value<String?> ageSecretKey = const Value.absent(),
     Value<DateTime?> lastUpdateDate = const Value.absent(),
     ExtendType? extendType,
@@ -636,6 +669,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
         ? currentGroupName.value
         : this.currentGroupName,
     url: url ?? this.url,
+    airportUrl: airportUrl.present ? airportUrl.value : this.airportUrl,
     ageSecretKey: ageSecretKey.present ? ageSecretKey.value : this.ageSecretKey,
     lastUpdateDate: lastUpdateDate.present
         ? lastUpdateDate.value
@@ -663,6 +697,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           ? data.currentGroupName.value
           : this.currentGroupName,
       url: data.url.present ? data.url.value : this.url,
+      airportUrl: data.airportUrl.present
+          ? data.airportUrl.value
+          : this.airportUrl,
       ageSecretKey: data.ageSecretKey.present
           ? data.ageSecretKey.value
           : this.ageSecretKey,
@@ -702,6 +739,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           ..write('label: $label, ')
           ..write('currentGroupName: $currentGroupName, ')
           ..write('url: $url, ')
+          ..write('airportUrl: $airportUrl, ')
           ..write('ageSecretKey: $ageSecretKey, ')
           ..write('lastUpdateDate: $lastUpdateDate, ')
           ..write('extendType: $extendType, ')
@@ -725,6 +763,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     label,
     currentGroupName,
     url,
+    airportUrl,
     ageSecretKey,
     lastUpdateDate,
     extendType,
@@ -747,6 +786,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           other.label == this.label &&
           other.currentGroupName == this.currentGroupName &&
           other.url == this.url &&
+          other.airportUrl == this.airportUrl &&
           other.ageSecretKey == this.ageSecretKey &&
           other.lastUpdateDate == this.lastUpdateDate &&
           other.extendType == this.extendType &&
@@ -767,6 +807,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
   final Value<String> label;
   final Value<String?> currentGroupName;
   final Value<String> url;
+  final Value<String?> airportUrl;
   final Value<String?> ageSecretKey;
   final Value<DateTime?> lastUpdateDate;
   final Value<ExtendType> extendType;
@@ -785,6 +826,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     this.label = const Value.absent(),
     this.currentGroupName = const Value.absent(),
     this.url = const Value.absent(),
+    this.airportUrl = const Value.absent(),
     this.ageSecretKey = const Value.absent(),
     this.lastUpdateDate = const Value.absent(),
     this.extendType = const Value.absent(),
@@ -804,6 +846,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     required String label,
     this.currentGroupName = const Value.absent(),
     required String url,
+    this.airportUrl = const Value.absent(),
     this.ageSecretKey = const Value.absent(),
     this.lastUpdateDate = const Value.absent(),
     required ExtendType extendType,
@@ -830,6 +873,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Expression<String>? label,
     Expression<String>? currentGroupName,
     Expression<String>? url,
+    Expression<String>? airportUrl,
     Expression<String>? ageSecretKey,
     Expression<DateTime>? lastUpdateDate,
     Expression<String>? extendType,
@@ -849,6 +893,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       if (label != null) 'label': label,
       if (currentGroupName != null) 'current_group_name': currentGroupName,
       if (url != null) 'url': url,
+      if (airportUrl != null) 'airport_url': airportUrl,
       if (ageSecretKey != null) 'age_secret_key': ageSecretKey,
       if (lastUpdateDate != null) 'last_update_date': lastUpdateDate,
       if (extendType != null) 'extend_type': extendType,
@@ -871,6 +916,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Value<String>? label,
     Value<String?>? currentGroupName,
     Value<String>? url,
+    Value<String?>? airportUrl,
     Value<String?>? ageSecretKey,
     Value<DateTime?>? lastUpdateDate,
     Value<ExtendType>? extendType,
@@ -890,6 +936,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       label: label ?? this.label,
       currentGroupName: currentGroupName ?? this.currentGroupName,
       url: url ?? this.url,
+      airportUrl: airportUrl ?? this.airportUrl,
       ageSecretKey: ageSecretKey ?? this.ageSecretKey,
       lastUpdateDate: lastUpdateDate ?? this.lastUpdateDate,
       extendType: extendType ?? this.extendType,
@@ -925,6 +972,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     }
     if (url.present) {
       map['url'] = Variable<String>(url.value);
+    }
+    if (airportUrl.present) {
+      map['airport_url'] = Variable<String>(airportUrl.value);
     }
     if (ageSecretKey.present) {
       map['age_secret_key'] = Variable<String>(ageSecretKey.value);
@@ -985,6 +1035,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
           ..write('label: $label, ')
           ..write('currentGroupName: $currentGroupName, ')
           ..write('url: $url, ')
+          ..write('airportUrl: $airportUrl, ')
           ..write('ageSecretKey: $ageSecretKey, ')
           ..write('lastUpdateDate: $lastUpdateDate, ')
           ..write('extendType: $extendType, ')
@@ -4450,6 +4501,7 @@ typedef $$ProfilesTableCreateCompanionBuilder =
       required String label,
       Value<String?> currentGroupName,
       required String url,
+      Value<String?> airportUrl,
       Value<String?> ageSecretKey,
       Value<DateTime?> lastUpdateDate,
       required ExtendType extendType,
@@ -4470,6 +4522,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
       Value<String> label,
       Value<String?> currentGroupName,
       Value<String> url,
+      Value<String?> airportUrl,
       Value<String?> ageSecretKey,
       Value<DateTime?> lastUpdateDate,
       Value<ExtendType> extendType,
@@ -4594,6 +4647,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get url => $composableBuilder(
     column: $table.url,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get airportUrl => $composableBuilder(
+    column: $table.airportUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4801,6 +4859,11 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get airportUrl => $composableBuilder(
+    column: $table.airportUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get ageSecretKey => $composableBuilder(
     column: $table.ageSecretKey,
     builder: (column) => ColumnOrderings(column),
@@ -4887,6 +4950,11 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<String> get url =>
       $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get airportUrl => $composableBuilder(
+    column: $table.airportUrl,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get ageSecretKey => $composableBuilder(
     column: $table.ageSecretKey,
@@ -5082,6 +5150,7 @@ class $$ProfilesTableTableManager
                 Value<String> label = const Value.absent(),
                 Value<String?> currentGroupName = const Value.absent(),
                 Value<String> url = const Value.absent(),
+                Value<String?> airportUrl = const Value.absent(),
                 Value<String?> ageSecretKey = const Value.absent(),
                 Value<DateTime?> lastUpdateDate = const Value.absent(),
                 Value<ExtendType> extendType = const Value.absent(),
@@ -5101,6 +5170,7 @@ class $$ProfilesTableTableManager
                 label: label,
                 currentGroupName: currentGroupName,
                 url: url,
+                airportUrl: airportUrl,
                 ageSecretKey: ageSecretKey,
                 lastUpdateDate: lastUpdateDate,
                 extendType: extendType,
@@ -5121,6 +5191,7 @@ class $$ProfilesTableTableManager
                 required String label,
                 Value<String?> currentGroupName = const Value.absent(),
                 required String url,
+                Value<String?> airportUrl = const Value.absent(),
                 Value<String?> ageSecretKey = const Value.absent(),
                 Value<DateTime?> lastUpdateDate = const Value.absent(),
                 required ExtendType extendType,
@@ -5140,6 +5211,7 @@ class $$ProfilesTableTableManager
                 label: label,
                 currentGroupName: currentGroupName,
                 url: url,
+                airportUrl: airportUrl,
                 ageSecretKey: ageSecretKey,
                 lastUpdateDate: lastUpdateDate,
                 extendType: extendType,

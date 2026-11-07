@@ -89,6 +89,12 @@ class AboutView extends ConsumerWidget {
             title: appLocalizations.more,
             items: [
               _buildLinkItem(
+                glyph: AppGlyphs.link,
+                title: appLocalizations.download,
+                url: 'https://farfarfun.github.io/packages/funclash/',
+                label: 'farfarfun.github.io/packages/funclash',
+              ),
+              _buildLinkItem(
                 glyph: AppGlyphs.code,
                 title: appLocalizations.project,
                 url: 'https://github.com/$repository',

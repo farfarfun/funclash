@@ -3,6 +3,8 @@ part of '../action.dart';
 @Riverpod(keepAlive: true)
 class ProfilesAction extends _$ProfilesAction {
   CoreController get _core => ref.read(coreHandlerProvider);
+  final _updates = <int, Object>{};
+  final _fileWrites = SerialTaskScheduler();
 
   @override
   void build() {}
@@ -20,7 +22,11 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> deleteProfile(int id) async {
-    await ref.read(profilesProvider.notifier).del(id);
+    _updates.remove(id);
+    await _fileWrites.run(() async {
+      await ref.read(profilesProvider.notifier).del(id);
+      await safeDeletePath(await appPath.getProfilePath(id.toString()));
+    });
     await clearEffect(id);
     final currentProfileId = ref.read(currentProfileIdProvider);
     if (currentProfileId == id) {
@@ -40,7 +46,9 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> autoUpdateProfiles() async {
-    for (final profile in ref.read(profilesProvider)) {
+    for (final id in ref.read(profilesProvider).map((profile) => profile.id)) {
+      final profile = ref.read(profilesProvider).getProfile(id);
+      if (profile == null) continue;
       if (!profile.autoUpdate) continue;
       final isNotNeedUpdate = profile.lastUpdateDate
           ?.add(profile.autoUpdateDuration)
@@ -123,8 +131,9 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> updateProfiles() async {
-    for (final profile in ref.read(profilesProvider)) {
-      if (profile.type != ProfileType.url) continue;
+    for (final id in ref.read(profilesProvider).map((profile) => profile.id)) {
+      final profile = ref.read(profilesProvider).getProfile(id);
+      if (profile == null || profile.type != ProfileType.url) continue;
       await updateProfile(profile, showLoading: true);
     }
   }
@@ -132,16 +141,51 @@ class ProfilesAction extends _$ProfilesAction {
   Future<void> updateProfile(
     Profile profile, {
     bool showLoading = false,
+    bool apply = true,
   }) async {
+    if (ref.read(profilesProvider).getProfile(profile.id) == null) return;
+    final update = Object();
+    _updates[profile.id] = update;
+    Profile? current() {
+      if (!ref.mounted || !identical(_updates[profile.id], update)) return null;
+      final latest = ref.read(profilesProvider).getProfile(profile.id);
+      return latest?.url == profile.url &&
+              latest?.ageSecretKey == profile.ageSecretKey &&
+              latest?.type == profile.type &&
+              latest?.lastUpdateDate == profile.lastUpdateDate
+          ? latest
+          : null;
+    }
+
     final operation = showLoading
         ? ref.read(updatingKeysProvider.notifier).start(profile.updatingKey)
         : null;
     try {
       ref.read(profilesProvider.notifier).put(profile);
-      final newProfile = await profile.update(
-        validate: (path, key) => _core.validateProfile(path, key),
+      Profile? saved;
+      await profile.update(
+        validate: (path, key) async =>
+            current() == null ? '' : _core.validateProfile(path, key),
+        commit: (updated, stagedPath) => _fileWrites.run(() async {
+          final path = await profile.path;
+          if (current() == null) return;
+          await safeCopyPath(stagedPath, path);
+          final latest = current();
+          if (latest == null) return;
+          saved = latest.copyWith(
+            label: latest.label == profile.label ? updated.label : latest.label,
+            subscriptionInfo: updated.subscriptionInfo,
+            lastUpdateDate: updated.lastUpdateDate,
+          );
+          ref.read(profilesProvider.notifier).put(saved!);
+        }),
       );
-      ref.read(profilesProvider.notifier).put(newProfile);
+      if (saved == null ||
+          !apply ||
+          !ref.mounted ||
+          !identical(_updates[profile.id], update)) {
+        return;
+      }
       if (profile.id == ref.read(currentProfileIdProvider)) {
         ref
             .read(setupActionProvider.notifier)
@@ -149,7 +193,7 @@ class ProfilesAction extends _$ProfilesAction {
       } else {
         final label = ref
             .read(profilesProvider.notifier)
-            .labeled(newProfile)
+            .labeled(saved!)
             .realLabel;
         unawaited(
           ref.read(clashProvidersActionProvider.notifier).applyIfReferenced(
@@ -160,7 +204,10 @@ class ProfilesAction extends _$ProfilesAction {
         );
       }
     } finally {
-      if (operation != null) {
+      if (identical(_updates[profile.id], update)) {
+        _updates.remove(profile.id);
+      }
+      if (operation != null && ref.mounted) {
         ref
             .read(updatingKeysProvider.notifier)
             .stop(profile.updatingKey, operation);
@@ -453,7 +500,6 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> clearEffect(int profileId) async {
-    await safeDeletePath(await appPath.getProfilePath(profileId.toString()));
     try {
       final error = await _core.clearEffect(profileId);
       if (error.isNotEmpty) {

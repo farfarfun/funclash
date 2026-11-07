@@ -15,6 +15,8 @@ class Profiles extends Table {
 
   TextColumn get url => text()();
 
+  TextColumn get airportUrl => text().nullable()();
+
   TextColumn get ageSecretKey => text().nullable()();
 
   DateTimeColumn get lastUpdateDate => dateTime().nullable()();
@@ -160,6 +162,7 @@ extension RawProfilExt on RawProfile {
       label: label,
       currentGroupName: currentGroupName,
       url: url,
+      airportUrl: airportUrl ?? '',
       ageSecretKey: ageSecretKey ?? '',
       lastUpdateDate: lastUpdateDate,
       autoUpdateDuration: Duration(milliseconds: autoUpdateDurationMillis),
@@ -184,6 +187,7 @@ extension ProfilesCompanionExt on Profile {
       label: label,
       currentGroupName: Value(currentGroupName),
       url: url,
+      airportUrl: Value(airportUrl.isEmpty ? null : airportUrl),
       ageSecretKey: Value(ageSecretKey.isEmpty ? null : ageSecretKey),
       lastUpdateDate: Value(lastUpdateDate),
       autoUpdateDurationMillis: autoUpdateDuration.inMilliseconds,

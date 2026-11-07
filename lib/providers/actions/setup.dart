@@ -648,17 +648,25 @@ class SetupAction extends _$SetupAction {
     Future<void> Function()? preloadInvoke,
     FutureOr Function()? onUpdated,
   }) async {
-    var profile = ref.read(currentProfileProvider) ?? recoverMissingProfile();
+    final requestedProfile =
+        ref.read(currentProfileProvider) ?? recoverMissingProfile();
     // A refresh failure is surfaced by safeRun; setup keeps the old profile.
-    final nextProfile = await globalState.safeRun(
-      () => profile?.checkAndUpdateAndCopy(
-        validate: (path, key) => _core.validateProfile(path, key),
-      ),
-    );
-    if (nextProfile != null) {
-      profile = nextProfile;
-      ref.read(profilesProvider.notifier).put(nextProfile);
-    }
+    await globalState.safeRun(() async {
+      if (requestedProfile == null ||
+          requestedProfile.type != ProfileType.url) {
+        return;
+      }
+      if (await pathExists(await requestedProfile.path)) return;
+      final latest = ref.read(profilesProvider).getProfile(requestedProfile.id);
+      if (latest != null) {
+        await ref
+            .read(profilesActionProvider.notifier)
+            .updateProfile(latest, apply: false);
+      }
+    });
+    final profile = requestedProfile == null
+        ? null
+        : ref.read(profilesProvider).getProfile(requestedProfile.id);
     commonPrint.log('setup ===> ${profile?.realLabel}');
     final patchConfig = ref.read(patchClashConfigProvider);
     final shouldContinueSetup = await requestAdmin(patchConfig.tun.enable);

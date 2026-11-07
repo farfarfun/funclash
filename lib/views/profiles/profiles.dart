@@ -537,7 +537,18 @@ class ProfileItem extends ConsumerWidget {
                 ? null
                 : () => _handleShowSubscriptionInfo(context),
           ),
-          trailing: _buildTrailing(context, isUpdating: isUpdating),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (profile.airportUrl.isNotEmpty)
+                IconButton(
+                  tooltip: context.appLocalizations.visitAirport,
+                  icon: const GlyphIcon(AppGlyphs.openExternal),
+                  onPressed: () => dialogs.openUrl(profile.airportUrl),
+                ),
+              _buildTrailing(context, isUpdating: isUpdating),
+            ],
+          ),
           title: _ProfileCardTitle(
             profile: profile,
             expire: subscriptionInfo?.expireDate,

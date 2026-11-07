@@ -16,6 +16,7 @@ import 'package:funclash/views/about.dart';
 import 'package:funclash/views/config/rules.dart';
 import 'package:funclash/views/config/scripts.dart';
 import 'package:funclash/views/profiles/extend/standard.dart';
+import 'package:funclash/views/profiles/profiles.dart';
 import 'package:funclash/views/proxies/setting.dart';
 import 'package:funclash/widgets/widgets.dart';
 import 'package:flutter/gestures.dart';
@@ -200,6 +201,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(AboutView), findsOneWidget);
+    expect(find.text('farfarfun.github.io/packages/funclash'), findsOneWidget);
     expect(find.text('github.com/farfarfun/funclash'), findsOneWidget);
     final hero = find.byWidgetPredicate(
       (widget) => widget.runtimeType.toString() == '_AboutHero',
@@ -218,6 +220,36 @@ void main() {
       }
     }
     expect(tester.takeException(), null);
+  });
+
+  testWidgets('profile card opens its configured airport URL', (tester) async {
+    final container = _containerFor(tester);
+    var selected = false;
+    final profile = Profile.normal(
+      label: 'Subscribed',
+      url: 'https://example.com/sub',
+    ).copyWith(airportUrl: 'https://airport.example');
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: TestApp(
+          child: Scaffold(
+            body: ProfileItem(
+              profile: profile,
+              groupValue: null,
+              onChanged: (_) => selected = true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Open provider website'));
+    await tester.pumpAndSettle();
+    expect(find.text('https://airport.example'), findsOneWidget);
+    expect(selected, isFalse);
   });
 
   testWidgets('about view shows progress while checking for updates', (

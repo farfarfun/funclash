@@ -44,9 +44,17 @@ void main() {
     test('rejects an invalid config without touching the saved file', () async {
       final profile = Profile.normal(label: 'p');
       final bytes = Uint8List.fromList(utf8.encode('bad: ['));
+      await safeWritePathAsString(await profile.path, 'saved config');
+      String? stagedPath;
 
       await expectLater(
-        profile.saveFile(bytes, validate: (_, _) async => 'invalid config'),
+        profile.saveFile(
+          bytes,
+          validate: (path, _) async {
+            stagedPath = path;
+            return 'invalid config';
+          },
+        ),
         throwsA(
           isA<MessageException>().having(
             (e) => e.message,
@@ -56,6 +64,25 @@ void main() {
         ),
       );
 
+      expect(await readPathAsStringOrEmpty(await profile.path), 'saved config');
+      expect(await pathExists(stagedPath!), isFalse);
+    });
+
+    test('cleans the staged file when committing fails', () async {
+      final profile = Profile.normal(label: 'p');
+      String? stagedPath;
+      await expectLater(
+        profile.saveFile(
+          Uint8List.fromList(utf8.encode('proxies: []')),
+          validate: (_, _) async => '',
+          commit: (_, path) async {
+            stagedPath = path;
+            throw const FileSystemException('cannot replace');
+          },
+        ),
+        throwsA(isA<FileSystemException>()),
+      );
+      expect(await pathExists(stagedPath!), isFalse);
       expect(await pathExists(await profile.path), isFalse);
     });
 
