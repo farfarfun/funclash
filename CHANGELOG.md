@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.15 (2026-11-07)
+
+**Features**
+
+- **profiles** Add provider website links to subscriptions, link the FunClash package page, and preserve newer edits during refresh. (ceb6cfc)
+
 ## v1.0.14 (2026-10-26)
 
 **Features**

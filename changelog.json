@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.15",
+      "tag": "v1.0.15",
+      "date": "2026-11-07",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "ceb6cfc",
+              "scope": "profiles",
+              "text": "Add provider website links to subscriptions, link the FunClash package page, and preserve newer edits during refresh."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.14",
       "tag": "v1.0.14",
       "date": "2026-10-26",
