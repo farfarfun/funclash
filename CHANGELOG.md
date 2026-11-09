@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.16 (2026-11-10)
+
+**Bug Fixes**
+
+- **android** Sign Android releases with a fixed certificate and reject key changes (3cd7589)
+
 ## v1.0.15 (2026-11-07)
 
 **Features**
