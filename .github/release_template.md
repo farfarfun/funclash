@@ -53,6 +53,8 @@
 
 <div dir="ltr">
 
+**Android upgrade notice:** Earlier `com.farfarfun.funclash.dev` APKs cannot be updated in place. Back up data in the old app under Tools → Backup & Restore, install this release, then restore the backup.
+
 **Remote panel** (optional): [FunClash-VERSION-panel.zip](https://github.com/farfarfun/funclash/releases/download/vVERSION/FunClash-VERSION-panel.zip)
 opens a desktop FunClash from a browser. Turn on Remote panel in Settings →
 General, unzip this archive into the Panel folder that section shows, and open

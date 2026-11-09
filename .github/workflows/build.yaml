@@ -384,12 +384,22 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_CERT_SHA256: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
         run: |
-          if [ -z "$KEYSTORE" ]; then
-            echo 'No signing secrets here; Gradle will debug-sign the APK.'
-            exit 0
+          if [ -z "$KEYSTORE" ] || [ -z "$SERVICE_JSON" ] || [ -z "$KEY_ALIAS" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo 'Android release signing secrets are incomplete; refusing to publish a debug-signed APK.' >&2
+            exit 1
+          fi
+          if [ -z "$SIGNING_CERT_SHA256" ]; then
+            echo 'ANDROID_SIGNING_CERT_SHA256 is not configured.' >&2
+            exit 1
           fi
           echo "$KEYSTORE" | base64 --decode > android/app/keystore.jks
+          cert_sha256=$(keytool -exportcert -keystore android/app/keystore.jks -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" | openssl x509 -inform DER -outform DER | sha256sum | cut -d ' ' -f1)
+          if [ "${cert_sha256^^}" != "${SIGNING_CERT_SHA256^^}" ]; then
+            echo "Android signing certificate SHA-256 mismatch: $cert_sha256" >&2
+            exit 1
+          fi
           echo "$SERVICE_JSON" | base64 --decode > android/app/google-services.json
           {
             echo "keyAlias=$KEY_ALIAS"

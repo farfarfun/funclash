@@ -17,6 +17,8 @@ dart tool/setup.dart windows
 dart tool/setup.dart android
 ```
 
+Android tag releases require the `KEYSTORE`, `SERVICE_JSON`, `KEY_ALIAS`, `STORE_PASSWORD`, and `KEY_PASSWORD` GitHub secrets, plus the `ANDROID_SIGNING_CERT_SHA256` repository variable set to the release certificate's SHA-256 fingerprint (hex without colons). The release build fails when any value is missing or the certificate changes.
+
 The desktop Go core and the Rust helper build automatically: Flutter runs
 `plugins/setup/hook/build.dart` on every `flutter build` and `flutter test`,
 and the hook drives `CoreBuilder` from the `setup_hooks` package in
