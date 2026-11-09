@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.17 (2026-11-10)
+
+**Bug Fixes**
+
+- **linux** Restore Linux builds with current Ayatana AppIndicator headers (130b906)
+
 ## v1.0.16 (2026-11-10)
 
 **Bug Fixes**
