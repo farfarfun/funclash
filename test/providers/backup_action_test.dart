@@ -92,6 +92,9 @@ void main() {
       await testDatabase.profilesDao.putAll([
         _profile(1, 'Backed up').toCompanion(0),
       ]);
+      await testDatabase.iconSetsDao.putAll([
+        const IconSet(id: 9, name: 'Local gallery').toCompanion(),
+      ]);
       final profileFile = File(await appPath.getProfilePath('1'))
         ..createSync(recursive: true)
         ..writeAsStringSync('proxies: []');
@@ -100,6 +103,7 @@ void main() {
       final archivePath = await backupToKept(actionOf(source));
 
       await testDatabase.delete(testDatabase.profiles).go();
+      await testDatabase.delete(testDatabase.iconSets).go();
       profileFile.deleteSync();
       final target = buildContainer()..listen(configProvider, (_, _) {});
       final restored = await actionOf(
@@ -109,6 +113,10 @@ void main() {
       expect(restored, isTrue);
       final stored = await testDatabase.profilesDao.query().get();
       expect(stored.map((item) => item.label), ['Backed up']);
+      expect(
+        (await testDatabase.iconSetsDao.query().get()).single.name,
+        'Local gallery',
+      );
       expect(profileFile.readAsStringSync(), 'proxies: []');
       expect(target.read(excludeSSIDsProvider), ['home-wifi']);
       expect(workDirs(), isEmpty);

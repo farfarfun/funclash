@@ -3,13 +3,39 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:funclash/enum/enum.dart';
 import 'package:funclash/common/common.dart';
 import 'package:funclash/common/migration.dart';
 import 'package:funclash/database/database.dart';
 import 'package:funclash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
+
+Future<void> uploadBackupFile(
+  DAVTransport transport,
+  String remotePath,
+  String localPath,
+) async {
+  final file = File(localPath);
+  await transport.put(remotePath, file.openRead, await file.length());
+}
+
+Future<void> downloadBackupFile(
+  DAVTransport transport,
+  String remotePath,
+  String localPath,
+) async {
+  final file = File(localPath);
+  await file.parent.create(recursive: true);
+  final stream = await transport.get(remotePath);
+  final sink = file.openWrite();
+  try {
+    await sink.addStream(stream);
+  } finally {
+    await sink.close();
+  }
+}
 
 Future<void> backupTask(BackupArchiveRequest request) {
   return compute(_backupTask, request);
@@ -21,7 +47,6 @@ Future<void> _backupTask(BackupArchiveRequest request) {
     configMap: request.configMap,
     databaseSnapshotPath: request.databaseSnapshotPath,
     homeDirPath: request.homeDirPath,
-    entries: request.entries,
   );
 }
 
@@ -42,17 +67,35 @@ Future<void> writeBackupArchive({
   required Map<String, Object?> configMap,
   required String databaseSnapshotPath,
   required String homeDirPath,
-  required Iterable<String> entries,
 }) async {
+  final snapshot = Database(NativeDatabase(File(databaseSnapshotPath)));
+  final Map<String, bool> requiredFiles;
+  try {
+    final profiles = snapshot.profiles;
+    final profileRows = await (snapshot.selectOnly(
+      profiles,
+    )..addColumns([profiles.id, profiles.type])).get();
+    requiredFiles = {
+      for (final row in profileRows)
+        BackupEntries.profile(row.read(profiles.id)!):
+            row.read(profiles.type) == ProfileType.file.name,
+      for (final id in await snapshot.scriptsDao.ids().get())
+        BackupEntries.script(id): true,
+      for (final provider in await snapshot.clashProvidersDao.query().get())
+        if (!provider.isRemote) BackupEntries.provider(provider): true,
+    };
+  } finally {
+    await snapshot.close();
+  }
   final encoder = ZipFileEncoder()..create(archivePath);
   try {
     encoder.addArchiveFile(
       ArchiveFile.string(configJsonName, json.encode(configMap)),
     );
     await encoder.addFile(File(databaseSnapshotPath), backupDatabaseName);
-    for (final entry in entries) {
+    for (final MapEntry(key: entry, value: required) in requiredFiles.entries) {
       final file = File(BackupEntries.resolve(homeDirPath, entry));
-      if (await file.exists()) {
+      if (required || await file.exists()) {
         await encoder.addFile(file, entry);
       }
     }
@@ -93,17 +136,7 @@ Future<MigrationData> readBackupArchive({
     return MigrationData(configMap: configMap);
   }
   final schemaVersion = await _readSchemaVersion(databaseFile);
-  final database = Database(
-    driftDatabase(
-      name: basenameWithoutExtension(backupDatabaseName),
-      // Left unset, drift asks path_provider for a temp directory, and this
-      // isolate has no platform channel to answer it.
-      native: DriftNativeOptions(
-        databaseDirectory: () async => Directory(stagingDirPath),
-        tempDirectoryPath: () async => stagingDirPath,
-      ),
-    ),
-  );
+  final database = Database(NativeDatabase(databaseFile));
   try {
     if (schemaVersion > database.schemaVersion) {
       throw const BackupException(BackupFailure.newerVersion);
@@ -128,6 +161,7 @@ Future<MigrationData> readBackupArchive({
       database.clashProvidersDao.query().get(),
       database.customProxiesDao.query().get(),
       database.proxyDialers.readable((row) => row.toProxyDialer()).get(),
+      database.iconSetsDao.query().get(),
     ]);
     return MigrationData(
       configMap: configMap,
@@ -139,6 +173,9 @@ Future<MigrationData> readBackupArchive({
       clashProviders: results[5].cast<ClashProvider>(),
       customProxies: results[6].cast<CustomProxy>(),
       proxyDialers: results[7].cast<ProxyDialer>(),
+      iconSets: schemaVersion >= 17 || results[8].isNotEmpty
+          ? results[8].cast<IconSet>()
+          : null,
     );
   } finally {
     await database.close();

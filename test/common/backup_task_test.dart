@@ -516,22 +516,13 @@ void main() {
       await database.close();
     }
 
-    Future<String> backup({
-      Map<String, Object?> configMap = const {'version': 1},
-      List<String>? entries,
-    }) async {
-      entries ??= BackupEntries.of(
-        profileIds: const [1],
-        scriptIds: const [2],
-        providers: const [localProvider],
-      );
+    Future<String> backup() async {
       final archivePath = join(root.path, 'archive', '$uniqueId.zip');
       await writeBackupArchive(
         archivePath: archivePath,
-        configMap: configMap,
+        configMap: const {'version': 1},
         databaseSnapshotPath: databasePath,
         homeDirPath: home.path,
-        entries: entries,
       );
       return archivePath;
     }
@@ -565,6 +556,10 @@ void main() {
         'files', () async {
       await seedDatabase();
       writeFile(join(home.path, 'profiles', '1.yaml'), 'proxies: []');
+      writeFile(
+        BackupEntries.resolve(home.path, BackupEntries.provider(localProvider)),
+        'rules: []',
+      );
       writeFile(join(home.path, 'profiles', '9.yaml'), 'not listed');
       writeFile(join(home.path, 'scripts', '2.js'), 'body');
 
@@ -580,7 +575,13 @@ void main() {
         configJsonName,
         'profiles/1.yaml',
         'scripts/2.js',
+        BackupEntries.provider(localProvider),
       });
+    });
+
+    test('a missing local profile fails the backup', () async {
+      await seedDatabase();
+      await expectLater(backup(), throwsA(isA<FileSystemException>()));
     });
 
     test('restoring returns the rows and stages the files', () async {
@@ -612,17 +613,17 @@ void main() {
     });
 
     test('a version 0 archive goes through the legacy migration', () async {
-      await seedDatabase();
-      writeFile(join(home.path, 'profiles', 'legacy.yaml'), 'proxies: []');
-      final archivePath = await backup(
-        configMap: {
-          'version': 0,
-          'profiles': [
-            {'id': 'legacy', 'label': 'Old', 'autoUpdateDuration': 0},
-          ],
-        },
-        entries: const ['profiles/legacy.yaml'],
-      );
+      final archivePath = await zipOf({
+        configJsonName: utf8.encode(
+          json.encode({
+            'version': 0,
+            'profiles': [
+              {'id': 'legacy', 'label': 'Old', 'autoUpdateDuration': 0},
+            ],
+          }),
+        ),
+        'profiles/legacy.yaml': utf8.encode('proxies: []'),
+      });
 
       final data = await restore(archivePath);
 
@@ -696,7 +697,10 @@ void main() {
         'PRAGMA user_version = ${raw.schemaVersion + 1}',
       );
       await raw.close();
-      final archivePath = await backup();
+      final archivePath = await zipOf({
+        configJsonName: utf8.encode('{"version":1}'),
+        backupDatabaseName: await File(databasePath).readAsBytes(),
+      });
 
       await expectLater(
         restore(archivePath),

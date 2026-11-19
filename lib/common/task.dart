@@ -590,7 +590,9 @@ Future<MigrationData> migrateLegacyConfig({
       targetPath,
       BackupEntries.profile(profileId),
     );
-    await safeCopyPath(sourceFilePath, targetFilePath);
+    if (await pathExists(sourceFilePath)) {
+      await safeCopyPath(sourceFilePath, targetFilePath);
+    }
     profiles.add(Profile.fromJson(rawProfile));
   }
   final currentProfileId = configMap['currentProfileId'];

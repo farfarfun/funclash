@@ -353,6 +353,7 @@ abstract class MakeRealProfileState with _$MakeRealProfileState {
 @freezed
 abstract class MigrationData with _$MigrationData {
   const factory MigrationData({
+    List<IconSet>? iconSets,
     Map<String, Object?>? configMap,
     @Default([]) List<Rule> rules,
     @Default([]) List<Script> scripts,

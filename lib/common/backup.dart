@@ -54,7 +54,6 @@ typedef BackupArchiveRequest = ({
   Map<String, Object?> configMap,
   String databaseSnapshotPath,
   String homeDirPath,
-  List<String> entries,
 });
 
 typedef RestoreArchiveRequest = ({String archivePath, String stagingDirPath});

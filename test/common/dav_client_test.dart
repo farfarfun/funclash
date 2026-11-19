@@ -285,6 +285,32 @@ void main() {
       expect(server.requests.single.path, '/remote.php/dav/');
     });
 
+    test('upload replays the file after authentication and redirect', () async {
+      final payload = List<int>.generate(160 * 1024, (index) => index % 251);
+      final archive = writeArchive(payload);
+      server.responses.addAll([
+        (
+          method: 'PUT',
+          status: HttpStatus.unauthorized,
+          headers: {'www-authenticate': 'Digest realm="dav", nonce="abc123"'},
+        ),
+        (
+          method: 'PUT',
+          status: HttpStatus.temporaryRedirect,
+          headers: {'location': '/moved/backup.zip'},
+        ),
+      ]);
+
+      await buildClient().upload(archive.path);
+
+      final uploads = server.requests.where((item) => item.method == 'PUT');
+      expect(uploads, hasLength(3));
+      for (final upload in uploads) {
+        expect(upload.body, payload);
+      }
+      expect(server.files['/moved/backup.zip'], payload);
+    });
+
     test('an existing collection is not an error', () async {
       final archive = writeArchive(const [1, 2, 3]);
       final client = buildClient();

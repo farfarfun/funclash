@@ -403,6 +403,7 @@ class Database extends _$Database {
     List<ClashProvider> clashProviders = const [],
     List<CustomProxy> customProxies = const [],
     List<ProxyDialer> proxyDialers = const [],
+    List<IconSet>? iconSets,
     bool isOverride = false,
   }) async {
     if (profiles.isEmpty &&
@@ -412,13 +413,21 @@ class Database extends _$Database {
         proxyGroups.isEmpty &&
         clashProviders.isEmpty &&
         customProxies.isEmpty &&
-        proxyDialers.isEmpty) {
+        proxyDialers.isEmpty &&
+        iconSets == null) {
       return;
     }
     await transaction(() async {
       // Backups taken while foreign keys were off may carry orphaned rows.
       await customStatement('PRAGMA defer_foreign_keys = ON');
       await batch((b) {
+        if (iconSets != null) {
+          if (isOverride) b.deleteAll(this.iconSets);
+          b.insertAllOnConflictUpdate(
+            this.iconSets,
+            iconSets.map((item) => item.toCompanion()).toList(),
+          );
+        }
         if (isOverride) {
           profilesDao.setAllWithBatch(b, profiles);
           scriptsDao.setAllWithBatch(b, scripts);

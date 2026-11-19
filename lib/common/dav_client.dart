@@ -38,12 +38,11 @@ class DAVClient {
 
   Future<void> upload(String localPath) async {
     await _transport.mkcol(root);
-    await _transport.put(backupFile, await readPathAsBytes(localPath));
+    await uploadBackupFile(_transport, backupFile, localPath);
   }
 
   Future<void> download(String localPath) async {
-    final bytes = await _transport.get(backupFile);
-    await safeWritePathAsBytes(localPath, bytes);
+    await downloadBackupFile(_transport, backupFile, localPath);
   }
 }
 

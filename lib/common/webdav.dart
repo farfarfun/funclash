@@ -83,35 +83,38 @@ class DAVTransport {
     );
   }
 
-  Future<void> put(String path, List<int> bytes) async {
+  Future<void> put(
+    String path,
+    Stream<List<int>> Function() open,
+    int length,
+  ) async {
     await _send(
       'PUT',
       path,
-      body: bytes,
+      body: open,
       headers: {
         Headers.contentTypeHeader: 'application/octet-stream',
-        Headers.contentLengthHeader: bytes.length,
+        Headers.contentLengthHeader: length,
       },
       accept: const {200, 201, 204},
     );
   }
 
-  Future<Uint8List> get(String path) async {
+  Future<Stream<Uint8List>> get(String path) async {
     final response = await _send(
       'GET',
       path,
-      responseType: ResponseType.bytes,
+      responseType: ResponseType.stream,
       accept: const {200},
     );
-    final data = response.data;
-    return data is List<int> ? Uint8List.fromList(data) : Uint8List(0);
+    return (response.data as ResponseBody).stream;
   }
 
   Future<Response<dynamic>> _send(
     String method,
     String path, {
     bool collection = false,
-    List<int>? body,
+    Stream<List<int>> Function()? body,
     Map<String, dynamic> headers = const {},
     ResponseType responseType = ResponseType.plain,
     required Set<int> accept,
@@ -131,6 +134,9 @@ class DAVTransport {
       final status = response.statusCode;
       if (status != null && accept.contains(status)) {
         return response;
+      }
+      if (response.data case final ResponseBody body) {
+        await body.stream.listen(null).cancel();
       }
       if (status == 401 && !retriedAuth && _adoptChallenge(response)) {
         retriedAuth = true;
@@ -154,13 +160,13 @@ class DAVTransport {
     String method,
     Uri uri, {
     required Uri origin,
-    List<int>? body,
+    Stream<List<int>> Function()? body,
     required Map<String, dynamic> headers,
     required ResponseType responseType,
   }) {
     return _dio.requestUri<dynamic>(
       uri,
-      data: body,
+      data: body?.call(),
       options: Options(
         method: method,
         headers: {...headers, ..._authorization(method, uri, origin)},

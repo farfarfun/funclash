@@ -275,6 +275,19 @@ void main() {
   });
 
   group('safeCopyPath', () {
+    test('reports a missing source and preserves the destination', () async {
+      final from = join(root.path, 'missing');
+      final to = File(join(root.path, 'target'))..writeAsStringSync('keep');
+
+      await expectLater(
+        safeCopyPath(from, to.path),
+        throwsA(isA<FileSystemException>()),
+      );
+
+      expect(File(from).existsSync(), isFalse);
+      expect(to.readAsStringSync(), 'keep');
+    });
+
     test('creates the directory the copy needs', () async {
       final from = join(root.path, 'config.yaml');
       File(from).writeAsStringSync('mode: rule');
