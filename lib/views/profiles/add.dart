@@ -98,13 +98,18 @@ class AddProfileView extends ConsumerWidget {
   Future<void> _toAddCustom(BuildContext context, WidgetRef ref) async {
     final profilesAction = ref.read(profilesActionProvider.notifier);
     final label = context.appLocalizations.unnamed;
-    final id = await globalState.safeRun(
-      () => profilesAction.addCustomProfile(label),
+    final profile = await globalState.safeRun(
+      () => profilesAction.createCustomProfile(label),
     );
-    if (id == null || !context.mounted) return;
-    final editor = CustomProfileView(profileId: id, isNew: true);
+    if (profile == null ||
+        !context.mounted ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    final editor = CustomProfileView(profileId: profile.id, isNew: true);
     final navigator = Navigator.of(context);
     if (!origin.mounted || Navigator.of(origin) == navigator) {
+      profilesAction.putProfile(profile);
       unawaited(BaseNavigator.pushReplacement(context, editor));
       return;
     }
@@ -114,6 +119,7 @@ class AddProfileView extends ConsumerWidget {
     await whenRouteSettled(context);
     await Future<void>.delayed(_customOpenPause);
     if (origin.mounted) {
+      profilesAction.putProfile(profile);
       unawaited(BaseNavigator.push(origin, editor));
     }
   }

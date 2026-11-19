@@ -240,11 +240,8 @@ class ProfilesAction extends _$ProfilesAction {
     }
   }
 
-  Future<int> addCustomProfile(String label) async {
-    final profile = Profile.custom(id: await _nextId(), label: label);
-    putProfile(profile);
-    return profile.id;
-  }
+  Future<Profile> createCustomProfile(String label) async =>
+      Profile.custom(id: await _nextId(), label: label);
 
   void touchProfile(int id) {
     final profile = ref.read(profilesProvider).getProfile(id);
