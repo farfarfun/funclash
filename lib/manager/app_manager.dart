@@ -24,6 +24,7 @@ Future<Object?> handlePanelHostAction(
   Object? arguments,
 ) async {
   return switch ((method, arguments)) {
+    ('panel.nextProfileId', null) => snowflake.id,
     ('panel.getStartTime', null) => read(
       setupActionProvider.notifier,
     ).startTime?.millisecondsSinceEpoch,
@@ -143,10 +144,15 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
   }
 
   Future<void> _openPanelBridge(PanelHost panel) async {
-    await panel.load(
-      config: () => ref.read(configProvider).toJson(),
-      pageRoot: await appPath.panelDirPath,
-    );
+    final pageRoot = await appPath.panelDirPath;
+    try {
+      await panel.load(
+        config: () => ref.read(configProvider).toJson(),
+        pageRoot: pageRoot,
+      );
+    } catch (error) {
+      reportPanelSettingsSaveFailure(error);
+    }
     if (mounted) {
       ref.read(panelSettingProvider.notifier).syncFromHost();
       ref.read(panelInstallProvider.notifier).syncFromHost();

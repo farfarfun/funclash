@@ -55,18 +55,24 @@ final class PanelHost {
     }
     // A token minted on each launch would change under the person reading it.
     final stored = await _readSettings();
-    if (stored == null) {
-      _settings = PanelSettings.fresh();
-      await _writeSettings(_settings);
-    } else {
-      _settings = stored;
-    }
     if (_closed) {
       return;
     }
     _pageRoot ??= pageRoot;
     final server = _server ??= PanelServer(config: config, pageRoot: pageRoot);
     _arrivals ??= server.sessions.listen(_attach);
+    _settings = stored ?? PanelSettings.fresh();
+    if (stored == null) {
+      final fresh = _settings;
+      try {
+        await _writeSettings(fresh);
+      } catch (_) {
+        if (identical(_settings, fresh)) {
+          _settings = fresh.copyWith(enabled: false);
+        }
+        rethrow;
+      }
+    }
     await _converge(_settings);
   }
 
@@ -81,8 +87,7 @@ final class PanelHost {
       return;
     }
     _settings = settings;
-    await _writeSettings(settings);
-    await _converge(settings);
+    await Future.wait([_writeSettings(settings), _converge(settings)]);
   }
 
   /// The bridge is down because the app is, so the settings keep saying on.

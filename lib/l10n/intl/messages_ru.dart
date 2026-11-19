@@ -1270,6 +1270,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Переопределяемые параметры",
     ),
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
+    "panelSettingsSaveFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось сохранить настройки удалённой панели. Проверьте их после перезапуска.",
+    ),
     "parsePureIp": MessageLookupByLibrary.simpleMessage("Разбирать чистые IP"),
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage(
       "«Разбирать чистые IP» анализирует соединения, у которых есть только IP-адрес.",

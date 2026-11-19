@@ -44,7 +44,7 @@ final class PanelSettingProvider
   }
 }
 
-String _$panelSettingHash() => r'a69edd559f7cd6b8a7e232d4e6aeaf86a0a65bae';
+String _$panelSettingHash() => r'd5181bff7075b07946c74f0d64232a9ba8a01bd1';
 
 /// Reads through to [panelHost], which owns the stored settings and the socket.
 

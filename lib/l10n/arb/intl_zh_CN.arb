@@ -128,6 +128,7 @@
   "compatible": "兼容模式",
   "notSelectedTip": "当前代理组无法选中",
   "changeProxyFailedTip": "切换代理失败，已恢复上一次的选择",
+  "panelSettingsSaveFailed": "远程面板设置保存失败，请在重启后重新确认。",
   "databaseWriteFailedTip": "保存更改失败，已回滚",
   "tip": "提示",
   "account": "账号",

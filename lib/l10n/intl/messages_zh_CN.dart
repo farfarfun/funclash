@@ -945,6 +945,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "overrideEntries": MessageLookupByLibrary.simpleMessage("覆写项"),
     "palette": MessageLookupByLibrary.simpleMessage("调色板"),
+    "panelSettingsSaveFailed": MessageLookupByLibrary.simpleMessage(
+      "远程面板设置保存失败，请在重启后重新确认。",
+    ),
     "parsePureIp": MessageLookupByLibrary.simpleMessage("解析纯IP"),
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage(
       "解析纯 IP 会嗅探只有 IP 地址的连接。",

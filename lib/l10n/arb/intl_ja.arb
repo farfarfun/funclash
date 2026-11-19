@@ -128,6 +128,7 @@
   "compatible": "互換モード",
   "notSelectedTip": "現在のプロキシグループは選択できません",
   "changeProxyFailedTip": "プロキシの切り替えに失敗したため、前回の選択に戻しました",
+  "panelSettingsSaveFailed": "リモートパネルの設定を保存できませんでした。再起動後に設定を確認してください。",
   "databaseWriteFailedTip": "変更の保存に失敗したため、元に戻しました",
   "tip": "ヒント",
   "account": "アカウント",

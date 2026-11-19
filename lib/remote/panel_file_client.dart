@@ -7,6 +7,11 @@ import 'package:funclash/remote/panel_session.dart';
 
 /// The file system a panel reaches is the host's, one call at a time.
 final class PanelFileClient {
+  static const _disconnected = CoreMethodException(
+    code: 'transport_disconnected',
+    message: 'the panel lost the host',
+  );
+
   final Map<String, Completer<Object?>> _pending = {};
 
   PanelSession? _bound;
@@ -14,6 +19,7 @@ final class PanelFileClient {
 
   Future<T?> call<T>(String method, Map<String, Object?> arguments) async {
     final session = await _session();
+    if (session.isClosed) throw _disconnected;
     final id = '${_nextId++}';
     final completer = Completer<Object?>();
     _pending[id] = completer;
@@ -66,12 +72,7 @@ final class PanelFileClient {
     _pending.clear();
     for (final completer in waiting) {
       if (!completer.isCompleted) {
-        completer.completeError(
-          const CoreMethodException(
-            code: 'transport_disconnected',
-            message: 'the panel lost the host',
-          ),
-        );
+        completer.completeError(_disconnected);
       }
     }
   }

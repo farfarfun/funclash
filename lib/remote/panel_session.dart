@@ -34,6 +34,8 @@ final class PanelSession {
 
   Stream<PanelFrame> get databaseFrames => _databaseFrames.stream;
 
+  bool get isClosed => _frames.isClosed;
+
   void send(PanelFrame frame) => _socket.send(json.encode(frame.toJson()));
 
   void _receive(String message) {

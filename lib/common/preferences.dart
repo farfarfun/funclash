@@ -171,10 +171,13 @@ class Preferences {
 
   Future<void> savePanelSettings(PanelSettings settings) async {
     final sharedPreferencesIns = await sharedPreferencesCompleter.future;
-    await sharedPreferencesIns?.setString(
+    final saved = await sharedPreferencesIns?.setString(
       panelSettingsKey,
       json.encode(settings),
     );
+    if (saved != true) {
+      throw StateError('Could not persist remote panel settings');
+    }
   }
 
   Future<void> clearPreferences() async {

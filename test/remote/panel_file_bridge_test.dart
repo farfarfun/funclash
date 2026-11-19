@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:funclash/core/method.dart';
 import 'package:funclash/remote/panel_file_bridge.dart';
+import 'package:funclash/remote/panel_file_client.dart';
+import 'package:funclash/remote/panel_link_state.dart';
 import 'package:funclash/remote/panel_protocol.dart';
 import 'package:funclash/remote/panel_session.dart';
 import 'package:path/path.dart' as p;
@@ -90,6 +93,30 @@ Future<PanelReply> _ask(
 }
 
 void main() {
+  test(
+    'the first file call after the session closes fails immediately',
+    () async {
+      final socket = _FakeSocket();
+      socket.receive(
+        const PanelHello(
+          protocol: panelProtocolVersion,
+          token: _token,
+        ).toJson(),
+      );
+      final session = (await acceptPanel(
+        socket,
+        token: _token,
+        config: const {},
+      ))!;
+      reportPanelLinked(session);
+      await session.close();
+      await expectLater(
+        PanelFileClient().call<bool>('pathExists', {'path': 'file'}),
+        throwsA(isA<CoreMethodException>()),
+      );
+    },
+  );
+
   group('PanelFileBridge', () {
     test('reports the host data directory without a client path', () async {
       final root = _root();

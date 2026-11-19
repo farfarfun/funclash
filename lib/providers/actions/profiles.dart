@@ -9,6 +9,9 @@ class ProfilesAction extends _$ProfilesAction {
   @override
   void build() {}
 
+  Future<int> _nextId() async =>
+      system.isWeb ? await panelCoreClient.nextProfileId() : snowflake.id;
+
   void updateCurrentSelectedMap(String groupName, String proxyName) {
     final currentProfile = ref.read(currentProfileProvider);
     if (currentProfile != null &&
@@ -223,8 +226,8 @@ class ProfilesAction extends _$ProfilesAction {
     ref.read(currentPageLabelProvider.notifier).toProfiles();
     final profile = await globalState.loadingRun(
       tag: LoadingTag.profiles,
-      () => _withAgeSecretKey(
-        Profile.normal(label: platformFile.name),
+      () async => _withAgeSecretKey(
+        Profile.normal(id: await _nextId(), label: platformFile.name),
         (profile) => profile.saveFile(
           bytes,
           validate: (path, key) => _core.validateProfile(path, key),
@@ -237,8 +240,8 @@ class ProfilesAction extends _$ProfilesAction {
     }
   }
 
-  int addCustomProfile(String label) {
-    final profile = Profile.custom(label: label);
+  Future<int> addCustomProfile(String label) async {
+    final profile = Profile.custom(id: await _nextId(), label: label);
     putProfile(profile);
     return profile.id;
   }
@@ -303,13 +306,17 @@ class ProfilesAction extends _$ProfilesAction {
   /// [config] replaces what [profileId] holds. The providers it adds are saved
   /// before the groups and rules naming them, and loaded afterwards; the
   /// future completes once they have loaded.
-  Future<void> importCustomProfile(int profileId, CustomProfileImport config) {
+  Future<void> importCustomProfile(
+    int profileId,
+    CustomProfileImport config,
+  ) async {
     final profiles = ref.read(profilesProvider.notifier);
     final clashProviders = ref.read(clashProvidersProvider.notifier);
     final loads = <({String label, Future<void> Function() load})>[];
     for (final (:label, :url, :ageSecretKey, :content)
         in config.proxyProviders) {
       final profile = Profile.normal(
+        id: await _nextId(),
         label: label,
         url: url,
       ).copyWith(ageSecretKey: ageSecretKey);
@@ -387,10 +394,13 @@ class ProfilesAction extends _$ProfilesAction {
     _showProfiles();
     final profile = await globalState.loadingRun(
       tag: LoadingTag.profiles,
-      () => link.isShareLink
-          ? _fromShareLinks(Profile.normal(label: label), [link])
+      () async => link.isShareLink
+          ? _fromShareLinks(Profile.normal(id: await _nextId(), label: label), [
+              link,
+            ])
           : _withAgeSecretKey(
               Profile.normal(
+                id: await _nextId(),
                 label: label,
                 url: link,
               ).copyWith(ageSecretKey: ageSecretKey),
@@ -415,9 +425,15 @@ class ProfilesAction extends _$ProfilesAction {
       [
         for (final link in links)
           if (!link.isShareLink)
-            (profile: Profile.normal(url: link), shareLinks: const <String>[])
+            (
+              profile: Profile.normal(id: await _nextId(), url: link),
+              shareLinks: const <String>[],
+            )
           else if (link == shareLinks.first)
-            (profile: Profile.normal(), shareLinks: shareLinks),
+            (
+              profile: Profile.normal(id: await _nextId()),
+              shareLinks: shareLinks,
+            ),
       ],
       (item) async => putProfile(
         await (item.shareLinks.isEmpty

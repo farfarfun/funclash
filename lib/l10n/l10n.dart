@@ -1020,6 +1020,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Could not save the remote panel settings. Check them again after restarting.`
+  String get panelSettingsSaveFailed {
+    return Intl.message(
+      'Could not save the remote panel settings. Check them again after restarting.',
+      name: 'panelSettingsSaveFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Failed to save the change; it has been rolled back`
   String get databaseWriteFailedTip {
     return Intl.message(

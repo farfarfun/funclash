@@ -128,6 +128,7 @@
   "compatible": "Compatibility mode",
   "notSelectedTip": "The current proxy group cannot be selected",
   "changeProxyFailedTip": "Failed to switch proxy; the previous selection has been restored",
+  "panelSettingsSaveFailed": "Could not save the remote panel settings. Check them again after restarting.",
   "databaseWriteFailedTip": "Failed to save the change; it has been rolled back",
   "tip": "Tip",
   "account": "Account",

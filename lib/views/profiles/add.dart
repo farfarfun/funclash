@@ -98,13 +98,14 @@ class AddProfileView extends ConsumerWidget {
   Future<void> _toAddCustom(BuildContext context, WidgetRef ref) async {
     final profilesAction = ref.read(profilesActionProvider.notifier);
     final label = context.appLocalizations.unnamed;
-    Widget editor() => CustomProfileView(
-      profileId: profilesAction.addCustomProfile(label),
-      isNew: true,
+    final id = await globalState.safeRun(
+      () => profilesAction.addCustomProfile(label),
     );
+    if (id == null || !context.mounted) return;
+    final editor = CustomProfileView(profileId: id, isNew: true);
     final navigator = Navigator.of(context);
     if (!origin.mounted || Navigator.of(origin) == navigator) {
-      unawaited(BaseNavigator.pushReplacement(context, editor()));
+      unawaited(BaseNavigator.pushReplacement(context, editor));
       return;
     }
     // The sheet sits above origin's navigator: a page opened there before the
@@ -113,7 +114,7 @@ class AddProfileView extends ConsumerWidget {
     await whenRouteSettled(context);
     await Future<void>.delayed(_customOpenPause);
     if (origin.mounted) {
-      unawaited(BaseNavigator.push(origin, editor()));
+      unawaited(BaseNavigator.push(origin, editor));
     }
   }
 

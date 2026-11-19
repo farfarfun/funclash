@@ -28,6 +28,9 @@ final class PanelCoreClient extends CoreHandlerInterface {
 
   Stream<int?> get startTimes => _startTimes.stream;
 
+  Future<int> nextProfileId() async =>
+      (await _call<int>('panel.nextProfileId'))!;
+
   Future<int?> getStartTime() => _call<int>('panel.getStartTime');
 
   Future<bool> setRunning(bool running) async =>

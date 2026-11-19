@@ -12,6 +12,17 @@ part 'generated/panel.g.dart';
 
 enum PanelPhase { missing, installing, ready, failed }
 
+void reportPanelSettingsSaveFailure(Object error) {
+  commonPrint.log(
+    'Panel settings: ${compactError(error)}',
+    logLevel: LogLevel.warning,
+  );
+  dialogs.showNotifier(
+    currentAppLocalizations.panelSettingsSaveFailed,
+    level: MessageLevel.error,
+  );
+}
+
 final class PanelStatus {
   final PanelPhase phase;
   final double progress;
@@ -31,8 +42,13 @@ class PanelSetting extends _$PanelSetting {
     if (host == null) {
       return;
     }
-    await host.apply(settings);
-    state = host.settings;
+    try {
+      await host.apply(settings);
+    } catch (error) {
+      reportPanelSettingsSaveFailure(error);
+    } finally {
+      state = host.settings;
+    }
   }
 
   Future<void> update(PanelSettings Function(PanelSettings state) change) =>

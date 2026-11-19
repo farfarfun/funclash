@@ -91,6 +91,14 @@ void main() {
     addTearDown(linked.session.close);
   });
 
+  test('allocates a different host ID for every request', () async {
+    final ids = await Future.wait([
+      client.nextProfileId(),
+      client.nextProfileId(),
+    ]);
+    expect(ids.toSet(), hasLength(2));
+  });
+
   test('a panel starts and stops through the host running state', () async {
     reportPanelLinked(linked.session, config: linked.config);
     expect((await linkedPanelConfig)['currentProfileId'], 369053277628665856);

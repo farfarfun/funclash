@@ -78,6 +78,34 @@ void main() {
       expect(host.settings, store.settings);
     });
 
+    test('can enable the panel after the first token write failed', () async {
+      final store = _Store()..settings = null;
+      var writable = false;
+      final host = PanelHost(
+        readSettings: store.read,
+        writeSettings: (settings) async {
+          if (!writable) throw StateError('disk full');
+          await store.write(settings);
+        },
+      );
+      addTearDown(host.shutdown);
+
+      await expectLater(host.load(config: () => _config), throwsStateError);
+      expect(host.isRunning, isFalse);
+      expect(host.settings.enabled, isFalse);
+      expect(host.settings.token, isNotEmpty);
+
+      writable = true;
+      final retry = host.settings.copyWith(
+        enabled: true,
+        allowLan: false,
+        port: 0,
+      );
+      await host.apply(retry);
+      expect(host.isRunning, isTrue);
+      expect(store.settings, retry);
+    });
+
     test('keeps the token it stored across a load', () async {
       final store = _Store();
 
@@ -138,6 +166,21 @@ void main() {
         Socket.connect(localhost, port, timeout: const Duration(seconds: 2)),
         throwsA(isA<SocketException>()),
       );
+    });
+
+    test('still closes the running panel when saving fails', () async {
+      final host = PanelHost(
+        readSettings: () async => _usable,
+        writeSettings: (_) async => throw StateError('disk full'),
+      );
+      addTearDown(host.shutdown);
+      await host.load(config: () => _config);
+      await expectLater(
+        host.apply(_usable.copyWith(enabled: false)),
+        throwsStateError,
+      );
+      expect(host.settings.enabled, isFalse);
+      expect(host.isRunning, isFalse);
     });
 
     test('converges on the last settings it was handed', () async {

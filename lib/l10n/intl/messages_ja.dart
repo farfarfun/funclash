@@ -1042,6 +1042,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "overrideEntries": MessageLookupByLibrary.simpleMessage("上書き項目"),
     "palette": MessageLookupByLibrary.simpleMessage("パレット"),
+    "panelSettingsSaveFailed": MessageLookupByLibrary.simpleMessage(
+      "リモートパネルの設定を保存できませんでした。再起動後に設定を確認してください。",
+    ),
     "parsePureIp": MessageLookupByLibrary.simpleMessage("純粋なIPを解析"),
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage(
       "純粋な IP を解析すると、IP アドレスしかない接続をスニッフィングします。",

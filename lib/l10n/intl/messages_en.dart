@@ -1217,6 +1217,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "overrideEntries": MessageLookupByLibrary.simpleMessage("Override entries"),
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
+    "panelSettingsSaveFailed": MessageLookupByLibrary.simpleMessage(
+      "Could not save the remote panel settings. Check them again after restarting.",
+    ),
     "parsePureIp": MessageLookupByLibrary.simpleMessage("Parse pure IP"),
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage(
       "Parse pure IP sniffs connections that carry only an IP address.",
