@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.18 (2026-11-19)
+
+**Bug Fixes**
+
+- **android** Keep hidden apps in routing lists and refresh VPN app names when packages change (500578d)
+- **panel** Report settings save failures, end file operations after a disconnect, and prevent duplicate profile IDs (1c942c8)
+- **backup** Back up required local files, restore imported icon sets, and reduce memory use during WebDAV transfers (8330825)
+
+**Performance**
+
+- **core** Make the dashboard connection count cheaper to refresh (6338efa)
+
 ## v1.0.17 (2026-11-10)
 
 **Bug Fixes**

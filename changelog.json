@@ -2,6 +2,44 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.18",
+      "tag": "v1.0.18",
+      "date": "2026-11-19",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "fix",
+          "entries": [
+            {
+              "id": "500578d",
+              "scope": "android",
+              "text": "Keep hidden apps in routing lists and refresh VPN app names when packages change"
+            },
+            {
+              "id": "1c942c8",
+              "scope": "panel",
+              "text": "Report settings save failures, end file operations after a disconnect, and prevent duplicate profile IDs"
+            },
+            {
+              "id": "8330825",
+              "scope": "backup",
+              "text": "Back up required local files, restore imported icon sets, and reduce memory use during WebDAV transfers"
+            }
+          ]
+        },
+        {
+          "type": "perf",
+          "entries": [
+            {
+              "id": "6338efa",
+              "scope": "core",
+              "text": "Make the dashboard connection count cheaper to refresh"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.17",
       "tag": "v1.0.17",
       "date": "2026-11-10",
