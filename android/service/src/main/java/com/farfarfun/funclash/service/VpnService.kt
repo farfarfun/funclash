@@ -1,6 +1,9 @@
 package com.farfarfun.funclash.service
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.ProxyInfo
@@ -10,6 +13,7 @@ import android.os.IBinder
 import androidx.core.content.getSystemService
 import com.farfarfun.funclash.common.AccessControlMode
 import com.farfarfun.funclash.common.GlobalState
+import com.farfarfun.funclash.common.registerReceiverCompat
 import com.farfarfun.funclash.common.R as CommonR
 import com.farfarfun.funclash.core.Core
 import com.farfarfun.funclash.service.models.CIDR
@@ -30,8 +34,27 @@ class VpnService : SystemVpnService(), ManagedService {
     private val tunLock = Any()
     private var tunRunning = false
 
+    @Volatile
+    private var uidPackageNameMap = ConcurrentHashMap<Int, String>()
+    private val packagesChanged = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            uidPackageNameMap = ConcurrentHashMap()
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        registerReceiverCompat(packagesChanged, IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addDataScheme("package")
+        })
+    }
+
     override fun onDestroy() {
         try {
+            unregisterReceiver(packagesChanged)
             cleanup()
         } finally {
             super.onDestroy()
@@ -41,7 +64,6 @@ class VpnService : SystemVpnService(), ManagedService {
     private val connectivity by lazy {
         getSystemService<ConnectivityManager>()
     }
-    private val uidPackageNameMap = ConcurrentHashMap<Int, String>()
 
     private fun resolveUid(
         protocol: Int,
@@ -55,14 +77,15 @@ class VpnService : SystemVpnService(), ManagedService {
     }
 
     private fun resolvePackage(uid: Int): String {
-        val cached = uidPackageNameMap[uid]
+        val names = uidPackageNameMap
+        val cached = names[uid]
         if (cached != null) return cached
         val packageName = packageManager
             .getPackagesForUid(uid)
             ?.firstOrNull()
-            ?.takeIf { it.isNotEmpty() }
             .orEmpty()
-        return uidPackageNameMap.putIfAbsent(uid, packageName) ?: packageName
+        if (packageName.isEmpty()) return ""
+        return names.putIfAbsent(uid, packageName) ?: packageName
     }
 
     private val VpnOptions.tunAddress

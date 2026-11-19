@@ -11,6 +11,7 @@ import 'package:funclash/state.dart';
 import 'package:funclash/views/access.dart';
 import 'package:funclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -47,6 +48,7 @@ class _TestSystemAction extends SystemAction {
   int requestCount = 0;
   int loadCount = 0;
   List<Package> grantedPackages = const [];
+  List<String> chinaPackageNames = const [];
 
   @override
   Future<List<Package>> getPackages() async {
@@ -60,6 +62,9 @@ class _TestSystemAction extends SystemAction {
   @override
   Future<bool> isInstalledAppsPermissionGranted() async =>
       installedAppsPermissionGranted;
+
+  @override
+  Future<List<String>> getChinaPackageNames() async => chinaPackageNames;
 
   @override
   Future<bool> requestInstalledAppsPermission() async {
@@ -378,6 +383,19 @@ void main() {
   });
 
   group('installed apps permission', () {
+    testWidgets('prompts when permission is denied with cached apps', (
+      tester,
+    ) async {
+      systemAction.installedAppsPermissionGranted = false;
+      seedAccessControl(const AccessControlProps(enable: true));
+
+      await pumpAccessView(tester);
+
+      expect(find.text('App list permission required'), findsOneWidget);
+      expect(find.text('Browser'), findsNothing);
+      await teardownView(tester);
+    });
+
     testWidgets('prompts for the permission when the app list is empty', (
       tester,
     ) async {
@@ -465,7 +483,7 @@ void main() {
       await teardownView(tester);
     });
 
-    testWidgets('drops hidden packages and sorts what it persists', (
+    testWidgets('keeps hidden packages and sorts what it persists', (
       tester,
     ) async {
       seedAccessControl(
@@ -488,9 +506,86 @@ void main() {
           .read(vpnSettingProvider)
           .accessControlProps
           .rejectList;
-      expect(saved, ['com.example.browser', 'com.example.chat']);
+      expect(saved, [
+        'com.android.settings',
+        'com.example.browser',
+        'com.example.chat',
+      ]);
 
       await teardownView(tester);
     });
+
+    testWidgets('smart selection keeps hidden choices in both lists', (
+      tester,
+    ) async {
+      systemAction.chinaPackageNames = ['com.example.chat'];
+      seedAccessControl(
+        const AccessControlProps(
+          enable: true,
+          acceptList: ['com.android.settings'],
+          rejectList: ['com.example.offline'],
+        ),
+      );
+      await pumpAccessView(tester);
+
+      await openBarMenu(tester);
+      await tester.tap(find.text('Action'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Smart selection'));
+      await tester.pumpAndSettle();
+
+      final selected = container.read(accessControlStateProvider);
+      expect(selected.acceptList, [
+        'com.android.settings',
+        'com.example.browser',
+      ]);
+      expect(selected.rejectList, ['com.example.offline', 'com.example.chat']);
+
+      await teardownView(tester);
+    });
+  });
+
+  testWidgets('clipboard import keeps only distinct package names', (
+    tester,
+  ) async {
+    seedAccessControl(
+      const AccessControlProps(
+        enable: true,
+        rejectList: ['com.example.browser'],
+      ),
+    );
+    var clipboard = ' com.example.chat\r\ninvalid\ncom.example.chat\n';
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.getData') {
+        return {'text': clipboard};
+      }
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+    await pumpAccessView(tester);
+
+    Future<void> importClipboard() async {
+      await openBarMenu(tester);
+      await tester.tap(find.text('Action'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Import from clipboard'));
+      await tester.pumpAndSettle();
+    }
+
+    await importClipboard();
+    expect(container.read(accessControlStateProvider).currentList, [
+      'com.example.chat',
+    ]);
+
+    clipboard = 'invalid\n  ';
+    await importClipboard();
+    expect(container.read(accessControlStateProvider).currentList, [
+      'com.example.chat',
+    ]);
+
+    await teardownView(tester);
   });
 }

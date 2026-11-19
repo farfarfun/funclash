@@ -54,9 +54,8 @@ class _AccessViewState extends ConsumerState<AccessView>
 
   Future<void> _loadPackages() async {
     final action = ref.read(systemActionProvider.notifier);
-    final packages = await action.getPackages();
-    final granted =
-        packages.isNotEmpty || await action.isInstalledAppsPermissionGranted();
+    await action.getPackages();
+    final granted = await action.isInstalledAppsPermissionGranted();
     if (!mounted || granted == _installedAppsPermissionGranted) {
       return;
     }
@@ -135,29 +134,41 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 
   Future<void> _intelligentSelected() async {
-    final packageNames = ref.read(
-      packagesProvider.select((state) => state.map((item) => item.packageName)),
-    );
-    if (packageNames.isEmpty) {
+    final packages = ref.read(packagesProvider);
+    if (packages.isEmpty) {
       return;
     }
-    final selectedPackageNames =
-        (await globalState.loadingRun<List<String>>(() async {
-          return await app?.getChinaPackageNames() ?? [];
-        }, tag: LoadingTag.access))?.toSet() ??
-        {};
-    final acceptList = packageNames
-        .where((item) => !selectedPackageNames.contains(item))
-        .toList();
-    final rejectList = packageNames
-        .where((item) => selectedPackageNames.contains(item))
-        .toList();
-    ref
-        .read(accessControlStateProvider.notifier)
-        .update(
-          (state) =>
-              state.copyWith(acceptList: acceptList, rejectList: rejectList),
-        );
+    final chinaPackageNames = await globalState.loadingRun<List<String>>(
+      ref.read(systemActionProvider.notifier).getChinaPackageNames,
+      tag: LoadingTag.access,
+    );
+    if (chinaPackageNames == null || !mounted) {
+      return;
+    }
+    final china = chinaPackageNames.toSet();
+    ref.read(accessControlStateProvider.notifier).update((state) {
+      final visible = packages
+          .whereVisible(
+            isFilterSystemApp: state.isFilterSystemApp,
+            isFilterNonInternetApp: state.isFilterNonInternetApp,
+          )
+          .map((item) => item.packageName)
+          .toSet();
+      List<String> withVisible(
+        List<String> list,
+        bool Function(String) include,
+      ) => [
+        ...list.where((item) => !visible.contains(item)),
+        ...visible.where(include),
+      ];
+      return state.copyWith(
+        acceptList: withVisible(
+          state.acceptList,
+          (item) => !china.contains(item),
+        ),
+        rejectList: withVisible(state.rejectList, china.contains),
+      );
+    });
   }
 
   Future<void> _handleToSetting() async {
@@ -204,27 +215,8 @@ class _AccessViewState extends ConsumerState<AccessView>
     }
   }
 
-  AccessControlProps _getRealAccessControlProps(
-    AccessControlProps accessControl,
-  ) {
-    final packages = ref.read(packagesProvider);
-    if (packages.isEmpty) {
-      return accessControl;
-    }
-    final viewPackageNames = packages
-        .whereVisible(
-          isFilterSystemApp: accessControl.isFilterSystemApp,
-          isFilterNonInternetApp: accessControl.isFilterNonInternetApp,
-        )
-        .map((item) => item.packageName)
-        .toSet();
-    return accessControl.copyWithNewList(
-      accessControl.currentList
-          .where((item) => viewPackageNames.contains(item))
-          .toList()
-        ..sort(),
-    );
-  }
+  AccessControlProps _withSortedList(AccessControlProps accessControl) =>
+      accessControl.copyWithNewList([...accessControl.currentList]..sort());
 
   void _handleSave() {
     final accessControl = ref.read(accessControlStateProvider);
@@ -232,7 +224,7 @@ class _AccessViewState extends ConsumerState<AccessView>
         .read(vpnSettingProvider.notifier)
         .update(
           (state) => state.copyWith(
-            accessControlProps: _getRealAccessControlProps(accessControl),
+            accessControlProps: _withSortedList(accessControl),
           ),
         );
   }
@@ -247,14 +239,20 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 
   Future<void> _importFormClipboard() async {
+    final appLocalizations = context.appLocalizations;
     await globalState.safeRun(() async {
       final data = await Clipboard.getData('text/plain');
       final text = data?.text;
       if (text == null) return;
-      final list = text.split('\n');
+      final list = _parsePackageNames(text);
+      if (list.isEmpty) {
+        throw MessageException(
+          '${appLocalizations.clipboardImport}: ${appLocalizations.noData}',
+        );
+      }
       ref
           .read(accessControlStateProvider.notifier)
-          .update((state) => state.copyWithNewList(list.toSet().toList()));
+          .update((state) => state.copyWithNewList(list));
     });
   }
 
@@ -448,8 +446,10 @@ class _AccessViewState extends ConsumerState<AccessView>
     final currentList = accessControl.currentList;
     final viewPackageNameList = viewPackages.map((e) => e.packageName).toList();
     final valueList = currentList.intersection(viewPackageNameList);
-    final needsInstalledAppsPermission =
-        packages.isEmpty && !_installedAppsPermissionGranted;
+    final installedPackageNames = packages
+        .map((item) => item.packageName)
+        .toSet();
+    final needsInstalledAppsPermission = !_installedAppsPermissionGranted;
     final selectAllAction =
         accessControl.enable &&
             !needsInstalledAppsPermission &&
@@ -462,8 +462,8 @@ class _AccessViewState extends ConsumerState<AccessView>
     final hasChanges = ref.watch(
       vpnSettingProvider.select(
         (state) =>
-            _getRealAccessControlProps(state.accessControlProps) !=
-            _getRealAccessControlProps(accessControl),
+            _withSortedList(state.accessControlProps) !=
+            _withSortedList(accessControl),
       ),
     );
     return CommonPopScope(
@@ -502,7 +502,7 @@ class _AccessViewState extends ConsumerState<AccessView>
               _buildBannerBar(
                 enable: accessControl.enable,
                 mode: mode,
-                count: valueList.length,
+                count: currentList.where(installedPackageNames.contains).length,
               ),
               const SizedBox(height: 8),
               Expanded(
@@ -524,6 +524,15 @@ class _AccessViewState extends ConsumerState<AccessView>
     );
   }
 }
+
+final _packageNamePattern = RegExp(r'^[a-zA-Z]\w*(\.[a-zA-Z]\w*)+$');
+
+List<String> _parsePackageNames(String text) => text
+    .split('\n')
+    .map((line) => line.trim())
+    .where(_packageNamePattern.hasMatch)
+    .toSet()
+    .toList();
 
 class PackageListItem extends StatelessWidget {
   final Package package;
