@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.19",
+      "tag": "v1.0.19",
+      "date": "2026-11-21",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "perf",
+          "entries": [
+            {
+              "id": "0018562",
+              "scope": "core,panel,ui",
+              "text": "Improve proxy list, dashboard, event queue, and remote panel performance"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.18",
       "tag": "v1.0.18",
       "date": "2026-11-19",

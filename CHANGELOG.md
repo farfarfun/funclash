@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.19 (2026-11-21)
+
+**Performance**
+
+- **core,panel,ui** Improve proxy list, dashboard, event queue, and remote panel performance (0018562)
+
 ## v1.0.18 (2026-11-19)
 
 **Bug Fixes**
