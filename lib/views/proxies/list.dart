@@ -152,9 +152,7 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
   }) {
     final groupName = group.name;
     final isExpand = currentUnfoldSet.contains(groupName);
-    final rowCount = isExpand
-        ? (group.all.length + columns - 1) ~/ columns
-        : 0;
+    final rowCount = isExpand ? (group.all.length + columns - 1) ~/ columns : 0;
     return SliverMainAxisGroup(
       slivers: [
         PinnedHeaderSliver(
