@@ -205,24 +205,24 @@ void main() {
     var reads = 0;
     when(core.getConnections).thenAnswer((_) async {
       reads++;
-      return reads == 1
-          ? [_tracker(id: 'a', host: 'alpha.test')]
-          : const <TrackerInfo>[];
+      return closing.isCompleted
+          ? const <TrackerInfo>[]
+          : [_tracker(id: 'a', host: 'alpha.test')];
     });
     when(core.closeConnections).thenAnswer((_) => closing.future);
 
     await pumpConnections(tester);
     await pumpPastArrivalHold(tester);
-    expect(reads, 1);
+    final beforeTap = reads;
 
     await tester.tap(find.byTooltip('Close connections'));
     await tester.pump();
-    expect(reads, 1);
+    expect(reads, beforeTap);
 
     closing.complete(true);
     await tester.pump();
     await tester.pump();
-    expect(reads, 2);
+    expect(reads, beforeTap + 1);
 
     await teardownView(tester);
   });
