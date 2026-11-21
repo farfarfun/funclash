@@ -25,7 +25,7 @@ Future<void> safeWritePathAsBytes(
   bool flush = false,
 }) => panelFiles.call<void>('safeWritePathAsBytes', {
   'path': path,
-  'bytes': bytes,
+  'bytes': encodePanelBytes(bytes),
   'flush': flush,
 });
 

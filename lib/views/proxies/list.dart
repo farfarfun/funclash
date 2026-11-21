@@ -152,9 +152,9 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
   }) {
     final groupName = group.name;
     final isExpand = currentUnfoldSet.contains(groupName);
-    final rows = isExpand
-        ? group.all.chunks(columns).toList()
-        : const <List<Proxy>>[];
+    final rowCount = isExpand
+        ? (group.all.length + columns - 1) ~/ columns
+        : 0;
     return SliverMainAxisGroup(
       slivers: [
         PinnedHeaderSliver(
@@ -180,16 +180,17 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
         if (isExpand)
           SliverFixedExtentList(
             itemExtent: getRowExtent(cardType),
-            delegate: SliverChildBuilderDelegate(
-              (_, index) => _buildProxyRow(
+            delegate: SliverChildBuilderDelegate((_, index) {
+              final start = index * columns;
+              final end = min(start + columns, group.all.length);
+              return _buildProxyRow(
                 group: group,
-                proxies: rows[index],
+                proxies: group.all.sublist(start, end),
                 rowIndex: index,
                 columns: columns,
                 cardType: cardType,
-              ),
-              childCount: rows.length,
-            ),
+              );
+            }, childCount: rowCount),
           ),
       ],
     );

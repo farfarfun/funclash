@@ -140,12 +140,28 @@ final class PanelServer {
     final file = root == null || request.method != 'GET'
         ? null
         : panelPageFile(root, request.uri.path);
-    if (file == null || !file.existsSync()) {
+    if (file == null) {
       await _refuse(request, HttpStatus.notFound);
       return;
     }
-    request.response.headers.contentType = panelPageType(file.path);
+    final stat = await file.stat();
+    if (stat.type != FileSystemEntityType.file) {
+      await _refuse(request, HttpStatus.notFound);
+      return;
+    }
+    final etag = 'W/"${stat.size}-${stat.modified.millisecondsSinceEpoch}"';
     request.response.headers.set(HttpHeaders.cacheControlHeader, 'no-cache');
+    request.response.headers.set(HttpHeaders.etagHeader, etag);
+    if (_matchesIfNoneMatch(
+      request.headers.value(HttpHeaders.ifNoneMatchHeader),
+      etag,
+    )) {
+      request.response.statusCode = HttpStatus.notModified;
+      await request.response.close();
+      return;
+    }
+    request.response.headers.contentType = panelPageType(file.path);
+    request.response.headers.contentLength = stat.size;
     await request.response.addStream(file.openRead());
     await request.response.close();
   }
@@ -182,6 +198,23 @@ ContentType panelPageType(String path) => switch (p.extension(path)) {
   '.woff2' => ContentType('font', 'woff2'),
   _ => ContentType.binary,
 };
+
+bool _matchesIfNoneMatch(String? header, String etag) {
+  if (header == null) {
+    return false;
+  }
+  final target = _stripWeakEtag(etag);
+  for (final raw in header.split(',')) {
+    final token = raw.trim();
+    if (token == '*' || _stripWeakEtag(token) == target) {
+      return true;
+    }
+  }
+  return false;
+}
+
+String _stripWeakEtag(String value) =>
+    value.startsWith('W/') ? value.substring(2) : value;
 
 bool _isLiteralHost(String host) {
   final hostname = Uri.tryParse('http://$host')?.host ?? '';

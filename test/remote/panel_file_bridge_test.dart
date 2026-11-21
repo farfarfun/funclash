@@ -157,19 +157,29 @@ void main() {
       );
     });
 
-    test('carries bytes both ways', () async {
+    test(
+      'carries bytes both ways as base64 and accepts legacy lists',
+      () async {
       final root = _root();
       final socket = await _served(root);
       final path = p.join(root, 'bytes.bin');
 
       await _ask(socket, 'safeWritePathAsBytes', {
         'path': path,
-        'bytes': [1, 2, 3],
+        'bytes': encodePanelBytes([1, 2, 3]),
       });
       final read = await _ask(socket, 'readPathAsBytes', {'path': path});
 
-      expect(read.result, [1, 2, 3]);
+      expect(read.result, encodePanelBytes([1, 2, 3]));
       expect(panelBytes(read.result), [1, 2, 3]);
+      expect(panelBytes([1, 2, 3]), [1, 2, 3]);
+
+      await _ask(socket, 'safeWritePathAsBytes', {
+        'path': path,
+        'bytes': [4, 5],
+      });
+      final legacyRead = await _ask(socket, 'readPathAsBytes', {'path': path});
+      expect(panelBytes(legacyRead.result), [4, 5]);
     });
 
     test('answers a stat as numbers and a date', () async {

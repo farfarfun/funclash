@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:funclash/common/common.dart';
 import 'package:funclash/enum/enum.dart';
 import 'package:funclash/icons/glyph.dart';
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -307,6 +308,18 @@ abstract class DnsQueriesState with _$DnsQueriesState {
   }) = _DnsQueriesState;
 }
 
+String? _dnsQuerySearchLocale;
+var _dnsQuerySearchTexts = Expando<String>();
+
+Expando<String> _dnsQuerySearchCache() {
+  final locale = Intl.getCurrentLocale();
+  if (_dnsQuerySearchLocale != locale) {
+    _dnsQuerySearchLocale = locale;
+    _dnsQuerySearchTexts = Expando<String>();
+  }
+  return _dnsQuerySearchTexts;
+}
+
 extension DnsQueriesStateExt on DnsQueriesState {
   bool get isSearching => keywords.isNotEmpty || SearchQuery(query).isNotEmpty;
 
@@ -317,7 +330,11 @@ extension DnsQueriesStateExt on DnsQueriesState {
     }
     return dnsQueries
         .where((dnsQuery) => keywords.every(dnsQuery.tags.contains))
-        .whereMatches(searchQuery, (dnsQuery) => dnsQuery.searchFields)
+        .whereMatches(
+          searchQuery,
+          (dnsQuery) => dnsQuery.searchFields,
+          texts: _dnsQuerySearchCache(),
+        )
         .toList();
   }
 }

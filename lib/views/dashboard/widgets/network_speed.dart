@@ -48,6 +48,7 @@ class NetworkSpeed extends StatelessWidget {
                           traffics.list.safeLast(const Traffic()).speedText,
                           style: context.textTheme.bodySmall?.copyWith(
                             color: color,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ],

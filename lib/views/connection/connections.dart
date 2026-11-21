@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:funclash/common/common.dart';
 import 'package:funclash/core/controller.dart';
 import 'package:funclash/core/method.dart';
@@ -53,7 +51,10 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         glyph: AppGlyphs.clearAll,
         tooltip: context.appLocalizations.closeConnections,
         onPressed: () async {
-          unawaited(_core.closeConnections());
+          await _core.closeConnections();
+          if (!mounted) {
+            return;
+          }
           await _refreshConnections();
         },
       ),
@@ -172,9 +173,9 @@ class _BlockConnectionButton extends StatelessWidget {
         button: true,
         child: InkResponse(
           onTap: onPressed,
-          radius: 14,
+          radius: 18,
           child: SizedBox.square(
-            dimension: 28,
+            dimension: 36,
             child: Center(
               child: GlyphIcon(
                 AppGlyphs.block,

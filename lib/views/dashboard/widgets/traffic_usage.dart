@@ -239,7 +239,9 @@ class _TrafficDataItem extends StatelessWidget {
                 flex: 1,
                 child: Text(
                   value.traffic.value,
-                  style: context.textTheme.bodySmall,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                   maxLines: 1,
                 ),
               ),

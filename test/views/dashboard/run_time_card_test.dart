@@ -31,6 +31,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(Switch), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(RunTimeCard),
+        matching: find.byType(RepaintBoundary),
+      ),
+      findsWidgets,
+    );
     expect(find.text(getTimeText(null)), findsOneWidget);
 
     const runTime = (60 * 60 + 61) * 1000;

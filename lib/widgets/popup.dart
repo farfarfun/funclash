@@ -691,13 +691,12 @@ class _PopupAnchorTrackerState extends State<_PopupAnchorTracker> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
     final anchor = _anchor ??= widget.anchorOf() ?? Rect.zero;
     // padding already gives up the part of the bottom inset the keyboard
     // covers, so the sum keeps clear of the taller of the two.
     return widget.builder(
       anchor,
-      mediaQuery.padding + mediaQuery.viewInsets,
+      MediaQuery.paddingOf(context) + MediaQuery.viewInsetsOf(context),
       widget.child,
     );
   }

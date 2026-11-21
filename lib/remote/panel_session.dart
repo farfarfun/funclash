@@ -38,6 +38,8 @@ final class PanelSession {
 
   void send(PanelFrame frame) => _socket.send(json.encode(frame.toJson()));
 
+  void sendRaw(String encoded) => _socket.send(encoded);
+
   void _receive(String message) {
     final frame = PanelFrame.fromJson(_decode(message));
     if (frame == null) {

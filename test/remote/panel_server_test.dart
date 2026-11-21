@@ -35,20 +35,24 @@ String _pageTree() {
   return root.path;
 }
 
-Future<({int status, String? type, String? cacheControl, String body})> _get(
-  PanelServer server,
-  String path,
-) async {
+Future<
+  ({int status, String? type, String? cacheControl, String? etag, String body})
+>
+_get(PanelServer server, String path, {String? ifNoneMatch}) async {
   final client = HttpClient();
   addTearDown(client.close);
   final request = await client.getUrl(
     Uri.parse('http://$localhost:${server.address!.port}$path'),
   );
+  if (ifNoneMatch != null) {
+    request.headers.set(HttpHeaders.ifNoneMatchHeader, ifNoneMatch);
+  }
   final response = await request.close();
   return (
     status: response.statusCode,
     type: response.headers.contentType?.mimeType,
     cacheControl: response.headers.value(HttpHeaders.cacheControlHeader),
+    etag: response.headers.value(HttpHeaders.etagHeader),
     body: await response.transform(utf8.decoder).join(),
   );
 }
@@ -341,6 +345,35 @@ void main() {
       final server = await _started(pageRoot: _pageTree());
 
       expect((await _get(server, '/nothing.html')).status, HttpStatus.notFound);
+      expect((await _get(server, '/assets')).status, HttpStatus.notFound);
+    });
+
+    test('answers 304 when If-None-Match matches the file ETag', () async {
+      final root = _pageTree();
+      final server = await _started(pageRoot: root);
+
+      final first = await _get(server, '/main.dart.js');
+      expect(first.status, HttpStatus.ok);
+      expect(first.etag, isNotNull);
+
+      final cached = await _get(
+        server,
+        '/main.dart.js',
+        ifNoneMatch: first.etag,
+      );
+      expect(cached.status, HttpStatus.notModified);
+      expect(cached.body, isEmpty);
+      expect(cached.etag, first.etag);
+
+      File(p.join(root, 'main.dart.js')).writeAsStringSync('console.log(22)');
+      final refreshed = await _get(
+        server,
+        '/main.dart.js',
+        ifNoneMatch: first.etag,
+      );
+      expect(refreshed.status, HttpStatus.ok);
+      expect(refreshed.body, 'console.log(22)');
+      expect(refreshed.etag, isNot(first.etag));
     });
 
     test('hands back nothing above the build it serves', () async {

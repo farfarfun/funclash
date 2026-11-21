@@ -53,54 +53,72 @@ class CoreEventManager {
   final _controller = StreamController<CoreEvent>.broadcast();
 
   CoreEventManager._() {
-    _controller.stream.listen((event) {
-      for (final CoreEventListener listener in List.of(_listeners)) {
-        try {
-          switch (event.type) {
-            case CoreEventType.log:
-              listener.onLog(Log.fromJson(event.data));
-              break;
-            case CoreEventType.delay:
-              listener.onDelay(Delay.fromJson(event.data));
-              break;
-            case CoreEventType.request:
-              listener.onRequest(TrackerInfo.fromJson(event.data));
-              break;
-            case CoreEventType.dns:
-              listener.onDns(DnsQuery.fromJson(event.data));
-              break;
-            case CoreEventType.loaded:
-              listener.onLoaded(event.data);
-              break;
-            case CoreEventType.crash:
-              listener.onCrash(event.data);
-              break;
-            case CoreEventType.geoUpdate:
-              final data = event.data as Map<String, dynamic>;
-              listener.onGeoUpdate(
-                data['type'] as String,
-                data['updating'] as bool,
-                data['skipped'] as bool? ?? false,
-                data['error'] as String?,
-              );
-              break;
-            case CoreEventType.routeChanged:
-              listener.onRouteChanged(
-                RouteSnapshot.fromJson(Map<String, Object?>.from(event.data)),
-              );
-              break;
-            case CoreEventType.dialerLoop:
-              listener.onDialerLoop(event.data as String);
-              break;
-          }
-        } catch (error) {
-          commonPrint.log(
-            'Unable to dispatch Core event ${event.type.name}: $error',
-            logLevel: LogLevel.error,
-          );
-        }
+    _controller.stream.listen(_dispatch);
+  }
+
+  void _dispatch(CoreEvent event) {
+    if (_listeners.isEmpty) {
+      return;
+    }
+    final void Function(CoreEventListener listener) deliver;
+    try {
+      deliver = _buildDelivery(event);
+    } catch (error) {
+      commonPrint.log(
+        'Unable to dispatch Core event ${event.type.name}: $error',
+        logLevel: LogLevel.error,
+      );
+      return;
+    }
+    for (final CoreEventListener listener in List.of(_listeners)) {
+      try {
+        deliver(listener);
+      } catch (error) {
+        commonPrint.log(
+          'Unable to dispatch Core event ${event.type.name}: $error',
+          logLevel: LogLevel.error,
+        );
       }
-    });
+    }
+  }
+
+  void Function(CoreEventListener listener) _buildDelivery(CoreEvent event) {
+    switch (event.type) {
+      case CoreEventType.log:
+        final log = Log.fromJson(event.data);
+        return (listener) => listener.onLog(log);
+      case CoreEventType.delay:
+        final delay = Delay.fromJson(event.data);
+        return (listener) => listener.onDelay(delay);
+      case CoreEventType.request:
+        final request = TrackerInfo.fromJson(event.data);
+        return (listener) => listener.onRequest(request);
+      case CoreEventType.dns:
+        final dnsQuery = DnsQuery.fromJson(event.data);
+        return (listener) => listener.onDns(dnsQuery);
+      case CoreEventType.loaded:
+        final providerName = event.data as String;
+        return (listener) => listener.onLoaded(providerName);
+      case CoreEventType.crash:
+        final message = event.data as String;
+        return (listener) => listener.onCrash(message);
+      case CoreEventType.geoUpdate:
+        final data = event.data as Map<String, dynamic>;
+        final type = data['type'] as String;
+        final updating = data['updating'] as bool;
+        final skipped = data['skipped'] as bool? ?? false;
+        final error = data['error'] as String?;
+        return (listener) =>
+            listener.onGeoUpdate(type, updating, skipped, error);
+      case CoreEventType.routeChanged:
+        final snapshot = RouteSnapshot.fromJson(
+          Map<String, Object?>.from(event.data),
+        );
+        return (listener) => listener.onRouteChanged(snapshot);
+      case CoreEventType.dialerLoop:
+        final proxyName = event.data as String;
+        return (listener) => listener.onDialerLoop(proxyName);
+    }
   }
 
   static final CoreEventManager instance = CoreEventManager._();

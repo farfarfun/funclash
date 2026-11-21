@@ -83,6 +83,37 @@ void main() {
       }
       expect(list.list, [3, 4]);
     });
+
+    test('operator [] reads wrapped elements in order and checks bounds', () {
+      final list = FixedList<int>(3);
+      for (var i = 1; i <= 5; i++) {
+        list.add(i);
+      }
+      expect(list[0], 3);
+      expect(list[1], 4);
+      expect(list[2], 5);
+      expect(() => list[-1], throwsRangeError);
+      expect(() => list[3], throwsRangeError);
+    });
+
+    test('appendAll advances revision once and keeps order past cap', () {
+      final initial = FixedList<int>(3, list: [1, 2]);
+      expect(identical(initial.appendAll(const []), initial), isTrue);
+
+      final next = initial.appendAll([3, 4, 5]);
+      expect(next.revision, initial.revision + 1);
+      expect(next.list, [3, 4, 5]);
+    });
+
+    test('clear resets wrap state before later additions', () {
+      final list = FixedList<int>(3, list: [1, 2, 3]);
+      list.add(4);
+      list.clear();
+      list.addAll([10, 20]);
+      expect(list.list, [10, 20]);
+      expect(list[0], 10);
+      expect(list[1], 20);
+    });
   });
 
   group('retainTrimmedHead', () {

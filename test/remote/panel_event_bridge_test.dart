@@ -125,5 +125,26 @@ void main() {
       expect(leaving.pushed, isEmpty);
       expect(staying.pushed, hasLength(1));
     });
+
+    test('releases the event subscription once every panel leaves', () async {
+      final first = _FakeSocket();
+      final second = _FakeSocket();
+      final bridge = PanelEventBridge(events: events.stream);
+      final firstSession = await _session(first);
+      final secondSession = await _session(second);
+
+      expect(events.hasListener, isFalse);
+      bridge.attach(firstSession);
+      bridge.attach(secondSession);
+      expect(events.hasListener, isTrue);
+
+      await firstSession.close();
+      await pumpEventQueue();
+      expect(events.hasListener, isTrue);
+
+      await secondSession.close();
+      await pumpEventQueue();
+      expect(events.hasListener, isFalse);
+    });
   });
 }

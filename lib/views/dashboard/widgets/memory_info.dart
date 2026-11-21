@@ -179,7 +179,12 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
                           Text(
                             traffic.value,
                             style: context.textTheme.bodyMedium?.toLight
-                                .adjustSize(1),
+                                .adjustSize(1)
+                                .copyWith(
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
                           ),
                           const SizedBox(width: 8),
                           Text(

@@ -83,23 +83,28 @@ class ProxyCard extends ConsumerWidget {
       children: [
         Consumer(
           builder: (_, ref, child) {
-            final selectedProxyName = ref.watch(
-              selectedProxyNameProvider(groupName),
+            final isSelected = ref.watch(
+              selectedProxyNameProvider(
+                groupName,
+              ).select((name) => name == proxy.name),
             );
-            return CommonCard(
-              radius: AppCorner.lg,
-              enterActionsOnRight: true,
-              key: key,
-              onPressed: () {
-                selectGroupProxy(
-                  ref,
-                  groupName: groupName,
-                  groupType: groupType,
-                  proxyName: proxy.name,
-                );
-              },
-              isSelected: selectedProxyName == proxy.name,
-              child: child!,
+            return Semantics(
+              selected: isSelected,
+              child: CommonCard(
+                radius: AppCorner.lg,
+                enterActionsOnRight: true,
+                key: key,
+                onPressed: () {
+                  selectGroupProxy(
+                    ref,
+                    groupName: groupName,
+                    groupType: groupType,
+                    proxyName: proxy.name,
+                  );
+                },
+                isSelected: isSelected,
+                child: child!,
+              ),
             );
           },
           child: Container(
@@ -289,18 +294,32 @@ class _DelayTextState extends ConsumerState<_DelayText> {
                       ),
                     }),
                   )
-                : GestureDetector(
-                    onTap: _handleTestCurrentDelay,
-                    child: _withFocusRing(
-                      context,
-                      Text(
-                        delay > 0
-                            ? '$delay ms'
-                            : delayFailureText(delay, context.appLocalizations),
-                        maxLines: 1,
-                        style: context.textTheme.labelSmall?.copyWith(
-                          overflow: TextOverflow.ellipsis,
-                          color: context.colorScheme.delayColor(delay),
+                : Semantics(
+                    button: true,
+                    label: context.appLocalizations.delayTest,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _handleTestCurrentDelay,
+                        child: _withFocusRing(
+                          context,
+                          Text(
+                            delay > 0
+                                ? '$delay ms'
+                                : delayFailureText(
+                                    delay,
+                                    context.appLocalizations,
+                                  ),
+                            maxLines: 1,
+                            style: context.textTheme.labelSmall?.copyWith(
+                              overflow: TextOverflow.ellipsis,
+                              color: context.colorScheme.delayColor(delay),
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -338,8 +357,10 @@ class _ProxyComputedMark extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final proxyName = ref.watch(proxyNameProvider(groupName));
-    if (proxyName != proxy.name) {
+    final isCurrent = ref.watch(
+      proxyNameProvider(groupName).select((name) => name == proxy.name),
+    );
+    if (!isCurrent) {
       return const SizedBox();
     }
     return Container(

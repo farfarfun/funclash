@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:funclash/common/file.dart';
@@ -77,7 +78,13 @@ final class PanelFileBridge implements PanelChannelHandler {
   ) async {
     String other() => arguments['to']! as String;
     String text() => arguments['content']! as String;
-    List<int> bytes() => (arguments['bytes']! as List).cast<int>();
+    List<int> bytes() {
+      final raw = arguments['bytes'];
+      if (raw is String) {
+        return base64Decode(raw);
+      }
+      return (raw! as List).cast<int>();
+    }
 
     switch (method) {
       case 'pathExists':
@@ -89,11 +96,12 @@ final class PanelFileBridge implements PanelChannelHandler {
       case 'isPathAgeEncrypted':
         return isPathAgeEncrypted(path);
       case 'readPathAsBytes':
-        return (await readPathAsBytes(path)).toList(growable: false);
+        return encodePanelBytes(await readPathAsBytes(path));
       case 'readPathAsBytesOrEmpty':
-        return (await readPathAsBytesOrEmpty(path)).toList(growable: false);
+        return encodePanelBytes(await readPathAsBytesOrEmpty(path));
       case 'readPathAsBytesOrNull':
-        return (await readPathAsBytesOrNull(path))?.toList(growable: false);
+        final data = await readPathAsBytesOrNull(path);
+        return data == null ? null : encodePanelBytes(data);
       case 'readPathAsStringOrEmpty':
         return readPathAsStringOrEmpty(path);
       case 'readPathHead':
@@ -143,5 +151,11 @@ final class PanelFileBridge implements PanelChannelHandler {
   }
 }
 
-Uint8List panelBytes(Object? result) =>
-    Uint8List.fromList((result as List? ?? const []).cast<int>());
+String encodePanelBytes(List<int> bytes) => base64Encode(bytes);
+
+Uint8List panelBytes(Object? result) {
+  if (result is String) {
+    return base64Decode(result);
+  }
+  return Uint8List.fromList((result as List? ?? const []).cast<int>());
+}
