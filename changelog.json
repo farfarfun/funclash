@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.20",
+      "tag": "v1.0.20",
+      "date": "2026-11-22",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "7e46d59",
+              "scope": "core",
+              "text": "Update mihomo core to v1.19.34 with upstream security, routing, and protocol fixes"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.19",
       "tag": "v1.0.19",
       "date": "2026-11-21",

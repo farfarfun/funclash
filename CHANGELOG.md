@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.20 (2026-11-22)
+
+**Features**
+
+- **core** Update mihomo core to v1.19.34 with upstream security, routing, and protocol fixes (7e46d59)
+
 ## v1.0.19 (2026-11-21)
 
 **Performance**
