@@ -47,6 +47,9 @@ Widget _page(String title, {IconButtonData? primaryAction}) {
 Future<ProviderContainer> _pumpHome(
   WidgetTester tester, {
   List<Override> overrides = const [],
+  List<Profile> profiles = const [
+    Profile(id: 1, autoUpdateDuration: Duration.zero),
+  ],
   bool settle = true,
 }) async {
   tester.view.physicalSize = _mobileSize;
@@ -54,9 +57,7 @@ Future<ProviderContainer> _pumpHome(
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
     overrides: [
-      profilesProvider.overrideWithValue([
-        const Profile(id: 1, autoUpdateDuration: Duration.zero),
-      ]),
+      profilesProvider.overrideWithValue(profiles),
       suspendProvider.overrideWithValue(false),
       ...overrides,
       navigationItemsStateProvider.overrideWithValue(
@@ -154,10 +155,7 @@ void main() {
   testWidgets('the dock centers alone when there are no profiles', (
     tester,
   ) async {
-    await _pumpHome(
-      tester,
-      overrides: [profilesProvider.overrideWithValue(const [])],
-    );
+    await _pumpHome(tester, profiles: const []);
 
     expect(find.byType(StartButton), findsNothing);
     final alone = tester.getRect(find.byType(FloatingNavigationBar));
