@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.21 (2026-11-26)
+
+**Features**
+
+- **ui** Show the service start/stop control globally in the desktop sidebar footer and across all mobile navigation tabs (edab352)
+
 ## v1.0.20 (2026-11-22)
 
 **Features**

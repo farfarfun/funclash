@@ -2,6 +2,24 @@
   "schemaVersion": 2,
   "versions": [
     {
+      "version": "1.0.21",
+      "tag": "v1.0.21",
+      "date": "2026-11-26",
+      "prerelease": false,
+      "groups": [
+        {
+          "type": "feat",
+          "entries": [
+            {
+              "id": "edab352",
+              "scope": "ui",
+              "text": "Show the service start/stop control globally in the desktop sidebar footer and across all mobile navigation tabs"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "1.0.20",
       "tag": "v1.0.20",
       "date": "2026-11-22",
