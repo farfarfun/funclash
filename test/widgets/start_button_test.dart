@@ -395,12 +395,7 @@ void main() {
     });
 
     testWidgets('shows suspended state in expanded sidebar', (tester) async {
-      await pumpInSidebar(
-        tester,
-        expanded: true,
-        runTime: 1000,
-        suspend: true,
-      );
+      await pumpInSidebar(tester, expanded: true, runTime: 1000, suspend: true);
       await tester.pumpAndSettle();
 
       final context = tester.element(find.byType(StartButton));
