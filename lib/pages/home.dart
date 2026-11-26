@@ -37,6 +37,9 @@ class HomePage extends ConsumerWidget {
                   (state) => state.floatingNavigationBar,
                 ),
               );
+              final hasProfile = ref.watch(
+                profilesProvider.select((profiles) => profiles.isNotEmpty),
+              );
               return _HomePageView(
                 navigationItems: navigationItems,
                 pageBuilder: (_, index) {
@@ -45,7 +48,7 @@ class HomePage extends ConsumerWidget {
                     key: ValueKey(navigationItem.label),
                     item: navigationItem,
                     isMobile: isMobile,
-                    docked: isMobile && floating,
+                    docked: isMobile && (floating || hasProfile),
                     view: navigationItem.builder(context),
                   );
                 },
@@ -78,9 +81,7 @@ class _HomeShell extends ConsumerWidget {
     final hasProfile = ref.watch(
       profilesProvider.select((profiles) => profiles.isNotEmpty),
     );
-    final isDashboard = ref.watch(
-      shownPageLabelProvider.select((label) => label == PageLabel.dashboard),
-    );
+    final showClassicFab = isMobile && !floating && hasProfile;
     return Material(
       color: context.colorScheme.surface,
       child: Column(
@@ -94,11 +95,26 @@ class _HomeShell extends ConsumerWidget {
                     child: BottomInsetScope(
                       inset: isMobile && floating
                           ? NavigationDock.insetOf(context)
+                          : showClassicFab
+                          ? BottomInsetScope.floatingActionButtonInset
                           : 0,
                       child: _BodyPadding(isMobile: isMobile, child: child),
                     ),
                   ),
                 ),
+                if (showClassicFab)
+                  const PositionedDirectional(
+                    end: 0,
+                    bottom: 0,
+                    child: SafeArea(
+                      top: false,
+                      bottom: false,
+                      child: Padding(
+                        padding: EdgeInsets.all(kFloatingActionButtonMargin),
+                        child: StartButton(),
+                      ),
+                    ),
+                  ),
                 PositionedDirectional(
                   start: 0,
                   end: 0,
@@ -118,9 +134,7 @@ class _HomeShell extends ConsumerWidget {
                         onSelected: (index) {
                           _handleToPage(navigationItems[index].label, ref);
                         },
-                        trailing: hasProfile && isDashboard
-                            ? const StartButton()
-                            : null,
+                        trailing: hasProfile ? const StartButton() : null,
                       ),
                     ),
                   ),

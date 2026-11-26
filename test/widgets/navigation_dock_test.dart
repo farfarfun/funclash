@@ -124,7 +124,7 @@ void main() {
     addTearDown(() => navigationPort = null);
   });
 
-  testWidgets('the start button holds the end of the dock on the dashboard', (
+  testWidgets('the start button stays at the end of the dock across pages', (
     tester,
   ) async {
     final container = await _pumpHome(tester);
@@ -145,6 +145,20 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(container.read(currentPageLabelProvider), PageLabel.tools);
+    expect(find.byType(StartButton), findsOneWidget);
+    expect(tester.getRect(find.byType(FloatingNavigationBar)), bar);
+    expect(tester.getRect(find.byType(FloatingActionButton)), button);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the dock centers alone when there are no profiles', (
+    tester,
+  ) async {
+    await _pumpHome(
+      tester,
+      overrides: [profilesProvider.overrideWithValue(const [])],
+    );
+
     expect(find.byType(StartButton), findsNothing);
     final alone = tester.getRect(find.byType(FloatingNavigationBar));
     expect(alone.center.dx, _mobileSize.width / 2);

@@ -10,10 +10,36 @@ const _threeDigitHourThreshold = 100 * 60 * 60 * 1000;
 const _widthAnimationDuration = Duration(milliseconds: 200);
 const _buttonHeight = 56.0;
 const _iconMorphDuration = Duration(milliseconds: 450);
+const _sidebarLabelGap = 12.0;
+const _sidebarIconSize = 24.0;
+const _sidebarVerticalPadding = 2.0;
+final _sidebarButtonShape = AppShape.all(10);
 
-TextStyle? _runTimeTextStyle(BuildContext context) {
+typedef _StartButtonPalette = ({Color background, Color foreground});
+
+_StartButtonPalette _paletteOf(
+  ColorScheme colorScheme, {
+  required bool isStart,
+  required bool suspended,
+}) {
+  if (suspended) {
+    return (
+      background: colorScheme.tertiaryContainer,
+      foreground: colorScheme.onTertiaryContainer,
+    );
+  }
+  if (isStart) {
+    return (background: colorScheme.primary, foreground: colorScheme.onPrimary);
+  }
+  return (
+    background: colorScheme.primaryContainer,
+    foreground: colorScheme.onPrimaryContainer,
+  );
+}
+
+TextStyle? _runTimeTextStyle(BuildContext context, {Color? color}) {
   return context.textTheme.titleMedium?.toSoftBold.copyWith(
-    color: context.colorScheme.onPrimaryContainer,
+    color: color ?? context.colorScheme.onPrimaryContainer,
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 }
@@ -31,8 +57,9 @@ double _computeRunTimeTextWidth(
 
 class RunTimeText extends StatelessWidget {
   final int? timeStamp;
+  final Color? color;
 
-  const RunTimeText({super.key, required this.timeStamp});
+  const RunTimeText({super.key, required this.timeStamp, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +67,7 @@ class RunTimeText extends StatelessWidget {
       getTimeText(timeStamp),
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: _runTimeTextStyle(context),
+      style: _runTimeTextStyle(context, color: color),
     );
   }
 }
@@ -179,6 +206,106 @@ class _StartButtonState extends ConsumerState<StartButton>
     );
   }
 
+  Widget _buildSidebarButton(
+    BuildContext context,
+    SidebarPaneScope scope, {
+    required bool isStart,
+    required bool suspended,
+    required _StartButtonPalette palette,
+  }) {
+    final appLocalizations = context.appLocalizations;
+    final expanded = scope.expanded && scope.progress == 1;
+    final label = suspended
+        ? appLocalizations.suspended
+        : isStart
+        ? getTimeText(_displayRunTime)
+        : appLocalizations.start;
+    final tooltip = expanded
+        ? (isStart ? appLocalizations.stop : '')
+        : suspended
+        ? appLocalizations.suspended
+        : isStart
+        ? '${appLocalizations.stop} · ${getTimeText(_displayRunTime)}'
+        : appLocalizations.start;
+    final textStyle = context.textTheme.bodyMedium?.toSoftBold.copyWith(
+      color: palette.foreground,
+      fontFeatures: isStart && !suspended
+          ? const [FontFeature.tabularFigures()]
+          : null,
+    );
+    final overlay = WidgetStateProperty.fromMap({
+      WidgetState.pressed: Colors.transparent,
+      WidgetState.focused: palette.foreground.withValues(alpha: 0.1),
+      WidgetState.hovered: palette.foreground.withValues(alpha: 0.08),
+      WidgetState.any: Colors.transparent,
+    });
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: scope.sideInset,
+        vertical: _sidebarVerticalPadding,
+      ),
+      child: ElasticPress(
+        child: Semantics(
+          container: true,
+          button: true,
+          child: Material(
+            color: palette.background,
+            animationDuration: context.motionDuration(commonDuration),
+            shape: _sidebarButtonShape,
+            child: InkWell(
+              onTap: handleSwitchStart,
+              customBorder: _sidebarButtonShape,
+              mouseCursor: SystemMouseCursors.click,
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: overlay,
+              child: Tooltip(
+                message: tooltip,
+                excludeFromSemantics: expanded && !isStart,
+                child: IconTheme.merge(
+                  data: IconThemeData(
+                    size: _sidebarIconSize,
+                    color: palette.foreground,
+                  ),
+                  child: SizedBox(
+                    height: scope.itemHeight,
+                    child: ClipRect(
+                      child: OverflowBox(
+                        alignment: AlignmentDirectional.centerStart,
+                        minWidth: scope.rowWidth,
+                        maxWidth: scope.rowWidth,
+                        child: Row(
+                          children: [
+                            SizedBox(width: scope.iconInset),
+                            _buildIcon(isStart, suspended: suspended),
+                            const SizedBox(width: _sidebarLabelGap),
+                            Expanded(
+                              child: Opacity(
+                                opacity: scope.labelOpacity,
+                                alwaysIncludeSemantics: true,
+                                child: Text(
+                                  label,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textStyle,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: _sidebarLabelGap),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasProfile = ref.watch(
@@ -191,10 +318,32 @@ class _StartButtonState extends ConsumerState<StartButton>
     final suspend = ref.watch(suspendProvider);
     final appLocalizations = context.appLocalizations;
     final suspended = isStart && suspend;
+    final palette = _paletteOf(
+      context.colorScheme,
+      isStart: isStart,
+      suspended: suspended,
+    );
+    final sidebarScope = SidebarPaneScope.maybeOf(context);
+    if (sidebarScope != null) {
+      return _buildSidebarButton(
+        context,
+        sidebarScope,
+        isStart: isStart,
+        suspended: suspended,
+        palette: palette,
+      );
+    }
+    final tooltip = suspended
+        ? appLocalizations.suspended
+        : isStart
+        ? appLocalizations.stop
+        : appLocalizations.start;
     if (NavigationDock.isDocked(context)) {
       return FloatingActionButton(
         heroTag: null,
-        tooltip: suspended ? appLocalizations.suspended : null,
+        backgroundColor: palette.background,
+        foregroundColor: palette.foreground,
+        tooltip: tooltip,
         onPressed: handleSwitchStart,
         child: _buildIcon(isStart, suspended: suspended),
       );
@@ -222,6 +371,9 @@ class _StartButtonState extends ConsumerState<StartButton>
             clipBehavior: Clip.antiAlias,
             materialTapTargetSize: MaterialTapTargetSize.padded,
             heroTag: null,
+            backgroundColor: palette.background,
+            foregroundColor: palette.foreground,
+            tooltip: tooltip,
             onPressed: () {
               handleSwitchStart();
             },
@@ -257,11 +409,12 @@ class _StartButtonState extends ConsumerState<StartButton>
                             maxLines: 1,
                             overflow: TextOverflow.visible,
                             style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: context.colorScheme.onPrimaryContainer,
-                                ),
+                                ?.copyWith(color: palette.foreground),
                           )
-                        : RunTimeText(timeStamp: _displayRunTime),
+                        : RunTimeText(
+                            timeStamp: _displayRunTime,
+                            color: palette.foreground,
+                          ),
                   ),
                 ),
               ],

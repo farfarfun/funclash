@@ -11,6 +11,7 @@ import 'package:funclash/remote/panel_config_bridge.dart';
 import 'package:funclash/remote/panel_host.dart';
 import 'package:funclash/remote/panel_link_state.dart';
 import 'package:funclash/state.dart';
+import 'package:funclash/views/dashboard/widgets/start_button.dart';
 import 'package:funclash/widgets/animated_visibility.dart';
 import 'package:funclash/widgets/icon.dart';
 import 'package:funclash/widgets/sidebar.dart';
@@ -259,6 +260,9 @@ class _Sidebar extends ConsumerWidget {
     final sidebarExpanded = ref.watch(
       appSettingProvider.select((state) => state.sidebarExpanded),
     );
+    final hasProfile = ref.watch(
+      profilesProvider.select((profiles) => profiles.isNotEmpty),
+    );
     final version = ref.watch(versionProvider);
     return NavigationSidebar(
       destinations: [
@@ -282,6 +286,7 @@ class _Sidebar extends ConsumerWidget {
         isMacOS: system.isMacOS,
         version: version,
       ),
+      footer: hasProfile ? const StartButton() : null,
     );
   }
 }

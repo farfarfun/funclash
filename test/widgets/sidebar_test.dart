@@ -32,6 +32,7 @@ Widget _sidebar({
   VoidCallback? onToggle,
   Size windowControls = Size.zero,
   EdgeInsets safePadding = EdgeInsets.zero,
+  Widget? footer,
 }) {
   return TestApp(
     child: Scaffold(
@@ -49,6 +50,7 @@ Widget _sidebar({
                   onSelected: onSelected ?? (_) {},
                   onToggle: onToggle,
                   windowControls: windowControls,
+                  footer: footer,
                 ),
               ),
             ),
@@ -389,5 +391,23 @@ void main() {
       await tester.pump();
       expect(find.text('Proxies'), findsOneWidget);
     });
+
+    testWidgets(
+      'the footer renders inside both the rail and the overlay pane',
+      (tester) async {
+        final footer = Builder(
+          builder: (context) {
+            final scope = SidebarPaneScope.maybeOf(context)!;
+            return Text('footer:${scope.expanded}');
+          },
+        );
+        await tester.pumpWidget(_sidebar(expanded: false, footer: footer));
+        expect(find.text('footer:false'), findsOneWidget);
+
+        await openOverlay(tester);
+        expect(find.text('footer:false'), findsOneWidget);
+        expect(find.text('footer:true'), findsOneWidget);
+      },
+    );
   });
 }

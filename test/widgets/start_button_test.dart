@@ -264,16 +264,175 @@ void main() {
       expect(find.byGlyph(AppGlyphs.wifiOff), findsOneWidget);
     });
 
-    testWidgets('keeps the pause glyph while running normally', (tester) async {
+    testWidgets('keeps the pause glyph and running colors while running', (
+      tester,
+    ) async {
       await pumpDocked(tester);
 
-      expect(
-        tester
-            .widget<FloatingActionButton>(find.byType(FloatingActionButton))
-            .tooltip,
-        isNull,
+      final context = tester.element(find.byType(StartButton));
+      final fab = tester.widget<FloatingActionButton>(
+        find.byType(FloatingActionButton),
       );
+      expect(fab.tooltip, context.appLocalizations.stop);
+      expect(fab.backgroundColor, context.colorScheme.primary);
+      expect(fab.foregroundColor, context.colorScheme.onPrimary);
       expect(find.byGlyph(AppGlyphs.wifiOff), findsNothing);
+    });
+
+    testWidgets('uses container colors when stopped', (tester) async {
+      final container = await pumpDocked(tester);
+      container.read(runTimeProvider.notifier).value = null;
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(StartButton));
+      final fab = tester.widget<FloatingActionButton>(
+        find.byType(FloatingActionButton),
+      );
+      expect(fab.tooltip, context.appLocalizations.start);
+      expect(fab.backgroundColor, context.colorScheme.primaryContainer);
+      expect(fab.foregroundColor, context.colorScheme.onPrimaryContainer);
+    });
+
+    testWidgets('uses tertiary container colors when suspended', (
+      tester,
+    ) async {
+      await pumpDocked(tester, suspend: true);
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(StartButton));
+      final fab = tester.widget<FloatingActionButton>(
+        find.byType(FloatingActionButton),
+      );
+      expect(fab.backgroundColor, context.colorScheme.tertiaryContainer);
+      expect(fab.foregroundColor, context.colorScheme.onTertiaryContainer);
+    });
+  });
+
+  group('sidebar', () {
+    Future<ProviderContainer> pumpInSidebar(
+      WidgetTester tester, {
+      required bool expanded,
+      int? runTime,
+      bool suspend = false,
+    }) async {
+      final container = ProviderContainer(
+        overrides: [
+          initProvider.overrideWithBuild((_, _) => true),
+          profilesProvider.overrideWithValue([
+            const Profile(id: 1, autoUpdateDuration: Duration.zero),
+          ]),
+          suspendProvider.overrideWithValue(suspend),
+          setupActionProvider.overrideWith(_RecordingSetupAction.new),
+        ],
+      );
+      addTearDown(container.dispose);
+      globalState.container = container;
+      container.read(runTimeProvider.notifier).value = runTime;
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: TestApp(
+            includeNavigatorKey: false,
+            setTheme: false,
+            homeBuilder: (child) => Scaffold(
+              body: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: child,
+              ),
+            ),
+            child: NavigationSidebar(
+              destinations: const [
+                SidebarDestination(glyph: AppGlyphs.dashboard, label: 'Home'),
+              ],
+              selectedIndex: 0,
+              expanded: expanded,
+              onSelected: (_) {},
+              onToggle: () {},
+              footer: const StartButton(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return container;
+    }
+
+    testWidgets('shows label, runtime, and toggles on tap', (tester) async {
+      final container = await pumpInSidebar(tester, expanded: true);
+      final context = tester.element(find.byType(StartButton));
+      final action =
+          container.read(setupActionProvider.notifier) as _RecordingSetupAction;
+
+      expect(find.text(context.appLocalizations.start), findsOneWidget);
+      var material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(StartButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, context.colorScheme.primaryContainer);
+
+      await tester.tap(find.byType(StartButton));
+      await tester.pumpAndSettle();
+      expect(action.requests, [true]);
+
+      container.read(runTimeProvider.notifier).value = const Duration(
+        hours: 2,
+        minutes: 13,
+        seconds: 8,
+      ).inMilliseconds;
+      await tester.pumpAndSettle();
+
+      expect(find.text('02:13:08'), findsOneWidget);
+      material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(StartButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, context.colorScheme.primary);
+    });
+
+    testWidgets('shows suspended state in expanded sidebar', (tester) async {
+      await pumpInSidebar(
+        tester,
+        expanded: true,
+        runTime: 1000,
+        suspend: true,
+      );
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(StartButton));
+      expect(find.text(context.appLocalizations.suspended), findsOneWidget);
+      expect(find.byGlyph(AppGlyphs.wifiOff), findsOneWidget);
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(StartButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, context.colorScheme.tertiaryContainer);
+    });
+
+    testWidgets('uses status tooltips when collapsed', (tester) async {
+      await pumpInSidebar(
+        tester,
+        expanded: false,
+        runTime: const Duration(
+          hours: 1,
+          minutes: 2,
+          seconds: 3,
+        ).inMilliseconds,
+      );
+      final context = tester.element(find.byType(StartButton));
+      final tooltip = tester.widget<Tooltip>(
+        find.descendant(
+          of: find.byType(StartButton),
+          matching: find.byType(Tooltip),
+        ),
+      );
+      expect(tooltip.message, '${context.appLocalizations.stop} · 01:02:03');
     });
   });
 }

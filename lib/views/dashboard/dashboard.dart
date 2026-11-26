@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'widget_metrics.dart';
 import 'widget_registry.dart';
 import 'widgets/core_status_button.dart';
-import 'widgets/start_button.dart';
 
 typedef _IsEditWidgetBuilder = Widget Function(bool isEdit);
 
@@ -159,9 +158,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   @override
   Widget build(BuildContext context) {
     final dashboardState = ref.watch(dashboardStateProvider);
-    final hasProfile = ref.watch(
-      profilesProvider.select((state) => state.isNotEmpty),
-    );
     final spacing = cardSpacing;
     final children = [
       ...dashboardState.dashboardWidgets
@@ -174,7 +170,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       (isEdit) => CommonScaffold(
         title: context.appLocalizations.dashboard,
         actions: _buildActions(isEdit),
-        floatingActionButton: hasProfile ? const StartButton() : null,
         body: Builder(
           builder: (context) {
             final padding = const EdgeInsets.all(16).copyWith(

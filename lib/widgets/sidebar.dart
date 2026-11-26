@@ -28,6 +28,40 @@ class SidebarDestination {
   final String label;
 }
 
+class SidebarPaneScope extends InheritedWidget {
+  const SidebarPaneScope({
+    super.key,
+    required this.progress,
+    required this.expanded,
+    required this.sideInset,
+    required this.itemHeight,
+    required this.rowWidth,
+    required this.iconInset,
+    required super.child,
+  });
+
+  final double progress;
+  final bool expanded;
+  final double sideInset;
+  final double itemHeight;
+  final double rowWidth;
+  final double iconInset;
+
+  double get labelOpacity => ((progress - 0.4) / 0.6).clamp(0.0, 1.0);
+
+  static SidebarPaneScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SidebarPaneScope>();
+
+  @override
+  bool updateShouldNotify(SidebarPaneScope oldWidget) =>
+      progress != oldWidget.progress ||
+      expanded != oldWidget.expanded ||
+      sideInset != oldWidget.sideInset ||
+      itemHeight != oldWidget.itemHeight ||
+      rowWidth != oldWidget.rowWidth ||
+      iconInset != oldWidget.iconInset;
+}
+
 /// Where the sidebar cannot widen in place, [onToggle] is null and the toggle
 /// opens the expanded pane over the content instead.
 ///
@@ -42,6 +76,7 @@ class NavigationSidebar extends StatefulWidget {
     required this.onSelected,
     this.onToggle,
     this.windowControls = Size.zero,
+    this.footer,
   });
 
   final List<SidebarDestination> destinations;
@@ -50,6 +85,7 @@ class NavigationSidebar extends StatefulWidget {
   final ValueChanged<int> onSelected;
   final VoidCallback? onToggle;
   final Size windowControls;
+  final Widget? footer;
 
   @override
   State<NavigationSidebar> createState() => _NavigationSidebarState();
@@ -132,6 +168,7 @@ class _NavigationSidebarState extends State<NavigationSidebar>
                 _closeOverlay();
               },
               onToggle: _closeOverlay,
+              footer: widget.footer,
             ),
           ),
         );
@@ -149,6 +186,7 @@ class _NavigationSidebarState extends State<NavigationSidebar>
             selectedIndex: widget.selectedIndex,
             onSelected: widget.onSelected,
             onToggle: _handleToggle,
+            footer: widget.footer,
           ),
         ),
       ),
@@ -251,6 +289,7 @@ class _SidebarPane extends StatelessWidget {
     required this.selectedIndex,
     required this.onSelected,
     required this.onToggle,
+    this.footer,
   });
 
   final double progress;
@@ -260,6 +299,7 @@ class _SidebarPane extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelected;
   final VoidCallback onToggle;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -348,6 +388,18 @@ class _SidebarPane extends StatelessWidget {
               ),
             ),
           ),
+          if (footer != null) ...[
+            const SizedBox(height: _toggleGap),
+            SidebarPaneScope(
+              progress: progress,
+              expanded: expanded,
+              sideInset: sideInset,
+              itemHeight: itemHeight,
+              rowWidth: rowWidth,
+              iconInset: iconInset,
+              child: footer!,
+            ),
+          ],
           const SizedBox(height: _verticalInset),
         ],
       ),

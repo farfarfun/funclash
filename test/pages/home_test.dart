@@ -10,6 +10,7 @@ import 'package:funclash/pages/home.dart';
 import 'package:funclash/providers/providers.dart';
 import 'package:funclash/state.dart';
 import 'package:funclash/views/config/general.dart';
+import 'package:funclash/views/dashboard/widgets/start_button.dart';
 import 'package:funclash/views/tools.dart';
 import 'package:funclash/widgets/widgets.dart';
 import 'package:funclash/views/navigation.dart';
@@ -1284,6 +1285,150 @@ void main() {
         find.text('page:profiles').hitTestable(),
         findsNothing,
         reason: 'focus traversal scrolled the PageView to another page',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('desktop sidebar keeps StartButton visible across pages', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final container = ProviderContainer(
+      overrides: [
+        profilesProvider.overrideWithValue([
+          const Profile(id: 1, autoUpdateDuration: Duration.zero),
+        ]),
+        suspendProvider.overrideWithValue(false),
+        navigationItemsStateProvider.overrideWithValue(
+          NavigationItemsState(
+            value: [
+              NavigationItem(
+                glyph: AppGlyphs.dashboard,
+                label: PageLabel.dashboard,
+                builder: (_) => const Text('page:dashboard'),
+              ),
+              NavigationItem(
+                glyph: AppGlyphs.tools,
+                label: PageLabel.tools,
+                builder: (_) => const Text('page:tools'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    globalState.container = container;
+    container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(includeNavigatorKey: false, child: HomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final sidebarStart = find.descendant(
+      of: find.byType(NavigationSidebar),
+      matching: find.byType(StartButton),
+    );
+    expect(sidebarStart, findsOneWidget);
+
+    await tester.tap(_glyph(AppGlyphs.tools));
+    await tester.pumpAndSettle();
+    expect(container.read(currentPageLabelProvider), PageLabel.tools);
+    expect(sidebarStart, findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'classic mobile bar keeps StartButton global and lifts primaryAction',
+    (tester) async {
+      tester.view.physicalSize = const Size(500, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final container = ProviderContainer(
+        overrides: [
+          profilesProvider.overrideWithValue([
+            const Profile(id: 1, autoUpdateDuration: Duration.zero),
+          ]),
+          suspendProvider.overrideWithValue(false),
+          navigationItemsStateProvider.overrideWithValue(
+            NavigationItemsState(
+              value: [
+                NavigationItem(
+                  glyph: AppGlyphs.dashboard,
+                  label: PageLabel.dashboard,
+                  builder: (_) => CommonScaffold(
+                    title: 'Dashboard',
+                    body: Builder(
+                      builder: (context) => Text(
+                        'dashboard inset:${BottomInsetScope.of(context)}',
+                      ),
+                    ),
+                  ),
+                ),
+                NavigationItem(
+                  glyph: AppGlyphs.profiles,
+                  label: PageLabel.profiles,
+                  builder: (_) => CommonScaffold(
+                    title: 'Profiles',
+                    primaryAction: IconButtonData(
+                      glyph: AppGlyphs.add,
+                      onPressed: () {},
+                      tooltip: 'Add',
+                    ),
+                    body: const Text('page:profiles'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      globalState.container = container;
+      container.read(viewSizeProvider.notifier).value = const Size(500, 800);
+      container
+          .read(appSettingProvider.notifier)
+          .update((state) => state.copyWith(floatingNavigationBar: false));
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const TestApp(includeNavigatorKey: false, child: HomePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(StartButton), findsOneWidget);
+      expect(
+        find.text(
+          'dashboard inset:${BottomInsetScope.floatingActionButtonInset}',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(_glyph(AppGlyphs.profiles));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(StartButton), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byTooltip('Add'),
+        ),
+        findsOneWidget,
       );
       expect(tester.takeException(), isNull);
     },

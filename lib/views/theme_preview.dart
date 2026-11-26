@@ -310,11 +310,6 @@ class MiniScreen extends StatelessWidget {
   final TabAnimation tabAnimation;
   final ValueChanged<int>? onSelect;
 
-  bool get _hasFab {
-    final previous = this.previous;
-    return previous == null || progress > 0.5 ? selected == 0 : previous == 0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final sketch = SizedBox.expand(
@@ -326,7 +321,6 @@ class MiniScreen extends StatelessWidget {
           previous: previous,
           progress: progress,
           tabAnimation: tabAnimation,
-          hasFab: _hasFab,
         ),
       ),
     );
@@ -339,7 +333,6 @@ class MiniScreen extends StatelessWidget {
         final geometry = _MiniGeometry(
           constraints.biggest,
           floatingBar: floatingBar,
-          hasFab: _hasFab,
         );
         return Stack(
           children: [
@@ -403,14 +396,14 @@ class _DiagonalClipper extends CustomClipper<Path> {
 }
 
 class _MiniGeometry {
-  _MiniGeometry(this.size, {required bool floatingBar, required bool hasFab})
+  _MiniGeometry(this.size, {required bool floatingBar})
     : unit = size.width / 20 {
     margin = unit * 1.5;
     fabSize = unit * 3.2;
     final barHeight = floatingBar ? unit * 3.2 : unit * 3.6;
     pageBottom = floatingBar ? 0 : barHeight;
     if (floatingBar) {
-      final right = margin + (hasFab ? fabSize + unit * 0.6 : 0);
+      final right = margin + fabSize + unit * 0.6;
       bar = Rect.fromLTWH(
         margin,
         size.height - margin - barHeight,
@@ -451,7 +444,6 @@ class _MiniScreenPainter extends CustomPainter {
     required this.previous,
     required this.progress,
     required this.tabAnimation,
-    required this.hasFab,
   });
 
   final ColorScheme colorScheme;
@@ -460,7 +452,6 @@ class _MiniScreenPainter extends CustomPainter {
   final int? previous;
   final double progress;
   final TabAnimation tabAnimation;
-  final bool hasFab;
 
   static _MiniPage _pageOf(int index) =>
       index.isEven ? _MiniPage.cards : _MiniPage.list;
@@ -483,11 +474,7 @@ class _MiniScreenPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final geometry = _MiniGeometry(
-      size,
-      floatingBar: floatingBar,
-      hasFab: hasFab,
-    );
+    final geometry = _MiniGeometry(size, floatingBar: floatingBar);
     canvas.drawRect(Offset.zero & size, Paint()..color = colorScheme.surface);
     canvas.save();
     canvas.clipRect(Offset.zero & size, doAntiAlias: false);
@@ -514,7 +501,7 @@ class _MiniScreenPainter extends CustomPainter {
     }
     canvas.restore();
     final unit = geometry.unit;
-    if (hasFab && !floatingBar) {
+    if (!floatingBar) {
       _block(
         canvas,
         geometry.fab,
@@ -543,7 +530,7 @@ class _MiniScreenPainter extends CustomPainter {
       );
     }
     _paintDestinations(canvas, geometry.bar, unit);
-    if (hasFab && floatingBar) {
+    if (floatingBar) {
       _fill(canvas, geometry.fab, colorScheme.primaryContainer, AppShape.full);
     }
   }
@@ -724,7 +711,6 @@ class _MiniScreenPainter extends CustomPainter {
         oldDelegate.selected != selected ||
         oldDelegate.previous != previous ||
         oldDelegate.progress != progress ||
-        oldDelegate.tabAnimation != tabAnimation ||
-        oldDelegate.hasFab != hasFab;
+        oldDelegate.tabAnimation != tabAnimation;
   }
 }
